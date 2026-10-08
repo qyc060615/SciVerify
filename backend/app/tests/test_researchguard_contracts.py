@@ -1,5 +1,7 @@
 """Domain and boundary contracts, independent of future integration libraries."""
 import ast
+import inspect
+import anyio
 from pathlib import Path
 
 import pytest
@@ -184,11 +186,11 @@ def test_invalid_legacy_verdict_or_processing_status_cannot_be_silently_mapped()
 
 def test_ports_accept_domain_only_implementations():
     class FixtureParser:
-        def parse(self, manuscript: Manuscript) -> ParsedManuscript:
+        async def parse(self, manuscript: Manuscript) -> ParsedManuscript:
             return ParsedManuscript(manuscript=manuscript)
 
     class FixtureRetriever:
-        def retrieve(self, claim: AtomicClaim, source_document: SourceDocument, top_k: int) -> list[EvidenceChunk]:
+        async def retrieve(self, claim: AtomicClaim, source_document: SourceDocument, top_k: int) -> list[EvidenceChunk]:
             if top_k <= 0:
                 raise ValueError("top_k must be positive")
             return [EvidenceChunk(id="e1", source_document_id=source_document.id, text=claim.text)]
@@ -198,10 +200,16 @@ def test_ports_accept_domain_only_implementations():
     manuscript = Manuscript(id="m1", content_locator="fixture.pdf")
     claim = AtomicClaim(id="c1", manuscript_id="m1", text="Claim", paragraph_id="p1", context_id="ctx1")
     source = SourceDocument(id="s1", reference_id="r1")
-    assert parser.parse(manuscript).manuscript == manuscript
-    assert retriever.retrieve(claim, source, 1)[0].source_document_id == source.id
-    with pytest.raises(ValueError):
-        retriever.retrieve(claim, source, 0)
+    assert inspect.iscoroutinefunction(ManuscriptParser.parse)
+    assert inspect.iscoroutinefunction(EvidenceRetriever.retrieve)
+
+    async def exercise():
+        assert (await parser.parse(manuscript)).manuscript == manuscript
+        assert (await retriever.retrieve(claim, source, 1))[0].source_document_id == source.id
+        with pytest.raises(ValueError):
+            await retriever.retrieve(claim, source, 0)
+
+    anyio.run(exercise)
 
 
 def test_core_dependency_direction():

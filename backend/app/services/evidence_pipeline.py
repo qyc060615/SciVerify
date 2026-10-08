@@ -18,6 +18,9 @@ def retrieve_evidence_for_claim(
     doi: str,
 ) -> EvidenceRetrievalResponse:
     """Retrieve ranked evidence for a claim and DOI using the Milestone 3/4 pipeline."""
+    from app.config import EvidenceEngineConfigurationError, get_evidence_engine
+    if get_evidence_engine() != "lexical":
+        raise EvidenceEngineConfigurationError("PaperQA2 requires the async evidence entrypoint.")
     processed_claim = preprocess_claim(claim)
     normalize_doi(doi)
     paper_result = retrieve_paper(doi)
@@ -116,3 +119,47 @@ def build_evidence_response(
         total_chunks_considered=len(chunks),
     )
 
+
+
+async def aretrieve_evidence_for_claim(claim: str, doi: str) -> EvidenceRetrievalResponse:
+    """Async evidence application path; existing lexical implementation is intact."""
+    from anyio import to_thread
+    from app.config import EvidenceEngineConfigurationError, EVIDENCE_TOP_K, get_evidence_engine
+
+    engine = get_evidence_engine()
+    if engine == "lexical":
+        return await to_thread.run_sync(retrieve_evidence_for_claim, claim, doi)
+
+    # Parse only the already accepted source. Never give PaperQA a DOI to discover.
+    from app.researchguard.adapters.paperqa2 import PaperQA2Config, PaperQA2EvidenceRetriever, PaperQA2RetrievalError
+    from app.researchguard.adapters.sciverify import accepted_source_to_domain, evidence_to_legacy, standalone_claim_to_domain
+    import os
+
+    processed = preprocess_claim(claim)
+    normalize_doi(doi)
+    try:
+        top_k = int(os.getenv("RESEARCHGUARD_EVIDENCE_TOP_K", str(EVIDENCE_TOP_K)))
+        if top_k <= 0:
+            raise ValueError("Nonpositive top_k")
+    except ValueError as exc:
+        raise EvidenceEngineConfigurationError("RESEARCHGUARD_EVIDENCE_TOP_K must be a positive integer.") from exc
+    config = PaperQA2Config.from_environment()
+    paper_result = await to_thread.run_sync(retrieve_paper, doi)
+    if paper_result.status != PaperRetrievalStatus.SUCCESS or not paper_result.chunks:
+        # Preserve retrieval-status semantics and never invoke lexical ranking.
+        return build_evidence_response(processed, paper_result)
+    try:
+        source, source_chunks = accepted_source_to_domain(paper_result)
+        atomic_claim = standalone_claim_to_domain(processed, source)
+        retriever = PaperQA2EvidenceRetriever(source_chunks, config)
+        chunks = await retriever.retrieve(atomic_claim, source, top_k)
+        evidence = evidence_to_legacy(chunks, processed)
+    except (ValueError, TypeError) as exc:
+        raise PaperQA2RetrievalError("paperqa2_source_or_mapping_failed") from exc
+    return EvidenceRetrievalResponse(
+        status=EvidenceRetrievalStatus.SUCCESS if evidence else EvidenceRetrievalStatus.NO_RELEVANT_EVIDENCE,
+        claim=processed.original,
+        paper=EvidencePaperSummary(paper_id=paper_result.paper.paper_id, doi=paper_result.paper.doi, title=paper_result.paper.title),
+        evidence=evidence, total_chunks_considered=len(source_chunks),
+        detail=None if evidence else "PaperQA2 returned no relevant evidence from the accepted source.",
+    )

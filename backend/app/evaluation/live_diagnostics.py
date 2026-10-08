@@ -209,7 +209,7 @@ def should_retry(category: LiveFailureCategory, attempt: int) -> bool:
     return category in RETRYABLE_CATEGORIES
 
 
-def execute_with_retry[T](
+def execute_with_retry(
     fn: Callable[[], T],
     case_id: str,
 ) -> tuple[T, LiveFailureCategory | None, str | None, int]:

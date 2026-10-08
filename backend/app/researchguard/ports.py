@@ -1,11 +1,11 @@
-"""Synchronous ports matching the current service style; no runtime wiring."""
+"""Async integration ports; external I/O is awaited by application services."""
 from typing import Protocol
 
 from .domain import AtomicClaim, EvidenceChunk, Manuscript, ParsedManuscript, SourceDocument
 
 
 class EvidenceRetriever(Protocol):
-    def retrieve(
+    async def retrieve(
         self, claim: AtomicClaim, source_document: SourceDocument, top_k: int
     ) -> list[EvidenceChunk]:
         """Return at most top_k ranked chunks from this source; top_k must be positive.
@@ -19,7 +19,7 @@ class EvidenceRetriever(Protocol):
 
 
 class ManuscriptParser(Protocol):
-    def parse(self, manuscript: Manuscript) -> ParsedManuscript:
+    async def parse(self, manuscript: Manuscript) -> ParsedManuscript:
         """Read the locator and return structure preserving manuscript identity.
 
         Paragraph order is zero-based and pages are one-based when known.

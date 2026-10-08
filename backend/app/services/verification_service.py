@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 
-from app.schemas.evidence import EvidenceRetrievalStatus
+from app.schemas.evidence import EvidenceRetrievalResponse, EvidenceRetrievalStatus
 from app.schemas.verification import (
     VerificationResponse,
     VerificationStatus,
@@ -56,6 +56,11 @@ def analyze_verification(
     logger.info("claim_preprocessed")
 
     evidence_response = retrieve_evidence_for_claim(processed_claim.original, doi)
+    return _verify_evidence(processed_claim.original, evidence_response, llm=llm)
+
+
+def _verify_evidence(claim: str, evidence_response: EvidenceRetrievalResponse, *, llm: LLMProvider | None = None) -> VerificationResponse:
+    processed_claim = preprocess_claim(claim)
     paper = evidence_response.paper
 
     if evidence_response.status == EvidenceRetrievalStatus.NOT_FOUND:
@@ -164,6 +169,18 @@ def analyze_verification(
         validation_warnings=validated.validation_warnings or None,
         claim_traceability=traceability,
     )
+
+
+async def analyze_verification_async(
+    claim: str, doi: str, *, llm: LLMProvider | None = None,
+) -> VerificationResponse:
+    """Await evidence engine, then offload the unchanged synchronous verifier."""
+    from functools import partial
+    from anyio import to_thread
+    from app.services.evidence_pipeline import aretrieve_evidence_for_claim
+
+    evidence_response = await aretrieve_evidence_for_claim(claim, doi)
+    return await to_thread.run_sync(partial(_verify_evidence, claim, evidence_response, llm=llm))
 
 
 __all__ = [

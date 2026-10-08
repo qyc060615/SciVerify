@@ -1,6 +1,29 @@
 # Repository Baseline
 
-Audit date: 2026-10-08 (Asia/Shanghai). Milestone: M0.
+Current milestone: M1. Formal development/test environment is Conda
+researchguard, Python 3.11.17, executable D:\conda_envs\researchguard\python.exe.
+The shell defaults to a separate Python 3.12; M1 commands prepend the formal
+Conda executable/Scripts directories to PATH and confirm python --version and
+where.exe python. No new virtual environment was created. The ignored M0
+backend/.venv directory was verified and removed; M1 never uses it.
+
+M1 began on develop at M0 commit 4a6dd7870111b989f4baa8e60dc02466cb318229 with
+a clean working tree. The inherited SciVerify SHA below remains unchanged.
+The first Python 3.11 baseline attempt found 7 collection errors caused by the
+inherited execute_with_retry[T] Python 3.12 syntax. Changing only that signature
+to use its existing TypeVar restored all 511 M0 tests on Python 3.11.
+
+M1 validation: paper-qa==2026.8.12 installed and its actual release APIs exercised
+with a local fixture and deterministic models (46 new tests). Clean target
+installation of requirements.txt succeeded, independent -S Python imports used
+that target, and pip check found no broken requirements. FastAPI/Pydantic/httpx
+versions did not change. Final full regression: 557 passed (511 existing + 46 new), 1 dependency deprecation warning, 15.55s. Frontend
+npm run build succeeded with unchanged asset names/sizes and the existing bundle
+warning. See [PaperQA2 integration](docs/PAPERQA2_INTEGRATION.md) for implemented
+paths, configuration, guarantees and limits.
+
+The following table is the historical M0 validation record, not the formal
+project environment. Audit date: 2026-10-08 (Asia/Shanghai). Milestone: M0.
 
 | Item | Observed result |
 | --- | --- |
@@ -18,7 +41,7 @@ Audit date: 2026-10-08 (Asia/Shanghai). Milestone: M0.
 | Backend final validation | .venv/Scripts/python.exe -m pytest -q: 511 passed (468 existing + 43 new), 1 warning, 13.60s |
 
 The host initially rejected ordinary terminal process creation; approved elevated
-terminal execution restored access. An ignored backend/.venv was created using
+terminal execution restored access. During M0 only, an ignored backend/.venv was created using
 python -m venv .venv and populated using its Python with pip install -r requirements.txt.
 No tracked dependency declaration changed. Backend has lower-bound requirements,
 not a lockfile. Installed versions relevant to this run: fastapi 0.142.3,
@@ -41,7 +64,7 @@ was found in the repository or ancestor directories.
 Validation proves automated regression/build compatibility. It does not claim
 live provider availability, configured Supabase operation, or successful live LLM calls.
 
-# Existing SciVerify Architecture
+# Existing SciVerify Architecture (Inherited Lexical Baseline)
 
 The audit is based on the following implementation paths, not README claims.
 
@@ -125,7 +148,7 @@ Pydantic. Configuration supports openai/compatible/groq aliases and configurable
 base URL/model/key; 429 retry/quota logic and structured-response normalization
 are present. No provider SDK or PaperQA2 object participates in the core flow.
 
-# Current Capabilities
+# Current Capabilities (Inherited Baseline; M1 Additions Below)
 
 | Capability | Code-backed status |
 | --- | --- |
@@ -141,7 +164,7 @@ are present. No provider SDK or PaperQA2 object participates in the core flow.
 | Traceable single-claim result/history | Implemented; page provenance unavailable in produced chunks |
 | Existing evaluation utilities | Present in app/evaluation and backend/evaluation; not expanded by M0 |
 
-# Missing ResearchGuard Capabilities
+# Missing ResearchGuard Capabilities (M0 Record)
 
 Manuscript PDF pipeline, structural citation mapping, atomic claim extraction,
 claim-citation attribution, scientific semantic RAG, manual source recovery,
@@ -221,31 +244,28 @@ not SSE, job scheduling, event persistence or a lifecycle state machine.
 
 # Integration Boundaries
 
-ports.EvidenceRetriever.retrieve(claim, source_document, top_k) returns a list of
+M1 changes ports to async: await EvidenceRetriever.retrieve(claim, source_document, top_k) returns a list of
 internal EvidenceChunk. top_k must be positive; an implementation returns at most
 that many ranked chunks with stable IDs belonging to the supplied source. It owns
 locator/content loading or injected repository access. Empty relevant results are
 distinct from source retrieval failure. Error translation belongs in the adapter/
 application layer. The Protocol describes a contract, not runtime enforcement.
 
-ports.ManuscriptParser.parse(manuscript) returns ParsedManuscript preserving its
+await ManuscriptParser.parse(manuscript) returns ParsedManuscript preserving its
 identity. Future GrobidManuscriptParser must translate TEI into these records,
 including unresolved markers and optional page metadata. No TEI classes, HTTP
 client or GROBID process is added.
 
-Ports are synchronous to match current services. A future service can decide how
-to execute blocking adapter work; M0 adds no async job execution. Test-local fake
-implementations exercise domain inputs/outputs without external libraries.
+Ports were synchronous in M0 and are now async in M1. Async API/application
+code awaits PaperQA2; blocking inherited source retrieval and verification are
+thread-offloaded. Async test-local implementations exercise the port contract.
+No async job queue or manuscript orchestration is introduced.
 
-For M1, implement PaperQA2EvidenceRetriever behind EvidenceRetriever, normalize
-PaperQA2 evidence/source IDs and provenance in the adapter, and inject it into a
-ResearchGuard application service. If a lexical adapter is needed, it can load
-source content, use existing parsing/chunking and rank_evidence_for_claim with the
-same preprocessing/settings, then map selected items to domain chunks. Keep this
-conversion outside domain and verify equivalence before changing production
-wiring. The legacy function currently accepts ProcessedClaim plus a list of legacy
-chunks, not SourceDocument; forcing it through the new port in M0 would require
-content-loading and identity policy beyond a safe small refactor.
+M1 now implements the request-scoped PaperQA2EvidenceRetriever behind the async
+port and connects it to both evidence and verification APIs using scheme A.
+Existing lexical retrieval remains the default and is unchanged. Source/legacy
+conversion stays in adapters/sciverify.py; PaperQA objects remain inside its
+adapter. See docs/PAPERQA2_INTEGRATION.md for the actual data path and tests.
 
 ## Verdict contract and legacy mapping
 
@@ -312,7 +332,7 @@ These are observations of the checked baseline, not changes made in M0.
   probability estimates. Lexical retrieval should remain a fallback when M1 adds
   scientific evidence retrieval.
 
-# M0 Scope and Self Review
+# M0 Scope and Self Review (Historical)
 
 Only new contracts, opt-in legacy verdict mapping, tests and this document are
 added. Existing services, ranking, verification semantics, routes, schemas,
@@ -327,3 +347,35 @@ GROBID implementation, embedding/vector store/reranker, manuscript/manual upload
 source hash cache, job queue/SSE, privacy UI or new evaluation benchmark. M1 starts
 with the PaperQA2 evidence adapter/application integration; other manuscript and
 orchestration capabilities remain for their later milestones.
+
+# M1 Implemented Capability Update
+
+The default lexical ranking, verification semantics, source resolution and
+frontend are retained. /api/verification/analyze and /api/evidence/retrieve are
+now async endpoints. RESEARCHGUARD_EVIDENCE_ENGINE=paperqa2 enables known-source
+embedding/MMR retrieval plus query-specific contextual evidence scoring through
+the pinned PaperQA2 Docs API. It does not enable manuscript parsing/upload,
+citation attribution, paper discovery, final PaperQA answers, persistent indexes,
+manual recovery, a job queue or SSE. All domain model fields remain unchanged.
+
+The source integration uses scheme A: every existing parsed chunk of the accepted
+RetrievePaperResponse becomes a domain chunk and PaperQA Text for one Doc. No
+redownload and no raw bytes in the API/domain. The normalized chunk-set hash is
+explicitly marked parsed_chunks, not represented as the original PDF-byte hash.
+Canonical IDs are query-independent; original chunk text/provenance remains the
+evidence. Context summary/ID/0..10 score stay in adapter metadata. Legacy score
+is score/10 and deterministic overlap diagnostics are computed after selection.
+They do not rerank PaperQA results, but the inherited verification validator and
+traceability still consume them under their existing semantics.
+
+PaperQA/model/configuration failures produce explicit API 503 details, without
+lexical fallback. The legacy synchronous evaluation entrypoint is lexical-only;
+using it with paperqa2 raises an explicit async-entrypoint configuration error.
+A future PaperQA benchmark should use the async service. No benchmark was added.
+
+A newly confirmed inherited parsing limitation: generic HTML with nested article
+and paragraph blocks can produce a Body chunk containing text repeated in later
+section chunks. The local integration fixture exposes this. M1 preserves the
+parser and passes its accepted chunks unchanged; PaperQA's scoring handles those
+candidates but does not repair parser duplication. M2 can address source lifecycle
+and parsing/provenance improvements separately.
