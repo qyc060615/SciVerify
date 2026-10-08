@@ -1,6 +1,8 @@
 """Offline M2 artifact, identity, recovery, and real PaperQA index regressions."""
 from __future__ import annotations
 
+from app.tests.full_text_fixtures import FULL_TEXT_HTML
+
 import asyncio
 import hashlib
 import json
@@ -92,7 +94,7 @@ def offline_auto(monkeypatch, available=True):
 def test_automatic_raw_bytes_persist_and_cached_retrieval_bypasses_all_network(monkeypatch, caplog):
     caplog.set_level("INFO")
     metadata, provider, discoveries = offline_auto(monkeypatch)
-    content = b"<article><p>Treatment reduces risk by 12%.</p></article>"
+    content = FULL_TEXT_HTML
     download = Mock(return_value=RetrievedDocument(content, content.decode(), "html", "text/html", "https://accepted.example/source.html"))
     monkeypatch.setattr(retrieval, "retrieve_document", download)
     first = retrieval.retrieve_paper("https://doi.org/" + DOI.upper())

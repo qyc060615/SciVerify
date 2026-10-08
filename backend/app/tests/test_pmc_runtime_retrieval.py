@@ -9,6 +9,9 @@ Covers:
 """
 from __future__ import annotations
 
+from app.tests.full_text_fixtures import FULL_TEXT_HTML
+
+
 import logging
 from unittest.mock import MagicMock, patch
 
@@ -42,18 +45,7 @@ _CITATION = CitationMetadata(
     type="journal-article",
 )
 
-_PMC_FULL_TEXT_HTML = b"""<!DOCTYPE html>
-<html>
-<head><title>PMC Article PMC6286148</title></head>
-<body>
-<article>
-  <h2>Abstract</h2>
-  <p>CRISPR/Cas systems provide bacteria and archaea with adaptive immunity against viruses.</p>
-  <h2>Results</h2>
-  <p>Cas9 is a DNA endonuclease guided by two RNA molecules.</p>
-</article>
-</body>
-</html>"""
+_PMC_FULL_TEXT_HTML = FULL_TEXT_HTML
 
 _CHALLENGE_HTML = b"""<!DOCTYPE html>
 <html>

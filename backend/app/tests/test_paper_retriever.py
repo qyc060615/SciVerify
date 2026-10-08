@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
+
+from app.tests.full_text_fixtures import FULL_TEXT_HTML
+
 import httpx
 import pytest
 
@@ -340,8 +343,8 @@ class TestRetrievePaper:
         mock_resolve.return_value = CITATION
         mock_openalex.return_value = work
         mock_retrieve.return_value = MagicMock(
-            content=b"<html><body><p>Content</p></body></html>",
-            text="<html><body><p>Content</p></body></html>",
+            content=FULL_TEXT_HTML,
+            text=FULL_TEXT_HTML.decode(),
             format="html",
             content_type="text/html",
             source_url="https://example.org/paper.html",
@@ -392,8 +395,8 @@ class TestRetrievePaper:
         )
         mock_openalex.return_value = OPENALEX_PMC_OA_LANDING
         document = MagicMock(
-            content=b"<html><body><p>Cas9 can be directed by RNA.</p></body></html>",
-            text="<html><body><p>Cas9 can be directed by RNA.</p></body></html>",
+            content=FULL_TEXT_HTML,
+            text=FULL_TEXT_HTML.decode(),
             format="html",
             content_type="text/html",
             source_url="https://www.ncbi.nlm.nih.gov/pmc/articles/6286148",
@@ -560,8 +563,8 @@ class TestRetrievePaper:
             "locations": [],
         }
         europe_pmc_doc = MagicMock(
-            content=b"<html><body><p>Europe PMC content</p></body></html>",
-            text="<html><body><p>Europe PMC content</p></body></html>",
+            content=FULL_TEXT_HTML,
+            text=FULL_TEXT_HTML.decode(),
             format="html",
             content_type="text/html",
             source_url="https://europepmc.org/articles/PMC8371605",

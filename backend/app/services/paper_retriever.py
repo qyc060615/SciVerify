@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import re
+from collections import deque
 from dataclasses import dataclass
 from typing import Any, Literal
 
@@ -30,10 +31,17 @@ from app.services.document_retriever import (
 from app.services.evidence_chunker import chunk_sections
 from app.utils.doi import normalize_doi
 from app.services.source_store import AcceptedSourceArtifact, LocalSourceStore
+from app.services.full_text_qualifier import (
+    discover_direct_full_text_links,
+    is_full_text_document,
+    normalize_candidate_url,
+)
 
 logger = logging.getLogger(__name__)
 
 DocumentFormat = Literal["pdf", "html"]
+MAX_SOURCE_CANDIDATE_VISITS = 24
+MAX_SOURCE_FOLLOWUPS = 6
 
 _PMC_ARTICLE_PATTERN = re.compile(
     r"(?:pmc\.ncbi\.nlm\.nih\.gov|ncbi\.nlm\.nih\.gov/pmc|europepmc\.org/pmc)/articles/(?:PMC)?(\d+)",
@@ -84,12 +92,16 @@ def retrieve_paper(
     if artifact is not None:
         try:
             sections = parse_document(artifact.content, artifact.format)
-            chunks = chunk_sections(sections, artifact.paper.paper_id, artifact.source_url)
-            if chunks:
-                logger.info("source_cache_hit doi=%s origin=%s", normalized, artifact.origin)
-                return artifact.response(cache_hit=True, sections=sections, chunks=chunks)
+            if not is_full_text_document(artifact.content, artifact.format):
+                logger.warning("source_cache_rejected doi=%s reason=not_full_text", normalized)
+            else:
+                chunks = chunk_sections(sections, artifact.paper.paper_id, artifact.source_url)
+                if chunks:
+                    logger.info("source_cache_hit doi=%s origin=%s", normalized, artifact.origin)
+                    return artifact.response(cache_hit=True, sections=sections, chunks=chunks)
         except DocumentParseError:
-            pass
+            if not is_full_text_document(artifact.content, artifact.format):
+                logger.warning("source_cache_rejected doi=%s reason=not_full_text", normalized)
     logger.info("source_cache_miss doi=%s", normalized)
     owns_client = client is None
     http_client = client or httpx.Client(
@@ -163,7 +175,17 @@ def retrieve_paper(
             )
 
         last_detail: str | None = None
-        for candidate in candidates:
+        pending = deque((candidate, 0) for candidate in candidates)
+        visited: set[str] = set()
+        followups = 0
+        visits = 0
+        while pending and visits < MAX_SOURCE_CANDIDATE_VISITS:
+            candidate, depth = pending.popleft()
+            candidate_url = normalize_candidate_url(candidate.url)
+            if candidate_url is None or candidate_url in visited:
+                continue
+            visited.add(candidate_url)
+            visits += 1
             logger.info(
                 "Trying full-text candidate: url=%s format=%s provider=%s",
                 candidate.url,
@@ -189,6 +211,12 @@ def retrieve_paper(
                 )
                 continue
 
+            # Redirect destinations also participate in loop/duplicate prevention.
+            final_url = normalize_candidate_url(document.source_url)
+            if final_url:
+                visited.add(final_url)
+
+            parse_failed = False
             try:
                 sections = parse_document(
                     content=document.content,
@@ -202,8 +230,30 @@ def retrieve_paper(
                     candidate.url,
                     last_detail,
                 )
+                parse_failed = True
+
+            if not is_full_text_document(document.content, document.format):
+                last_detail = "The retrieved page is not a full-text scholarly article."
+                logger.info("full_text_candidate_rejected url=%s reason=landing_or_abstract", document.source_url)
+                if depth == 0:
+                    direct = discover_direct_full_text_links(document.content, document.source_url)
+                    new = []
+                    queued = {normalize_candidate_url(item.url) for item, _depth in pending}
+                    for link in direct:
+                        if link.url in visited or followups >= MAX_SOURCE_FOLLOWUPS:
+                            continue
+                        # Promote an already-discovered URL instead of requesting it twice.
+                        if link.url in queued:
+                            pending = deque((item, level) for item, level in pending
+                                            if normalize_candidate_url(item.url) != link.url)
+                        new.append((FullTextCandidate(link.url, link.format, candidate.provider, candidate.source_type), 1))
+                        followups += 1
+                        logger.info("full_text_followup_discovered url=%s format=%s", link.url, link.format)
+                    pending.extendleft(reversed(new))
                 continue
 
+            if parse_failed:
+                continue
             chunks = chunk_sections(
                 sections=sections,
                 paper_id=paper.paper_id,
@@ -218,6 +268,7 @@ def retrieve_paper(
                 continue
 
             paper.full_text_format = document.format
+            paper.full_text_url = document.source_url
             artifact = AcceptedSourceArtifact.create(
                 doi=normalized, content=document.content, format=document.format,
                 source_url=document.source_url, provider=candidate.provider,
