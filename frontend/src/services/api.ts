@@ -7,6 +7,10 @@ function formatDetail(detail: VerificationApiErrorBody['detail']): string | null
     return detail
   }
 
+  if (detail && typeof detail === 'object' && !Array.isArray(detail)) {
+    return detail.message
+  }
+
   if (Array.isArray(detail) && detail.length > 0) {
     return detail
       .map((item) => item.msg)

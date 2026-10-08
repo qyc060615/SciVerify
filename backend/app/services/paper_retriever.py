@@ -29,6 +29,7 @@ from app.services.document_retriever import (
 )
 from app.services.evidence_chunker import chunk_sections
 from app.utils.doi import normalize_doi
+from app.services.source_store import AcceptedSourceArtifact, LocalSourceStore
 
 logger = logging.getLogger(__name__)
 
@@ -78,6 +79,18 @@ def retrieve_paper(
 ) -> RetrievePaperResponse:
     """Retrieve paper metadata and, when available, parsed evidence chunks."""
     normalized = normalize_doi(doi)
+    store = LocalSourceStore()
+    artifact = store.get(normalized)
+    if artifact is not None:
+        try:
+            sections = parse_document(artifact.content, artifact.format)
+            chunks = chunk_sections(sections, artifact.paper.paper_id, artifact.source_url)
+            if chunks:
+                logger.info("source_cache_hit doi=%s origin=%s", normalized, artifact.origin)
+                return artifact.response(cache_hit=True, sections=sections, chunks=chunks)
+        except DocumentParseError:
+            pass
+    logger.info("source_cache_miss doi=%s", normalized)
     owns_client = client is None
     http_client = client or httpx.Client(
         timeout=30.0,
@@ -204,16 +217,17 @@ def retrieve_paper(
                 )
                 continue
 
-            return RetrievePaperResponse(
-                status=PaperRetrievalStatus.SUCCESS,
-                paper=paper,
-                sections=sections,
-                chunks=chunks,
-                source=PaperSource(
-                    url=document.source_url,
-                    provider=candidate.provider,
-                ),
+            paper.full_text_format = document.format
+            artifact = AcceptedSourceArtifact.create(
+                doi=normalized, content=document.content, format=document.format,
+                source_url=document.source_url, provider=candidate.provider,
+                origin="remote", paper=paper,
             )
+            try:
+                store.put(artifact)
+            except OSError:
+                logger.warning("source_cache_write_failed doi=%s", normalized)
+            return artifact.response(sections=sections, chunks=chunks)
 
         paper.full_text_available = False
         paper.full_text_format = candidates[0].format

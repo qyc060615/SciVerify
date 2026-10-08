@@ -22,6 +22,29 @@ export class VerificationServiceError extends Error {
   }
 }
 
+export class SourceRequiredError extends VerificationServiceError {
+  response: BackendVerificationResponse
+
+  constructor(response: BackendVerificationResponse) {
+    super('The cited paper could not be retrieved automatically.')
+    this.name = 'SourceRequiredError'
+    this.response = response
+  }
+}
+
+export async function uploadManualSource(doi: string, file: File): Promise<void> {
+  const form = new FormData()
+  form.append('doi', doi)
+  form.append('file', file)
+  try {
+    await apiClient.post('/api/sources/manual', form, {
+      headers: { 'Content-Type': undefined },
+    })
+  } catch (error) {
+    throw parseApiError(error)
+  }
+}
+
 function parseApiError(error: unknown): VerificationServiceError {
   if (error instanceof VerificationServiceError) {
     return error
@@ -108,6 +131,10 @@ function handleApplicationStatus(
   response: BackendVerificationResponse,
   input: VerificationFormInput,
 ): VerificationResult {
+  if (response.status === 'source_required') {
+    throw new SourceRequiredError(response)
+  }
+
   if (response.status === 'insufficient_evidence') {
     return mapInsufficientEvidenceResult(response, input)
   }

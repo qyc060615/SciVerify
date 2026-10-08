@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 import os
 from pathlib import Path
 
@@ -16,6 +17,7 @@ from app.api.routes.citations import router as citations_router
 from app.api.routes.evidence import router as evidence_router
 from app.api.routes.papers import router as papers_router
 from app.api.routes.verification import router as verification_router
+from app.api.routes.sources import router as sources_router
 
 BACKEND_HOST = os.getenv("BACKEND_HOST", "0.0.0.0")
 BACKEND_PORT = int(os.getenv("PORT") or os.getenv("BACKEND_PORT", "8000"))
@@ -34,7 +36,18 @@ def _get_cors_origins() -> list[str]:
     return list(dict.fromkeys(configured + dev_defaults))
 
 
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    from app.researchguard.adapters.paperqa2 import clear_index_cache
+    clear_index_cache()
+    try:
+        yield
+    finally:
+        clear_index_cache()
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title="SciVerify Backend",
     description="Evidence-backed scientific citation verification API",
     version="0.1.0",
@@ -53,6 +66,7 @@ app.include_router(citations_router)
 app.include_router(papers_router)
 app.include_router(evidence_router)
 app.include_router(verification_router)
+app.include_router(sources_router)
 
 
 @app.get("/health", tags=["health"])

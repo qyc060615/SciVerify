@@ -8,3 +8,6 @@ beautifulsoup4>=4.12.0
 
 # ResearchGuard M1: CalVer API boundary verified against this exact release.
 paper-qa==2026.8.12
+
+# M2 cited PDF recovery
+python-multipart>=0.0.32

@@ -33,9 +33,6 @@ logger = logging.getLogger(__name__)
 INSUFFICIENT_EVIDENCE_STATUSES = {
     EvidenceRetrievalStatus.NO_CHUNKS,
     EvidenceRetrievalStatus.NO_RELEVANT_EVIDENCE,
-    EvidenceRetrievalStatus.FULL_TEXT_UNAVAILABLE,
-    EvidenceRetrievalStatus.METADATA_ONLY,
-    EvidenceRetrievalStatus.PARSING_FAILURE,
 }
 
 
@@ -70,6 +67,21 @@ def _verify_evidence(claim: str, evidence_response: EvidenceRetrievalResponse, *
     if evidence_response.status == EvidenceRetrievalStatus.PROVIDER_ERROR:
         logger.info("verification_completed status=provider_error")
         raise PaperProviderError(evidence_response.detail or "External provider unavailable.")
+
+    if evidence_response.status in {
+        EvidenceRetrievalStatus.FULL_TEXT_UNAVAILABLE,
+        EvidenceRetrievalStatus.METADATA_ONLY,
+        EvidenceRetrievalStatus.PARSING_FAILURE,
+    }:
+        from app.config import source_max_size
+        from app.schemas.verification import SourceRecovery
+        logger.info("verification_completed status=source_required")
+        return VerificationResponse(
+            status=VerificationStatus.SOURCE_REQUIRED, claim=processed_claim.original,
+            paper=paper, source_recovery=SourceRecovery(
+                reason=evidence_response.status.value, max_size_bytes=source_max_size()),
+            detail="The cited paper could not be retrieved automatically. Upload the cited PDF to continue.",
+        )
 
     if evidence_response.status in INSUFFICIENT_EVIDENCE_STATUSES or not evidence_response.evidence:
         logger.info("verification_completed status=insufficient_evidence")
@@ -119,9 +131,8 @@ def _verify_evidence(claim: str, evidence_response: EvidenceRetrievalResponse, *
         )
     except (LLMProviderError, LLMResponseError) as exc:
         logger.info(
-            "verification_completed status=verification_failed error_type=%s detail=%s",
+            "verification_completed status=verification_failed error_type=%s",
             type(exc).__name__,
-            exc,
         )
         return VerificationResponse(
             status=VerificationStatus.VERIFICATION_FAILED,

@@ -101,7 +101,7 @@ class TestVerificationService:
         assert len(llm.prompts) == 3
 
     @patch("app.services.verification_service.retrieve_evidence_for_claim")
-    def test_insufficient_evidence_does_not_run_agents(self, mock_evidence: MagicMock) -> None:
+    def test_missing_source_requires_recovery_without_agents(self, mock_evidence: MagicMock) -> None:
         mock_evidence.return_value = EvidenceRetrievalResponse(
             status=EvidenceRetrievalStatus.FULL_TEXT_UNAVAILABLE,
             claim="The method improves accuracy by 40%.",
@@ -112,8 +112,9 @@ class TestVerificationService:
 
         result = analyze_verification("The method improves accuracy by 40%.", "10.1000/test")
 
-        assert result.status == VerificationStatus.INSUFFICIENT_EVIDENCE
-        assert result.verdict == Verdict.INSUFFICIENT
+        assert result.status == VerificationStatus.SOURCE_REQUIRED
+        assert result.verdict is None and result.confidence is None
+        assert result.source_recovery.required
         assert result.prosecutor is None
 
     @patch("app.services.verification_service.retrieve_evidence_for_claim")

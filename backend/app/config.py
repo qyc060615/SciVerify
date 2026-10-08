@@ -45,3 +45,23 @@ def get_evidence_engine() -> str:
     if engine not in {"lexical", "paperqa2"}:
         raise EvidenceEngineConfigurationError("RESEARCHGUARD_EVIDENCE_ENGINE must be lexical or paperqa2.")
     return engine
+
+
+# M2 local demo source lifecycle; evaluated at use time for isolated tests.
+def source_cache_dir() -> Path:
+    return Path(os.getenv("RESEARCHGUARD_SOURCE_CACHE_DIR") or
+                Path(__file__).resolve().parent.parent / "data/researchguard/sources")
+
+
+def source_max_size() -> int:
+    value = int(os.getenv("RESEARCHGUARD_SOURCE_MAX_SIZE", str(20 * 1024 * 1024)))
+    if value <= 0:
+        raise ValueError("Source size limit must be positive")
+    return value
+
+
+def paperqa_cache_size() -> int:
+    value = int(os.getenv("RESEARCHGUARD_PAPERQA_CACHE_SIZE", "8"))
+    if value < 0:
+        raise ValueError("PaperQA cache size must be nonnegative")
+    return value

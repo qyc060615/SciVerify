@@ -40,8 +40,8 @@ def map_sciverify_verdict(
 def accepted_source_to_domain(paper_result: RetrievePaperResponse) -> tuple[SourceDocument, list[EvidenceChunk]]:
     """Map all chunks from the exact accepted source, without retrieval/ranking.
 
-    The hash identifies normalized parsed chunks, not the original PDF bytes.
-    It can be replaced by the raw artifact hash when M2 adds source persistence.
+    content_hash identifies raw artifact bytes when present. Legacy fixtures
+    without an artifact retain an explicitly marked parsed-chunk fingerprint.
     """
     import hashlib
     import json
@@ -56,6 +56,8 @@ def accepted_source_to_domain(paper_result: RetrievePaperResponse) -> tuple[Sour
         raise ValueError("Accepted source contains foreign paper chunks")
     payload = [(c.chunk_id, c.text, c.section, c.page) for c in paper_result.chunks]
     digest = hashlib.sha256(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
+    parsed_fingerprint = digest
+    digest = paper_result.source.raw_content_sha256 or parsed_fingerprint
     source_id = "source:" + hashlib.sha256((paper.doi + ":" + digest).encode()).hexdigest()
     reference_id = "reference:" + paper.doi
     source_url = paper_result.source.url
@@ -63,7 +65,7 @@ def accepted_source_to_domain(paper_result: RetrievePaperResponse) -> tuple[Sour
         id=source_id, reference_id=reference_id, doi=paper.doi, title=paper.title,
         authors=tuple(paper.authors), year=paper.year,
         content_locator="memory://" + source_id, content_hash="sha256:" + digest,
-        source_type=SourceType.REMOTE, provider=paper_result.source.provider,
+        source_type=SourceType(paper_result.source.origin), provider=paper_result.source.provider,
         source_url=source_url, retrieval_status=RetrievalStatus.AVAILABLE,
     )
     chunks = []
@@ -76,7 +78,10 @@ def accepted_source_to_domain(paper_result: RetrievePaperResponse) -> tuple[Sour
             metadata={
                 "legacy_chunk_id": chunk.chunk_id, "legacy_chunk_index": chunk.chunk_index,
                 "legacy_metadata": chunk.metadata or {},
-                "source_format": paper.full_text_format, "content_hash_kind": "parsed_chunks",
+                "source_format": paper.full_text_format,
+                "content_hash_kind": "raw_bytes" if paper_result.source.raw_content_sha256 else "parsed_chunks",
+                "parsed_content_fingerprint": parsed_fingerprint,
+                "source_origin": paper_result.source.origin, "source_cache_hit": paper_result.source.cache_hit,
             },
         ))
     return source, chunks

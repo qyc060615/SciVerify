@@ -51,6 +51,9 @@ class EvidenceChunk(BaseModel):
 
 
 class PaperSource(BaseModel):
+    raw_content_sha256: str | None = None
+    origin: Literal["remote", "manual"] = "remote"
+    cache_hit: bool = False
     url: str | None = None
     provider: str
 

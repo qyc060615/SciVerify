@@ -1,9 +1,16 @@
 """paper-qa==2026.8.12 boundary: one accepted source, evidence only.
 
 No aadd_url, metadata inference, agents, paper search, or final answer generation.
-The request owns this in-memory Docs index; no persistent cache is created.
+A bounded process-local source index cache reuses embeddings; queries stay fresh.
 """
 from __future__ import annotations
+
+import asyncio
+import hashlib
+import json
+import logging
+import weakref
+from collections import OrderedDict
 
 import math
 import os
@@ -13,6 +20,22 @@ from typing import Any, Sequence
 from ..domain import AtomicClaim, EvidenceChunk, RetrievalStatus, SourceDocument
 
 PAPERQA2_VERSION = "2026.8.12"
+logger = logging.getLogger(__name__)
+# Each event loop owns its locks and indexes; backend lifespan uses one loop.
+# Explicit cache clearing at application shutdown releases indexes and loop locks.
+_INDEX_CACHES = weakref.WeakKeyDictionary()
+
+
+def clear_index_cache():
+    _INDEX_CACHES.clear()
+
+
+def _loop_cache():
+    loop = asyncio.get_running_loop()
+    if loop not in _INDEX_CACHES:
+        _INDEX_CACHES[loop] = (OrderedDict(), asyncio.Lock())
+    return _INDEX_CACHES[loop]
+
 
 
 class PaperQA2RetrievalError(RuntimeError):
@@ -140,13 +163,12 @@ class PaperQA2EvidenceRetriever:
             docs, doc, texts, settings, embedding, summary = await to_thread.run_sync(
                 self._prepare, source_document, top_k
             )
-            added = await docs.aadd_texts(texts, doc, settings=settings, embedding_model=embedding)
-            if not added or set(docs.docs) != {source_document.id}:
-                raise PaperQA2RetrievalError("paperqa2_index_source_mismatch")
-            session = await docs.aget_evidence(
-                claim.text, settings=settings, embedding_model=embedding,
-                summary_llm_model=_StrictSummaryModel(summary),
-            )
+            docs, query_lock = await self._indexed_docs(source_document, docs, doc, texts, settings, embedding)
+            async with query_lock:
+                session = await docs.aget_evidence(
+                    claim.text, settings=settings, embedding_model=embedding,
+                    summary_llm_model=_StrictSummaryModel(summary),
+                )
             # aget_evidence returns an unordered set-derived list. Sort by its
             # relevance score, with a deterministic canonical-ID tie break.
             mapped = [self._map_context(c, source_document, originals) for c in session.contexts]
@@ -166,6 +188,48 @@ class PaperQA2EvidenceRetriever:
             raise PaperQA2RetrievalError("paperqa2_dependency_unavailable") from exc
         except Exception as exc:
             raise PaperQA2RetrievalError("paperqa2_retrieval_failed") from exc
+
+    async def _indexed_docs(self, source, docs, doc, texts, settings, embedding):
+        from app.config import paperqa_cache_size
+        limit = paperqa_cache_size()
+        # Parsed fingerprint includes every mapped field affecting index/source identity.
+        payload = [c.model_dump(exclude={"retrieval_score", "metadata"}) for c in self.chunks]
+        key_payload = {
+            "source": source.model_dump(), "chunks": payload, "version": PAPERQA2_VERSION,
+            "embedding_model": self.config.embedding_model,
+            "embedding_api_base": self.config.embedding_api_base,
+            "embedding_timeout": self.config.timeout,
+            # Credentials never appear in logs; changing accounts invalidates the entry.
+            "credential_fingerprint": hashlib.sha256((self.config.embedding_api_key or "").encode()).hexdigest(),
+            "defer_embedding": False,
+        }
+        key = hashlib.sha256(json.dumps(key_payload, sort_keys=True).encode()).hexdigest()
+        # Injected deterministic/custom embedding objects must not share incompatible indexes.
+        if self.embedding_model is not None:
+            key = (key, id(self.embedding_model))
+        async def build():
+            added = await docs.aadd_texts(texts, doc, settings=settings, embedding_model=embedding)
+            if not added or set(docs.docs) != {source.id}:
+                raise PaperQA2RetrievalError("paperqa2_index_source_mismatch")
+            return docs
+        cache, lock = _loop_cache()
+        async with lock:
+            while len(cache) > limit:
+                cache.popitem(last=False)
+            if limit and key in cache:
+                cached, _embedding_owner, query_lock = cache[key]
+                cache.move_to_end(key)
+                logger.info("paperqa_index_cache_hit source=%s", source.id)
+                return cached, query_lock
+            logger.info("paperqa_index_cache_miss source=%s", source.id)
+            indexed = await build()
+            query_lock = asyncio.Lock()
+            if limit:
+                # Keep injected embedding alive to avoid Python object-id reuse.
+                cache[key] = (indexed, self.embedding_model, query_lock)
+                while len(cache) > limit:
+                    cache.popitem(last=False)
+            return indexed, query_lock
 
     def _prepare(self, source_document: SourceDocument, top_k: int):
         from importlib.metadata import version

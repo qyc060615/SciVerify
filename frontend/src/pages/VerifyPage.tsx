@@ -6,7 +6,7 @@ import { VerificationForm } from '@/components/verification/VerificationForm'
 import { VerificationLoading } from '@/components/verification/VerificationLoading'
 import { VerificationResultView } from '@/components/verification/VerificationResultView'
 import { useAuth } from '@/hooks/useAuth'
-import { verifyCitation } from '@/services/verificationService'
+import { SourceRequiredError, verifyCitation } from '@/services/verificationService'
 import { useVerificationStore } from '@/stores/verificationStore'
 import { ROUTES, verificationReportPath } from '@/constants'
 import { Button } from '@/components/ui/Button'
@@ -15,7 +15,10 @@ import { Spinner } from '@/components/ui/Spinner'
 import type { VerificationFormSchema } from '@/lib/validations/verification'
 import type { VerificationResult } from '@/types/verification'
 
-type SubmissionPhase = 'idle' | 'loading' | 'error'
+import { ManualSourceRecovery } from '@/components/verification/ManualSourceRecovery'
+import type { BackendVerificationResponse } from '@/types/backend-verification'
+
+type SubmissionPhase = 'idle' | 'loading' | 'error' | 'source-required'
 
 export default function VerifyPage() {
   const { verificationId } = useParams<{ verificationId?: string }>()
@@ -30,6 +33,9 @@ export default function VerifyPage() {
   const [submissionPhase, setSubmissionPhase] = useState<SubmissionPhase>('idle')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [freshResult, setFreshResult] = useState<VerificationResult | null>(null)
+
+  const [recovery, setRecovery] = useState<BackendVerificationResponse | null>(null)
+  const [pendingInput, setPendingInput] = useState<VerificationFormSchema | null>(null)
 
   const storedRecord = verificationId ? getRecord(verificationId) : undefined
 
@@ -51,6 +57,7 @@ export default function VerifyPage() {
 
   const phase = (() => {
     if (submissionPhase === 'loading') return 'loading' as const
+    if (submissionPhase === 'source-required') return 'source-required' as const
     if (submissionPhase === 'error') return 'error' as const
     if (freshResult) return 'result' as const
     if (verificationId) {
@@ -68,6 +75,7 @@ export default function VerifyPage() {
       return
     }
 
+    setPendingInput({ ...values })
     setFreshResult(null)
     setSubmissionPhase('loading')
     setErrorMessage(null)
@@ -89,6 +97,11 @@ export default function VerifyPage() {
         toast.warning('Could not save to history. The report is still available now.')
       }
     } catch (error) {
+      if (error instanceof SourceRequiredError) {
+        setRecovery(error.response)
+        setSubmissionPhase('source-required')
+        return
+      }
       setFreshResult(null)
       setSubmissionPhase('error')
       const message =
@@ -101,6 +114,8 @@ export default function VerifyPage() {
   }
 
   const handleNewVerification = () => {
+    setRecovery(null)
+    setPendingInput(null)
     setFreshResult(null)
     setSubmissionPhase('idle')
     setErrorMessage(null)
@@ -126,6 +141,8 @@ export default function VerifyPage() {
           title="Evaluate a scientific claim"
           description="Evaluate whether a scientific claim is supported by its cited evidence."
         />
+      ) : phase === 'source-required' ? (
+        <AppHeader title="Cited source required" description="Upload the cited PDF to resume your verification." />
       ) : phase === 'result' ? (
         <AppHeader
           title="Verification report"
@@ -164,6 +181,11 @@ export default function VerifyPage() {
         />
       ) : null}
 
+      {phase === 'source-required' && recovery && pendingInput ? (
+        <ManualSourceRecovery response={recovery}
+          onAccepted={() => handleSubmit(pendingInput)} onCancel={handleNewVerification} />
+      ) : null}
+
       {phase === 'loading' ? (
         <VerificationLoading
           stageIndex={0}
@@ -190,7 +212,7 @@ export default function VerifyPage() {
           </p>
           <p className="text-sm text-danger">{reportErrorMessage}</p>
           <div className="flex flex-wrap gap-2">
-            <Button onClick={handleNewVerification}>Try again</Button>
+            <Button onClick={() => pendingInput ? handleSubmit(pendingInput) : handleNewVerification()}>Try again</Button>
             {verificationId ? (
               <Button variant="outline" onClick={() => navigate(ROUTES.APP_HISTORY)}>
                 View history

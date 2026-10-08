@@ -379,3 +379,41 @@ section chunks. The local integration fixture exposes this. M1 preserves the
 parser and passes its accepted chunks unchanged; PaperQA's scoring handles those
 candidates but does not repair parser duplication. M2 can address source lifecycle
 and parsing/provenance improvements separately.
+
+
+# M2 Implemented Capability Update
+
+M2 adds an application-level AcceptedSourceArtifact and a content-addressed local
+filesystem store. retrieve_paper remains compatible and now checks a normalized DOI
+pointer before calling metadata, OA providers or download. The original accepted
+PDF/HTML bytes and canonical paper snapshot survive store recreation. Missing or
+corrupt entries safely miss; cached bytes use the existing parser/chunker again.
+Raw artifact SHA-256, parsed-chunk fingerprint and PaperQA index key are distinct.
+SourceDocument.content_hash uses exact accepted raw bytes when available; legacy
+artifact-free fixtures remain explicitly marked parsed_chunks. Manual/remote origin
+and local cache reuse are preserved separately without a new domain SourceType.
+
+POST /api/sources/manual accepts a size-limited, readable cited PDF, resolves the
+canonical DOI through the existing SciVerify resolver, and requires deterministic
+DOI evidence or conservative exact-title + surname + year fallback. Uploaded
+filenames never influence paths. Accepted files enter the same cache-first retrieval
+and downstream evidence/verifier path. Wrong/ambiguous PDFs are rejected.
+
+Resolved-but-unusable source statuses now yield source_required with no scientific
+verdict or confidence. NO_CHUNKS/NO_RELEVANT_EVIDENCE still permit semantic
+INSUFFICIENT. Frontend recovery keeps the original input, validates/uploads the cited
+PDF, and automatically retries. The normal form/report/history contract is retained.
+
+PaperQA indexes/embeddings use a bounded process-local LRU keyed by raw/source,
+parsed content, pinned API and embedding configuration identity. In-process build
+and per-source query locks protect duplicate indexing/lazy vector initialization.
+Query sessions/summaries/scores are fresh. Restart clears indexes; accepted raw files
+persist. Failures stay explicit and never silently fall back to lexical.
+
+See docs/SOURCE_LIFECYCLE.md for actual layout, policy, configuration, API, tests and
+limitations. No CI/CD, Redis, vector database, distributed persistence, manuscript
+upload or production infrastructure is added. M0/M1 sections above are historical.
+
+M2 also removes inherited verifier log payloads containing provider bodies, raw
+model outputs, validation input and partial API keys. Safe status/type/retry
+diagnostics remain for local demo inspection.

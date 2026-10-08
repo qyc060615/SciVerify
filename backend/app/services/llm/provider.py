@@ -234,25 +234,23 @@ class OpenAICompatibleLLMProvider(LLMProvider):
             )
         except httpx.TimeoutException as exc:
             logger.error(
-                "LLM request timed out: exception=%s message=%s url=%s model=%s",
+                "LLM request timed out: exception=%s url=%s model=%s",
                 type(exc).__name__,
-                exc,
                 request_url,
                 self.model,
             )
             raise LLMProviderError(
-                f"LLM request timed out: {type(exc).__name__}: {exc}"
+                f"LLM request timed out: {type(exc).__name__}."
             ) from exc
         except httpx.RequestError as exc:
             logger.error(
-                "LLM request failed: exception=%s message=%s url=%s model=%s",
+                "LLM request failed: exception=%s url=%s model=%s",
                 type(exc).__name__,
-                exc,
                 request_url,
                 self.model,
             )
             raise LLMProviderError(
-                f"LLM request failed: {type(exc).__name__}: {exc}"
+                f"LLM request failed: {type(exc).__name__}."
             ) from exc
         finally:
             if owns_client:
@@ -260,35 +258,30 @@ class OpenAICompatibleLLMProvider(LLMProvider):
 
         if response.status_code >= 500:
             logger.error(
-                "LLM provider unavailable: status=%s url=%s model=%s body=%s",
+                "LLM provider unavailable: status=%s url=%s model=%s",
                 response.status_code,
                 request_url,
                 self.model,
-                _safe_provider_error_body(response),
             )
             raise LLMProviderError(
                 f"LLM provider is unavailable (HTTP {response.status_code})."
             )
 
         if response.status_code == 429:
-            error_body = _safe_provider_error_body(response)
             logger.error(
-                "LLM provider rate limited (HTTP 429): status=%s url=%s model=%s body=%s",
+                "LLM provider rate limited (HTTP 429): status=%s url=%s model=%s",
                 response.status_code,
                 request_url,
                 self.model,
-                error_body,
             )
             raise LLMRateLimitError(_provider_error_message(response))
 
         if response.status_code >= 400:
-            error_body = _safe_provider_error_body(response)
             logger.error(
-                "LLM provider rejected the request: status=%s url=%s model=%s body=%s",
+                "LLM provider rejected the request: status=%s url=%s model=%s",
                 response.status_code,
                 request_url,
                 self.model,
-                error_body,
             )
             raise LLMProviderError(_provider_error_message(response))
 
@@ -306,19 +299,16 @@ class OpenAICompatibleLLMProvider(LLMProvider):
         try:
             parsed = json.loads(content)
         except json.JSONDecodeError as exc:
-            logger.error("LLM raw content: %r", content)
-            logger.error("LLM JSON decode error: %s", exc)
-            raise LLMResponseError(f"LLM returned invalid JSON: {exc}") from exc
+            logger.error("LLM JSON decode error")
+            raise LLMResponseError("LLM returned invalid JSON.") from exc
 
         try:
             normalized = _normalize_structured_payload(parsed)
             return response_model.model_validate(normalized)
         except ValidationError as exc:
-            logger.error("LLM raw content: %r", content)
-            logger.error("LLM parsed payload: %r", parsed)
-            logger.error("LLM validation error: %s", exc)
+            logger.error("LLM validation error")
             raise LLMResponseError(
-                f"LLM returned invalid structured output: {exc}"
+                "LLM returned invalid structured output."
             ) from exc
 
     def _post_chat_completion(
@@ -360,13 +350,12 @@ class OpenAICompatibleLLMProvider(LLMProvider):
 
             delay = _parse_rate_limit_delay(response)
             logger.warning(
-                "LLM rate limited (HTTP 429): url=%s model=%s attempt=%s/%s retry_in=%.2fs body=%s",
+                "LLM rate limited (HTTP 429): url=%s model=%s attempt=%s/%s retry_in=%.2fs",
                 request_url,
                 self.model,
                 attempt + 1,
                 self.max_rate_limit_retries,
                 delay,
-                _safe_provider_error_body(response),
             )
             time.sleep(delay)
 
@@ -382,20 +371,12 @@ def get_llm_provider() -> LLMProvider:
         os.getenv("LLM_MAX_RETRIES", str(_DEFAULT_RATE_LIMIT_RETRIES))
     )
 
-    masked_key = (
-        f"{api_key[:4]}...{api_key[-4:]}"
-        if len(api_key) >= 12
-        else ("present" if api_key else "missing")
-    )
-
     logger.info(
-        "LLM provider config: provider=%s model=%s base_url=%s api_key_configured=%s api_key_masked=%s api_key_length=%s max_rate_limit_retries=%s",
+        "LLM provider config: provider=%s model=%s base_url=%s api_key_configured=%s max_rate_limit_retries=%s",
         provider,
         model,
         base_url,
         bool(api_key),
-        masked_key,
-        len(api_key),
         max_rate_limit_retries,
     )
 

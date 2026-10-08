@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Literal
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.schemas.evidence import EvidenceItem, EvidencePaperSummary
 
@@ -17,6 +17,7 @@ class Verdict(str, Enum):
 
 
 class VerificationStatus(str, Enum):
+    SOURCE_REQUIRED = "source_required"
     SUCCESS = "success"
     INSUFFICIENT_EVIDENCE = "insufficient_evidence"
     LLM_UNAVAILABLE = "llm_unavailable"
@@ -143,7 +144,15 @@ class ClaimTraceability(BaseModel):
         return max(0.0, min(1.0, value))
 
 
+class SourceRecovery(BaseModel):
+    required: Literal[True] = True
+    reason: Literal["full_text_unavailable", "metadata_only", "parsing_failure"]
+    accepts_manual_pdf: Literal[True] = True
+    max_size_bytes: int
+
+
 class VerificationResponse(BaseModel):
+    source_recovery: SourceRecovery | None = None
     status: VerificationStatus
     claim: str
     verdict: Verdict | None = None
@@ -160,3 +169,15 @@ class VerificationResponse(BaseModel):
     validation_warnings: list[str] | None = None
     claim_traceability: ClaimTraceability | None = None
     detail: str | None = None
+
+    @model_validator(mode="after")
+    def validate_source_recovery(self):
+        if self.status == VerificationStatus.SOURCE_REQUIRED:
+            if (self.source_recovery is None or self.verdict is not None
+                    or self.confidence is not None or self.adjudicator is not None
+                    or self.prosecutor is not None or self.defender is not None
+                    or self.claim_traceability is not None or self.evidence):
+                raise ValueError("Source recovery cannot carry a semantic assessment")
+        elif self.source_recovery is not None:
+            raise ValueError("Source recovery requires source_required status")
+        return self

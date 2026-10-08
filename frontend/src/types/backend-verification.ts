@@ -1,6 +1,7 @@
 import type { VerdictKey } from '@/constants/verdicts'
 
 export type BackendVerificationStatus =
+  | 'source_required'
   | 'success'
   | 'insufficient_evidence'
   | 'llm_unavailable'
@@ -77,6 +78,12 @@ export interface BackendClaimTraceability {
 }
 
 export interface BackendVerificationResponse {
+  source_recovery?: {
+    required: true
+    reason: 'full_text_unavailable' | 'metadata_only' | 'parsing_failure'
+    accepts_manual_pdf: true
+    max_size_bytes: number
+  } | null
   status: BackendVerificationStatus
   claim: string
   verdict?: BackendVerdict | null
@@ -96,5 +103,5 @@ export interface BackendVerificationResponse {
 }
 
 export interface VerificationApiErrorBody {
-  detail?: string | Array<{ msg?: string; loc?: string[] }>
+  detail?: string | { code: string; message: string } | Array<{ msg?: string; loc?: string[] }>
 }

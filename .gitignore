@@ -156,3 +156,6 @@ env/
 .pytest_cache/
 .coverage
 backend/evaluation/checkpoints/
+
+# ResearchGuard local accepted sources
+backend/data/researchguard/sources/

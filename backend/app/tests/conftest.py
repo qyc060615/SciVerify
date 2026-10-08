@@ -39,3 +39,13 @@ def no_public_network(monkeypatch):
 
     monkeypatch.setattr(socket.socket, "connect", connect)
     monkeypatch.setattr(socket, "getaddrinfo", getaddrinfo)
+
+
+@pytest.fixture(autouse=True)
+def isolated_source_caches(tmp_path, monkeypatch):
+    # Each regression test starts with a fresh cache; never read a user's PDFs.
+    monkeypatch.setenv("RESEARCHGUARD_SOURCE_CACHE_DIR", str(tmp_path / "sources"))
+    from app.researchguard.adapters.paperqa2 import clear_index_cache
+    clear_index_cache()
+    yield
+    clear_index_cache()
