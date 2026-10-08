@@ -2,8 +2,14 @@ import type { Session, User } from '@supabase/supabase-js'
 import { getSupabaseClient, isSupabaseConfigured } from '@/lib/supabase'
 import { mapAuthError } from '@/lib/auth-errors'
 import type { SignUpResult } from '@/types/auth'
+import { isLocalDemoMode } from '@/lib/demo-mode'
+import { localDemoUser } from '@/lib/demo-identity'
 
 function requireSupabase() {
+  if (isLocalDemoMode()) {
+    throw new Error('Account management is unavailable in Local Demo mode.')
+  }
+
   if (!isSupabaseConfigured()) {
     throw new Error(
       'Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to frontend/.env',
@@ -14,6 +20,7 @@ function requireSupabase() {
 }
 
 export async function getSession(): Promise<Session | null> {
+  if (isLocalDemoMode()) return null
   if (!isSupabaseConfigured()) {
     return null
   }
@@ -24,6 +31,7 @@ export async function getSession(): Promise<Session | null> {
 }
 
 export async function getUser(): Promise<User | null> {
+  if (isLocalDemoMode()) return localDemoUser
   if (!isSupabaseConfigured()) {
     return null
   }
@@ -84,6 +92,7 @@ export async function signUp(
 }
 
 export async function signOut(): Promise<void> {
+  if (isLocalDemoMode()) return
   if (!isSupabaseConfigured()) {
     return
   }

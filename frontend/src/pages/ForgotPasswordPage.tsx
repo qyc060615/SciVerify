@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { MailCheck } from 'lucide-react'
@@ -17,7 +17,7 @@ import { Input } from '@/components/ui/Input'
 import { Panel } from '@/components/ui/Card'
 
 export default function ForgotPasswordPage() {
-  const { resetPassword } = useAuth()
+  const { resetPassword, isLocalDemo } = useAuth()
   const isSupabaseReady = useSupabaseConfigured()
   const [submitted, setSubmitted] = useState(false)
 
@@ -43,6 +43,8 @@ export default function ForgotPasswordPage() {
       )
     }
   }
+
+  if (isLocalDemo) return <Navigate to={ROUTES.APP_HOME} replace />
 
   if (submitted) {
     return (

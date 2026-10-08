@@ -1,8 +1,13 @@
 import { getSupabaseClient, isSupabaseConfigured } from '@/lib/supabase'
 import { mapAuthError } from '@/lib/auth-errors'
 import type { UpdateProfileInput, UserProfile } from '@/types/auth'
+import { isLocalDemoMode } from '@/lib/demo-mode'
+import { localDemoProfile, LOCAL_DEMO_USER_ID } from '@/lib/demo-identity'
 
 export async function getProfile(userId: string): Promise<UserProfile | null> {
+  if (isLocalDemoMode()) {
+    return userId === LOCAL_DEMO_USER_ID ? localDemoProfile : null
+  }
   if (!isSupabaseConfigured()) {
     return null
   }
@@ -24,6 +29,10 @@ export async function updateProfile(
   userId: string,
   input: UpdateProfileInput,
 ): Promise<UserProfile> {
+  if (isLocalDemoMode()) {
+    throw new Error('The Local Demo profile is read-only.')
+  }
+
   const { data, error } = await getSupabaseClient()
     .from('profiles')
     .update({

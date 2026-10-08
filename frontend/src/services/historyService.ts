@@ -7,6 +7,8 @@ import type {
 import type { VerificationResult } from '@/types/verification'
 
 import { VERDICT_KEYS, type VerdictKey } from '@/constants/verdicts'
+import { isLocalDemoMode } from '@/lib/demo-mode'
+import { readLocalHistory, saveLocalHistory, deleteLocalHistory } from '@/services/localHistory'
 
 const GENERIC_HISTORY_ERROR = 'Unable to access verification history.'
 
@@ -133,6 +135,10 @@ export async function saveVerificationHistory(
   userId: string,
   result: VerificationResult,
 ): Promise<void> {
+  if (isLocalDemoMode()) {
+    saveLocalHistory(result)
+    return
+  }
   if (!isSupabaseConfigured()) {
     throw new Error(GENERIC_HISTORY_ERROR)
   }
@@ -148,7 +154,13 @@ export async function saveVerificationHistory(
 
 export async function listVerificationHistory(
   userId: string,
+  onWarning?: (warning: string | null) => void,
 ): Promise<VerificationResult[]> {
+  if (isLocalDemoMode()) {
+    const { records, warning } = readLocalHistory()
+    onWarning?.(warning)
+    return records
+  }
   if (!isSupabaseConfigured()) {
     throw new Error(GENERIC_HISTORY_ERROR)
   }
@@ -170,6 +182,10 @@ export async function deleteVerificationHistory(
   userId: string,
   recordId: string,
 ): Promise<void> {
+  if (isLocalDemoMode()) {
+    deleteLocalHistory(recordId)
+    return
+  }
   if (!isSupabaseConfigured()) {
     throw new Error(GENERIC_HISTORY_ERROR)
   }

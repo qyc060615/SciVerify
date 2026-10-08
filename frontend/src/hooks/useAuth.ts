@@ -1,7 +1,10 @@
 import * as authService from '@/services/authService'
 import { useAuthStore } from '@/stores/authStore'
+import { isLocalDemoMode } from '@/lib/demo-mode'
+import { LOCAL_DEMO_USER_ID } from '@/lib/demo-identity'
 
 export function useAuth() {
+  const isLocalDemo = isLocalDemoMode()
   const {
     user,
     session,
@@ -17,7 +20,10 @@ export function useAuth() {
     initializing,
     isRecoverySession,
     loading: initializing,
-    isAuthenticated: Boolean(user && session),
+    isLocalDemo,
+    isAuthenticated: isLocalDemo
+      ? user?.id === LOCAL_DEMO_USER_ID
+      : Boolean(user && session),
     signIn: authService.signIn,
     signUp: authService.signUp,
     signOut: authService.signOut,

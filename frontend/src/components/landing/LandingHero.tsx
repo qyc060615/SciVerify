@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, FileSearch, ShieldCheck } from 'lucide-react'
-import { ROUTES } from '@/constants'
+import { useLandingEntry } from '@/hooks/useLandingEntry'
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { Reveal } from '@/components/landing/Reveal'
 
 export function LandingHero() {
+  const { startPath } = useLandingEntry()
   return (
     <section className="landing-grid relative overflow-hidden px-4 pb-20 pt-16 sm:px-6 sm:pb-28 sm:pt-24">
       <div className="pointer-events-none absolute inset-0 landing-glow" aria-hidden="true" />
@@ -34,7 +35,7 @@ export function LandingHero() {
 
         <Reveal delay={300}>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <Link to={ROUTES.REGISTER}>
+            <Link to={startPath}>
               <Button size="lg" className="w-full sm:w-auto">
                 Start verifying
                 <ArrowRight className="h-4 w-4" />

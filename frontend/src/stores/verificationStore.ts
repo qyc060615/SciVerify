@@ -7,6 +7,7 @@ interface VerificationStoreState {
   loading: boolean
   hydrated: boolean
   error: string | null
+  warning: string | null
   loadRecords: (userId: string) => Promise<void>
   addRecord: (
     userId: string,
@@ -22,12 +23,14 @@ export const useVerificationStore = create<VerificationStoreState>((set, get) =>
   loading: false,
   hydrated: false,
   error: null,
+  warning: null,
 
   loadRecords: async (userId) => {
-    set({ loading: true, error: null })
+    set({ loading: true, error: null, warning: null })
     try {
-      const records = await historyService.listVerificationHistory(userId)
-      set({ records, loading: false, hydrated: true, error: null })
+      let warning: string | null = null
+      const records = await historyService.listVerificationHistory(userId, (message) => { warning = message })
+      set({ records, loading: false, hydrated: true, error: null, warning })
     } catch {
       set({
         loading: false,
@@ -68,5 +71,6 @@ export const useVerificationStore = create<VerificationStoreState>((set, get) =>
       loading: false,
       hydrated: false,
       error: null,
+      warning: null,
     }),
 }))

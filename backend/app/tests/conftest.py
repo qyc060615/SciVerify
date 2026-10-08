@@ -43,6 +43,8 @@ def no_public_network(monkeypatch):
 
 @pytest.fixture(autouse=True)
 def isolated_source_caches(tmp_path, monkeypatch):
+    # Ignore a developer's live .env engine. PaperQA-specific tests opt in explicitly.
+    monkeypatch.setenv("RESEARCHGUARD_EVIDENCE_ENGINE", "lexical")
     # Each regression test starts with a fresh cache; never read a user's PDFs.
     monkeypatch.setenv("RESEARCHGUARD_SOURCE_CACHE_DIR", str(tmp_path / "sources"))
     from app.researchguard.adapters.paperqa2 import clear_index_cache

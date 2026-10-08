@@ -24,7 +24,7 @@ export default function VerifyPage() {
   const { verificationId } = useParams<{ verificationId?: string }>()
   const location = useLocation()
   const navigate = useNavigate()
-  const { user } = useAuth()
+  const { user, isLocalDemo } = useAuth()
   const getRecord = useVerificationStore((state) => state.getRecord)
   const addRecord = useVerificationStore((state) => state.addRecord)
   const historyLoading = useVerificationStore((state) => state.loading)
@@ -94,7 +94,9 @@ export default function VerifyPage() {
       navigate(verificationReportPath(verificationResult.id), { replace: true })
       toast.success('Verification completed.')
       if (!saved) {
-        toast.warning('Could not save to history. The report is still available now.')
+        toast.warning(isLocalDemo
+          ? 'Could not save locally. The report is still available now.'
+          : 'Could not save to history. The report is still available now.')
       }
     } catch (error) {
       if (error instanceof SourceRequiredError) {

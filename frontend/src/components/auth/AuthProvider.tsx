@@ -3,6 +3,8 @@ import * as authService from '@/services/authService'
 import * as profileService from '@/services/profileService'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/authStore'
+import { isLocalDemoMode } from '@/lib/demo-mode'
+import { localDemoUser, localDemoProfile } from '@/lib/demo-identity'
 
 async function loadProfile(userId: string) {
   try {
@@ -27,6 +29,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const finishInitializing = () => {
       if (mounted) {
         setInitializing(false)
+      }
+    }
+
+    if (isLocalDemoMode()) {
+      setAuth(localDemoUser, null)
+      setProfile(localDemoProfile)
+      setRecoverySession(false)
+      finishInitializing()
+      return () => {
+        mounted = false
       }
     }
 

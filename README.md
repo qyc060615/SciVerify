@@ -491,7 +491,7 @@ erDiagram
 
 ## 17. API Reference
 
-Interactive OpenAPI documentation is available locally at `http://127.0.0.1:8001/docs` when the backend is running.
+Interactive OpenAPI documentation is available locally at `http://127.0.0.1:8000/docs` when the backend is running with the Local Demo commands below.
 
 ### Key Endpoints
 
@@ -616,81 +616,114 @@ python -m pytest -q
 
 ---
 
-## 22. Installation & Setup
+## 22. Installation & Setup — Local Demo
 
 ### Prerequisites
 - **Git**
-- **Python 3.11+**
-- **Node.js 18+** and **npm**
-- An API key for an OpenAI-compatible provider (e.g. Groq, OpenAI)
+- **Conda** (the environment below uses Python 3.11)
+- **Node.js 24.x** (recommended) or **22.x ≥22.13**, and **npm**
+- Your own **DeepSeek** API key and **Alibaba Model Studio Beijing** embedding API key
+
+Local Demo requires no Supabase project or account. It runs the existing backend verification pipeline; it does not supply fake scientific results. Real verification requires external source and model services.
+
+From a new terminal:
+
+```bash
+git clone --branch develop https://github.com/qyc060615/SciVerify.git ResearchGuard
+cd ResearchGuard
+conda env create -f environment.yml
+conda activate researchguard
+cd backend
+python -m pip install -r requirements.txt
+cd ../frontend
+npm ci
+cd ..
+```
 
 ---
 
 ## 23. Environment Configuration
 
 ### Backend Configuration
-Create a `.env` file inside `backend/`:
+Copy `backend/.env.example` to `backend/.env`. On PowerShell, from the repository root:
 
-```env
-# Server
-PORT=8001
-
-# LLM Provider Configuration
-LLM_PROVIDER=groq
-LLM_API_KEY=your_api_key_here
-LLM_MODEL=openai/gpt-oss-120b
-LLM_BASE_URL=https://api.groq.com/openai/v1
-LLM_REQUEST_TIMEOUT=60
-LLM_MAX_RETRIES=5
-
-# Document & Retrieval Settings
-CHUNK_SIZE=1000
-CHUNK_OVERLAP=200
-EVIDENCE_TOP_K=5
+```powershell
+Copy-Item backend/.env.example backend/.env
+Copy-Item frontend/.env.example frontend/.env.local
 ```
 
-### Frontend Configuration
-Create a `.env` file inside `frontend/`:
+On macOS/Linux use `cp` with the same source and destination paths. Do not overwrite an existing file containing your credentials.
+
+In `backend/.env`, set the evidence engine to `paperqa2` and fill **two** private keys: `LLM_API_KEY` for DeepSeek, and `PAPERQA2_EMBEDDING_API_KEY` for Alibaba Beijing. The relevant settings are:
 
 ```env
-# Backend API Base URL
-VITE_API_BASE_URL=http://127.0.0.1:8001
+RESEARCHGUARD_EVIDENCE_ENGINE=paperqa2
+RESEARCHGUARD_LOG_LEVEL=INFO
 
-# Optional Supabase Persistence
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your_anon_key_here
+LLM_PROVIDER=openai-compatible
+LLM_API_KEY=your_deepseek_key
+LLM_MODEL=deepseek-flash
+LLM_BASE_URL=https://api.deepseek.com/v1
+LLM_REQUEST_TIMEOUT=60
+
+PAPERQA2_MODEL=openai/deepseek-flash
+PAPERQA2_API_KEY=${LLM_API_KEY}
+PAPERQA2_API_BASE=https://api.deepseek.com/v1
+
+PAPERQA2_EMBEDDING_MODEL=openai/text-embedding-v4
+PAPERQA2_EMBEDDING_API_KEY=your_alibaba_beijing_key
+PAPERQA2_EMBEDDING_API_BASE=https://dashscope.aliyuncs.com/compatible-mode/v1
+
+RESEARCHGUARD_SOURCE_CACHE_DIR=
+RESEARCHGUARD_PAPERQA_CACHE_SIZE=8
+LITELLM_LOCAL_MODEL_COST_MAP=True
+```
+
+`python-dotenv` expands `${LLM_API_KEY}`, so the DeepSeek key need only be filled once. A blank source-cache directory uses `backend/data/researchguard/sources/`. The repository template retains the default lexical engine; change it to `paperqa2` for the planned PaperQA evaluation.
+
+### Frontend Configuration
+Set `frontend/.env.local` to:
+
+```env
+VITE_API_BASE_URL=http://127.0.0.1:8000
+VITE_LOCAL_DEMO_MODE=true
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
 ```
 
 > [!WARNING]
-> Never commit `.env` files or expose private API keys in version control.
+> Never commit real credentials. `backend/.env` and `frontend/.env.local` are ignored. Model API keys belong only in the backend, never in a `VITE_*` variable.
+
+Local Demo is enabled only when **Vite development mode AND the flag is exactly `true`**. It uses a stable local identity with no session/token. Supabase authentication, profiles and history are not called, even if Supabase environment values remain populated. Login/register and password-recovery routes return to the workspace; settings are read-only and no logout action is shown.
+
+For normal Supabase mode, set `VITE_LOCAL_DEMO_MODE=false` (or omit it), configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`, and restart the frontend. Missing Supabase configuration does not automatically enable Demo.
 
 ---
 
-## 24. Running Locally
+## 24. Running Local Demo
 
-### Step 1: Start the Backend
+### Terminal 1: Start the Backend (from the repository root)
 ```bash
+conda activate researchguard
 cd backend
-python -m venv .venv
-
-# On Windows:
-.venv\Scripts\activate
-# On macOS/Linux:
-source .venv/bin/activate
-
-pip install -r requirements.txt
-python -m uvicorn app.main:app --reload --port 8001
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
 ```
-The backend will be available at `http://127.0.0.1:8001`.
+The backend health endpoint is `http://127.0.0.1:8000/health` and API documentation is `http://127.0.0.1:8000/docs`.
 
-### Step 2: Start the Frontend
-In a separate terminal:
+### Terminal 2: Start the Frontend (from the repository root)
 ```bash
 cd frontend
-npm install
-npm run dev
+npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
 ```
-The frontend will be available at `http://localhost:5173`.
+Open **`http://127.0.0.1:5173`** and select **Start verifying** or **Enter Local Demo**.
+
+Demo history stores complete reports in browser localStorage under `researchguard:demo:history:v1`, using `{ "version": 1, "records": [...] }`. It supports reopening report URLs after refresh and deleting records. History belongs to the current browser and origin: `localhost` and `127.0.0.1` do **not** share it, nor do different ports, browsers or computers. There is no cloud synchronization. Browser data deletion removes this history.
+
+Unreadable storage produces a nonblocking warning; individual invalid records are skipped without inventing a verdict. An invalid/unsupported top-level envelope is left untouched by save/delete; remove that local history key in browser storage to start fresh. If saving fails (for example, storage is full or disabled), the current report remains available in memory, but may be lost on refresh. Failed deletion is reported rather than shown as successful.
+
+Application logs default to INFO via `RESEARCHGUARD_LOG_LEVEL`. The five events to observe during the **later, manual real E2E** are `source_cache_miss`, `source_cache_hit`, `manual_source_accepted`, `paperqa_index_cache_miss`, and `paperqa_index_cache_hit`. Repeat an actual verification request to test reuse; opening a saved report does not exercise backend caches. Keep the same backend process running for index-cache reuse: indexes are process-local and cleared on restart, whereas accepted source files persist locally.
+
+This patch is validated with offline automated tests and production compilation only. **Real DOI E2E, real manual-PDF recovery, live model/provider calls and a second-computer Clone & Run test have not been executed for this patch.** Next: local real E2E → teammate Clone & Run → M3. No launch scripts or Docker are required by this patch.
 
 ---
 
@@ -702,6 +735,8 @@ cd frontend
 npm run build
 ```
 This executes TypeScript validation (`tsc -b`) and Vite production bundling. Output assets are placed in `frontend/dist/`.
+
+**Production builds always disable Local Demo**, even with `VITE_LOCAL_DEMO_MODE=true` left in `.env.local`. Production/preview uses the normal Supabase mode and needs its configuration. Local Demo is intended for the development server, not an authentication mechanism for a public deployment.
 
 ---
 

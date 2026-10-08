@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { env } from '@/lib/env'
+import { isLocalDemoMode } from '@/lib/demo-mode'
 
 let client: SupabaseClient | null = null
 
@@ -8,6 +9,10 @@ export function isSupabaseConfigured(): boolean {
 }
 
 export function getSupabaseClient(): SupabaseClient {
+  if (isLocalDemoMode()) {
+    throw new Error('Supabase is unavailable in Local Demo mode.')
+  }
+
   if (!isSupabaseConfigured()) {
     throw new Error(
       'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in frontend/.env',

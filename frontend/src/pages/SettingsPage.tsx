@@ -14,7 +14,7 @@ import { Divider } from '@/components/ui/Divider'
 
 export default function SettingsPage() {
   const navigate = useNavigate()
-  const { user, profile, signOut } = useAuth()
+  const { user, profile, signOut, isLocalDemo } = useAuth()
   const displayName = useUserDisplayName()
   const [signingOut, setSigningOut] = useState(false)
 
@@ -45,7 +45,7 @@ export default function SettingsPage() {
           <div>
             <h2 className="text-lg font-semibold text-text-primary">Profile</h2>
             <p className="mt-1 text-sm text-text-secondary">
-              Your workspace identity loaded from Supabase.
+              {isLocalDemo ? 'Local Demo identity. This profile is read-only.' : 'Your workspace identity loaded from Supabase.'}
             </p>
           </div>
 
@@ -82,21 +82,25 @@ export default function SettingsPage() {
           </div>
 
           <div className="rounded-lg border border-border/80 bg-surface-elevated/30 p-4 text-sm leading-relaxed text-text-secondary">
-            Profile data is loaded from your existing Supabase session and
-            profile record.
+            {isLocalDemo
+              ? 'Local Demo uses a local identity and browser history. No cloud account or password is required.'
+              : 'Profile data is loaded from your existing Supabase session and profile record.'}
           </div>
 
-          <Divider />
-
-          <Button
-            variant="danger"
-            onClick={handleLogout}
-            loading={signingOut}
-            className="w-full sm:w-auto"
-          >
-            <LogOut className="h-4 w-4" />
-            {signingOut ? 'Signing out...' : 'Logout'}
-          </Button>
+          {!isLocalDemo ? (
+            <>
+              <Divider />
+              <Button
+                variant="danger"
+                onClick={handleLogout}
+                loading={signingOut}
+                className="w-full sm:w-auto"
+              >
+                <LogOut className="h-4 w-4" />
+                {signingOut ? 'Signing out...' : 'Logout'}
+              </Button>
+            </>
+          ) : null}
         </Panel>
       </div>
     </div>

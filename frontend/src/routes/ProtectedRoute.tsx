@@ -32,7 +32,7 @@ export function ProtectedRoute() {
 }
 
 export function GuestRoute() {
-  const { initializing, isAuthenticated } = useAuth()
+  const { initializing, isAuthenticated, isLocalDemo } = useAuth()
   const location = useLocation()
   const redirect =
     (location.state as { from?: { pathname: string } } | null)?.from
@@ -50,7 +50,7 @@ export function GuestRoute() {
   }
 
   if (isAuthenticated) {
-    return <Navigate to={redirect} replace />
+    return <Navigate to={isLocalDemo ? ROUTES.APP_HOME : redirect} replace />
   }
 
   return <Outlet />

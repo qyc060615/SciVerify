@@ -15,7 +15,7 @@ const navLinks = [
 
 export function LandingNavbar() {
   const [open, setOpen] = useState(false)
-  const { isAuthenticated, initializing } = useAuth()
+  const { isAuthenticated, initializing, isLocalDemo } = useAuth()
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
@@ -43,9 +43,9 @@ export function LandingNavbar() {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
-          {!initializing && isAuthenticated ? (
+          {isLocalDemo || (!initializing && isAuthenticated) ? (
             <Link to={ROUTES.APP_HOME}>
-              <Button size="sm">Workspace</Button>
+              <Button size="sm">{isLocalDemo ? 'Enter Local Demo' : 'Workspace'}</Button>
             </Link>
           ) : (
             <>
@@ -89,9 +89,9 @@ export function LandingNavbar() {
             </a>
           ))}
           <div className="mt-3 flex flex-col gap-2 border-t border-border pt-4">
-            {!initializing && isAuthenticated ? (
+            {isLocalDemo || (!initializing && isAuthenticated) ? (
               <Link to={ROUTES.APP_HOME} onClick={() => setOpen(false)}>
-                <Button className="w-full">Workspace</Button>
+                <Button className="w-full">{isLocalDemo ? 'Enter Local Demo' : 'Workspace'}</Button>
               </Link>
             ) : (
               <>

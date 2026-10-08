@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -19,7 +19,7 @@ import { Spinner } from '@/components/ui/Spinner'
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate()
-  const { updatePassword, signOut, isRecoverySession, session, initializing } = useAuth()
+  const { updatePassword, signOut, isRecoverySession, session, initializing, isLocalDemo } = useAuth()
   const isSupabaseReady = useSupabaseConfigured()
   const [completed, setCompleted] = useState(false)
   const sessionInvalid =
@@ -50,6 +50,8 @@ export default function ResetPasswordPage() {
       )
     }
   }
+
+  if (isLocalDemo) return <Navigate to={ROUTES.APP_HOME} replace />
 
   if (initializing) {
     return (

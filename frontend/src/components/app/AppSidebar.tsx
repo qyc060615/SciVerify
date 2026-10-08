@@ -74,7 +74,7 @@ function NavSection({
 
 function UserSection({ onNavigate }: { onNavigate?: () => void }) {
   const navigate = useNavigate()
-  const { user, signOut } = useAuth()
+  const { user, signOut, isLocalDemo } = useAuth()
   const displayName = useUserDisplayName()
   const [signingOut, setSigningOut] = useState(false)
 
@@ -105,16 +105,20 @@ function UserSection({ onNavigate }: { onNavigate?: () => void }) {
           <p className="truncate text-xs text-text-muted">{user?.email}</p>
         </div>
       </div>
-      <Button
-        variant="outline"
-        size="sm"
-        className="w-full justify-start"
-        onClick={handleLogout}
-        loading={signingOut}
-      >
-        <LogOut className="h-4 w-4" />
-        {signingOut ? 'Signing out...' : 'Logout'}
-      </Button>
+      {isLocalDemo ? (
+        <p className="px-3 text-xs text-text-muted">Local Demo · Browser history</p>
+      ) : (
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full justify-start"
+          onClick={handleLogout}
+          loading={signingOut}
+        >
+          <LogOut className="h-4 w-4" />
+          {signingOut ? 'Signing out...' : 'Logout'}
+        </Button>
+      )}
     </div>
   )
 }

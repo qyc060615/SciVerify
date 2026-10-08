@@ -13,6 +13,10 @@ if backend_env.exists():
 else:
     load_dotenv(override=True)
 
+from app.logging_config import configure_application_logging
+
+configure_application_logging()
+
 from app.api.routes.citations import router as citations_router
 from app.api.routes.evidence import router as evidence_router
 from app.api.routes.papers import router as papers_router
