@@ -671,6 +671,7 @@ PAPERQA2_API_KEY=${LLM_API_KEY}
 PAPERQA2_API_BASE=https://api.deepseek.com/v1
 
 PAPERQA2_EMBEDDING_MODEL=openai/text-embedding-v4
+PAPERQA2_EMBEDDING_BATCH_SIZE=10
 PAPERQA2_EMBEDDING_API_KEY=your_alibaba_beijing_key
 PAPERQA2_EMBEDDING_API_BASE=https://dashscope.aliyuncs.com/compatible-mode/v1
 
@@ -678,6 +679,11 @@ RESEARCHGUARD_SOURCE_CACHE_DIR=
 RESEARCHGUARD_PAPERQA_CACHE_SIZE=8
 LITELLM_LOCAL_MODEL_COST_MAP=True
 ```
+
+Alibaba `text-embedding-v4` accepts at most 10 texts per embedding request, so
+Local Demo defaults to `PAPERQA2_EMBEDDING_BATCH_SIZE=10`. This provider compatibility
+setting controls embedding API batching; adjust it to your embedding provider's
+documented limit when changing providers. It does not alter chunks or index identity.
 
 `python-dotenv` expands `${LLM_API_KEY}`, so the DeepSeek key need only be filled once. A blank source-cache directory uses `backend/data/researchguard/sources/`. The repository template retains the default lexical engine; change it to `paperqa2` for the planned PaperQA evaluation.
 

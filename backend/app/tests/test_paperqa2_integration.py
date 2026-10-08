@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import inspect
+from dataclasses import replace
 import json
 from pathlib import Path
 from unittest.mock import Mock
@@ -443,3 +444,105 @@ def test_invalid_model_config_fails_clearly_without_retrieval(paperqa_env, monke
     monkeypatch.setenv(variable, value)
     with pytest.raises(PaperQA2RetrievalError, match="configuration"):
         PaperQA2Config.from_environment()
+
+
+def test_embedding_batch_size_defaults_and_environment(paperqa_env, monkeypatch):
+    monkeypatch.delenv("PAPERQA2_EMBEDDING_BATCH_SIZE", raising=False)
+    assert PaperQA2Config(model="fixture", embedding_model="fixture").embedding_batch_size == 10
+    assert PaperQA2Config.from_environment().embedding_batch_size == 10
+    monkeypatch.setenv("PAPERQA2_EMBEDDING_BATCH_SIZE", "8")
+    assert PaperQA2Config.from_environment().embedding_batch_size == 8
+
+
+@pytest.mark.parametrize("value", ["0", "-1", "1.5", "invalid-secret-input", ""])
+def test_invalid_embedding_batch_environment_is_safe(paperqa_env, monkeypatch, value):
+    monkeypatch.setenv("PAPERQA2_EMBEDDING_BATCH_SIZE", value)
+    with pytest.raises(PaperQA2RetrievalError, match="paperqa2_configuration") as error:
+        PaperQA2Config.from_environment()
+    assert "invalid-secret-input" not in str(error.value)
+
+
+@pytest.mark.parametrize("value", [0, -1, 1.5, "10", True])
+def test_direct_embedding_batch_config_requires_positive_integer(value):
+    with pytest.raises(PaperQA2RetrievalError, match="paperqa2_configuration"):
+        PaperQA2Config(model="fixture", embedding_model="fixture", embedding_batch_size=value)
+
+
+def batch_config(batch_size=10):
+    return PaperQA2Config(model="openai/fixture-summary", embedding_model="openai/fixture-embedding",
+        embedding_batch_size=batch_size, embedding_api_key="fake-embedding-key",
+        embedding_api_base="https://embedding.example/v1", timeout=17.0)
+
+
+def test_embedding_batch_settings_are_model_config_not_provider_kwargs():
+    settings = batch_config().make_settings(3)
+    assert settings.embedding_config == {"batch_size": 10, "kwargs": {
+        "timeout": 17.0, "api_key": "fake-embedding-key", "api_base": "https://embedding.example/v1"}}
+    assert settings.batch_size == 1  # PaperQA's LLM batch setting is independent.
+
+
+@pytest.fixture
+def embedding_api_calls(monkeypatch):
+    import litellm
+    calls = []
+
+    async def embedding_api(**kwargs):
+        texts = list(kwargs["input"])
+        assert 0 < len(texts) <= 10, "Simulated provider rejects oversized batches"
+        calls.append({**kwargs, "input": texts})
+        return litellm.EmbeddingResponse(model=kwargs["model"],
+            data=[{"object": "embedding", "index": i, "embedding": [1.0, 0.1]} for i in range(len(texts))],
+            usage={"prompt_tokens": len(texts), "total_tokens": len(texts)})
+
+    # Mock only the provider boundary. Keep PaperQA factory, LMI model/router and batching real.
+    monkeypatch.setattr(litellm, "aembedding", embedding_api)
+    return calls
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize("batch_size,expected", [(10, [10, 10, 5]), (8, [8, 8, 8, 1])])
+async def test_production_embedding_factory_batches_25_texts(embedding_api_calls, batch_size, expected):
+    from lmi import LiteLLMEmbeddingModel
+    model = batch_config(batch_size).make_settings(1).get_embedding_model()
+    assert isinstance(model, LiteLLMEmbeddingModel)
+    assert model.config["batch_size"] == batch_size
+    texts = [f"Offline text {i}" for i in range(25)]
+    vectors = await model.embed_documents(texts)
+    assert len(vectors) == 25 and all(vector == [1.0, 0.1] for vector in vectors)
+    assert [len(call["input"]) for call in embedding_api_calls] == expected
+    assert [text for call in embedding_api_calls for text in call["input"]] == texts
+    for call in embedding_api_calls:
+        assert call["api_key"] == "fake-embedding-key"
+        assert call["api_base"] == "https://embedding.example/v1" and call["timeout"] == 17.0
+        assert "batch_size" not in call
+
+
+@pytest.mark.anyio
+async def test_production_single_query_embedding(embedding_api_calls):
+    model = batch_config().make_settings(1).get_embedding_model()
+    # The pinned LMI/PaperQA path embeds a query as a one-item documents list.
+    assert await model.embed_documents(["Offline query"]) == [[1.0, 0.1]]
+    assert [call["input"] for call in embedding_api_calls] == [["Offline query"]]
+
+
+@pytest.mark.anyio
+async def test_changing_batch_size_reuses_production_source_index(paper, embedding_api_calls, monkeypatch, caplog):
+    source, chunks = accepted_source_to_domain(paper)
+    claim = standalone_claim_to_domain(preprocess_claim("Treatment reduces risk."), source)
+    cfg = batch_config()
+    added = []
+    original_add = Docs.aadd_texts
+
+    async def record_add(self, *args, **kwargs):
+        added.append(True)
+        return await original_add(self, *args, **kwargs)
+
+    monkeypatch.setattr(Docs, "aadd_texts", record_add)
+    caplog.set_level("INFO")
+    # Actual embedding factories, same semantic config; only transport batch size changes.
+    for config in (cfg, replace(cfg, embedding_batch_size=8)):
+        retriever = PaperQA2EvidenceRetriever(chunks, config, summary_model=LocalSummary())
+        assert await retriever.retrieve(claim, source, 1)
+    assert len(added) == 1
+    assert "paperqa_index_cache_miss" in caplog.text and "paperqa_index_cache_hit" in caplog.text
+    assert len([call for call in embedding_api_calls if len(call["input"]) == 1]) >= 2

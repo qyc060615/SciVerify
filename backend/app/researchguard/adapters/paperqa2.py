@@ -53,8 +53,11 @@ class PaperQA2Config:
     api_base: str | None = None
     embedding_api_key: str | None = field(default=None, repr=False)
     embedding_api_base: str | None = None
+    embedding_batch_size: int = 10
 
     def __post_init__(self) -> None:
+        if type(self.embedding_batch_size) is not int or self.embedding_batch_size <= 0:
+            raise PaperQA2RetrievalError("paperqa2_configuration: embedding batch size must be a positive integer.")
         if not self.model.strip() or not self.embedding_model.strip():
             raise PaperQA2RetrievalError("paperqa2_configuration: set PAPERQA2_MODEL and PAPERQA2_EMBEDDING_MODEL.")
         if self.candidate_k <= 0 or self.max_concurrent_requests <= 0 or not math.isfinite(self.timeout) or self.timeout <= 0:
@@ -73,6 +76,7 @@ class PaperQA2Config:
                 api_base=os.getenv("PAPERQA2_API_BASE") or None,
                 embedding_api_key=os.getenv("PAPERQA2_EMBEDDING_API_KEY") or None,
                 embedding_api_base=os.getenv("PAPERQA2_EMBEDDING_API_BASE") or None,
+                embedding_batch_size=int(os.getenv("PAPERQA2_EMBEDDING_BATCH_SIZE", "10")),
             )
         except ValueError as exc:
             raise PaperQA2RetrievalError("paperqa2_configuration: invalid numeric setting.") from exc
@@ -94,7 +98,7 @@ class PaperQA2Config:
         return Settings(
             llm=self.model, summary_llm=self.model, embedding=self.embedding_model,
             summary_llm_config={"model_list": [{"model_name": self.model, "litellm_params": params}]},
-            embedding_config={"kwargs": embedding_config},
+            embedding_config={"batch_size": self.embedding_batch_size, "kwargs": embedding_config},
             verbosity=0,
             parsing={"defer_embedding": False},
             answer={
