@@ -51,3 +51,20 @@ def isolated_source_caches(tmp_path, monkeypatch):
     clear_index_cache()
     yield
     clear_index_cache()
+
+
+@pytest.fixture(autouse=True)
+def offline_grobid_transport(monkeypatch):
+    """Loopback is allowed elsewhere, but GROBID must be explicitly opted into."""
+    if os.getenv("RUN_GROBID_LOCAL_TESTS") == "1":
+        return
+    import httpx
+    from app.researchguard.adapters.grobid import GrobidAdapter
+    original = GrobidAdapter._fulltext
+
+    async def guarded(self, client, timeout):
+        if not isinstance(client._transport, httpx.MockTransport):
+            raise AssertionError("GROBID tests require MockTransport or RUN_GROBID_LOCAL_TESTS=1")
+        return await original(self, client, timeout)
+
+    monkeypatch.setattr(GrobidAdapter, "_fulltext", guarded)

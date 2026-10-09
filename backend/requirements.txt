@@ -11,3 +11,6 @@ paper-qa==2026.8.12
 
 # M2 cited PDF recovery
 python-multipart>=0.0.32
+
+# M3A: bounded safe TEI parsing, no entity/DTD/network resolution.
+defusedxml==0.7.1

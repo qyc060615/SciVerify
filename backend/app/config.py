@@ -65,3 +65,21 @@ def paperqa_cache_size() -> int:
     if value < 0:
         raise ValueError("PaperQA cache size must be nonnegative")
     return value
+
+
+def manuscript_max_size() -> int:
+    value = int(os.getenv("RESEARCHGUARD_MANUSCRIPT_MAX_SIZE", str(20 * 1024 * 1024)))
+    if value <= 0:
+        raise ValueError("Manuscript size limit must be positive")
+    return value
+
+
+def grobid_settings() -> dict:
+    """Read at use time: no network, no startup dependency on GROBID."""
+    return {
+        "base_url": os.getenv("GROBID_BASE_URL", "http://127.0.0.1:8070").strip().rstrip("/"),
+        "connect_timeout": float(os.getenv("GROBID_CONNECT_TIMEOUT", "5")),
+        "read_timeout": float(os.getenv("GROBID_READ_TIMEOUT", "180")),
+        "total_timeout": float(os.getenv("GROBID_TOTAL_TIMEOUT", "240")),
+        "max_tei_size": int(os.getenv("GROBID_MAX_TEI_SIZE", str(20 * 1024 * 1024))),
+    }

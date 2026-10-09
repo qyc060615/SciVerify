@@ -22,6 +22,7 @@ from app.api.routes.evidence import router as evidence_router
 from app.api.routes.papers import router as papers_router
 from app.api.routes.verification import router as verification_router
 from app.api.routes.sources import router as sources_router
+from app.api.routes.manuscripts import router as manuscripts_router
 
 BACKEND_HOST = os.getenv("BACKEND_HOST", "0.0.0.0")
 BACKEND_PORT = int(os.getenv("PORT") or os.getenv("BACKEND_PORT", "8000"))
@@ -71,6 +72,7 @@ app.include_router(papers_router)
 app.include_router(evidence_router)
 app.include_router(verification_router)
 app.include_router(sources_router)
+app.include_router(manuscripts_router)
 
 
 @app.get("/health", tags=["health"])
