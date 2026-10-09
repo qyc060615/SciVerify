@@ -6,7 +6,7 @@ zero-based. Adapters allocate IDs and normalize metadata before construction.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Annotated, Self
+from typing import Annotated, Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, StringConstraints, model_validator
 
@@ -151,6 +151,9 @@ class CitationContext(DomainModel):
     text: Text
     citation_callout_ids: tuple[Identifier, ...] = ()
     page: Page | None = None
+    span: TextSpan | None = None
+    focal_span: TextSpan | None = None
+    scope_kind: Literal["sentence", "paragraph_fallback", "trailing_marker"] | None = None
 
 
 class ParsedManuscript(DomainModel):
@@ -196,6 +199,12 @@ class ParsedManuscript(DomainModel):
         return self
 
 
+class AttributionStatus(str, Enum):
+    RESOLVED = "resolved"
+    AMBIGUOUS = "ambiguous"
+    UNRESOLVED = "unresolved"
+
+
 class AtomicClaim(DomainModel):
     id: Identifier
     manuscript_id: Identifier
@@ -205,6 +214,89 @@ class AtomicClaim(DomainModel):
     citation_callout_ids: tuple[Identifier, ...] = ()
     reference_ids: tuple[Identifier, ...] = ()
     page: Page | None = None
+    source_spans: tuple[TextSpan, ...] = ()
+    attribution_status: AttributionStatus | None = None
+
+
+class ExtractionStatus(str, Enum):
+    COMPLETED = "completed"
+    PARTIAL = "partial"
+    FAILED = "failed"
+    SKIPPED = "skipped"
+
+
+class ClaimExtractionMetadata(DomainModel):
+    model: Annotated[str, StringConstraints(max_length=200)] | None = None
+    prompt_version: Identifier
+    context_policy_version: Identifier
+    attribution_policy_version: Identifier
+    input_fingerprint: Identifier
+    input_provenance: Literal["client_supplied"] = "client_supplied"
+
+
+class RejectedClaimProposalSummary(DomainModel):
+    proposal_index: Annotated[int, Field(strict=True, ge=0)]
+    # No raw model text, exception or unknown IDs in a rejection summary.
+    reason_code: Identifier
+
+
+class ContextExtractionResult(DomainModel):
+    context_id: Identifier
+    status: ExtractionStatus
+    accepted_claim_ids: tuple[Identifier, ...] = ()
+    diagnostics: tuple[ManuscriptDiagnostic, ...] = ()
+    rejected_proposals: Annotated[tuple[RejectedClaimProposalSummary, ...], Field(max_length=8)] = ()
+
+
+class ClaimExtractionResult(DomainModel):
+    manuscript_id: Identifier
+    status: ExtractionStatus
+    contexts: tuple[CitationContext, ...] = ()
+    claims: tuple[AtomicClaim, ...] = ()
+    context_results: tuple[ContextExtractionResult, ...] = ()
+    diagnostics: tuple[ManuscriptDiagnostic, ...] = ()
+    metadata: ClaimExtractionMetadata
+
+    @model_validator(mode="after")
+    def validate_extraction_graph(self) -> Self:
+        contexts = {c.id: c for c in self.contexts}
+        claims = {c.id: c for c in self.claims}
+        if len(contexts) != len(self.contexts) or len(claims) != len(self.claims):
+            raise ValueError("Duplicate extraction identity")
+        if [r.context_id for r in self.context_results] != [c.id for c in self.contexts]:
+            raise ValueError("Context results must preserve context order")
+        linked = []
+        for context in self.contexts:
+            if (context.manuscript_id != self.manuscript_id or context.span is None
+                    or context.focal_span is None or context.scope_kind is None):
+                raise ValueError("Incomplete extraction context")
+            if not context.span.start <= context.focal_span.start < context.focal_span.end <= context.span.end:
+                raise ValueError("Focal must be inside context window")
+        for result in self.context_results:
+            if result.status in {ExtractionStatus.FAILED, ExtractionStatus.SKIPPED} and result.accepted_claim_ids:
+                raise ValueError("Failed/skipped context cannot own accepted claims")
+            for claim_id in result.accepted_claim_ids:
+                if claim_id not in claims or claims[claim_id].context_id != result.context_id:
+                    raise ValueError("Context has a foreign claim")
+                linked.append(claim_id)
+        if len(set(linked)) != len(linked) or set(linked) != set(claims):
+            raise ValueError("Every extracted claim must belong to one context result")
+        for claim in self.claims:
+            context = contexts.get(claim.context_id)
+            if (context is None or claim.manuscript_id != self.manuscript_id
+                    or claim.paragraph_id != context.paragraph_id or not claim.source_spans
+                    or claim.attribution_status is None):
+                raise ValueError("Incomplete grounded claim")
+            previous = context.focal_span.start
+            for span in claim.source_spans:
+                if span.start < previous or span.end > context.focal_span.end:
+                    raise ValueError("Source spans must be ordered inside focal")
+                previous = span.end
+            if claim.attribution_status == AttributionStatus.AMBIGUOUS and (claim.reference_ids or claim.citation_callout_ids):
+                raise ValueError("Ambiguous claim cannot carry final links")
+            if claim.attribution_status == AttributionStatus.RESOLVED and not (claim.reference_ids and claim.citation_callout_ids):
+                raise ValueError("Resolved attribution needs occurrence and reference links")
+        return self
 
 
 class SourceDocument(DomainModel):
