@@ -194,6 +194,31 @@ def test_exact_quote_cannot_drop_numeric_unit(unit):
     assert e.value.code == "SEMANTIC_NUMERIC_DRIFT"
 
 
+def test_b9_trimmed_current_focal_rejects_reattached_marker_source_and_id():
+    from app.tests.test_citation_context import boundary_manuscript
+    p = boundary_manuscript("A supports T-cell responses.", "8 B shows higher titers [9].", ("8", "[9]"))
+    with pytest.raises(ProposalRejected) as e:
+        check(p, proposal("B shows higher titers", ids=("callout:0",)), 1)
+    assert e.value.code == "UNKNOWN_CITATION_CALLOUT"
+    with pytest.raises(ProposalRejected) as e:
+        check(p, proposal("8 B shows higher titers", ids=("callout:1",)), 1)
+    assert e.value.code == "QUOTE_NOT_FOUND"
+    c = check(p, proposal("B shows higher titers", ids=("callout:1",)), 1)
+    assert c.attribution_status == "resolved" and c.reference_ids == ("r1",)
+    assert all(s.start >= p.citation_callouts[0].span.end for s in c.source_spans)
+    assert check(p, proposal("A supports T-cell responses")).reference_ids == ("r0",)
+
+
+def test_boundary_partial_group_is_never_promoted_to_resolved():
+    from app.researchguard.domain import CitationResolutionStatus
+    from app.tests.test_citation_context import boundary_manuscript
+    p = boundary_manuscript("A supports T-cell responses.", "8,9 B shows higher titers.", ("8", "9"))
+    calls = (p.citation_callouts[0], p.citation_callouts[1].model_copy(update={"resolution_status": CitationResolutionStatus.PARTIAL}))
+    p = p.model_copy(update={"citation_callouts": calls})
+    c = check(p, proposal("A supports T-cell responses", ids=("callout:0", "callout:1")))
+    assert c.attribution_status == "unresolved"
+
+
 @pytest.mark.parametrize("extra", ["reference_ids", "offsets", "verdict", "confidence", "DOI", "reasoning", "start", "end"])
 def test_proposal_forbids_model_authority_fields(extra):
     data = proposal("A improves accuracy").model_dump()

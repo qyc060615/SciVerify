@@ -214,3 +214,47 @@ def test_sentence_boundary_whitespace_keeps_exact_window():
     context = result.contexts[0]
     assert result.status == "completed"
     assert context.text == text[context.span.start:context.span.end]
+
+
+def test_boundary_wrong_neighbor_proposal_cannot_form_resolved_claim(monkeypatch):
+    from unittest.mock import Mock
+    from app.tests.test_citation_context import boundary_manuscript
+    factory = Mock(side_effect=AssertionError("Real provider factory must not run"))
+    monkeypatch.setattr("app.services.llm.provider.get_llm_provider", factory)
+    p = boundary_manuscript("A supports T-cell responses.", "8 B shows higher titers.")
+    wrong = {"claims": [{"text": "B shows higher titers", "source_quotes": [{"quote": "B shows higher titers"}], "citation_callout_ids": ["c1"]}]}
+    provider = FakeProvider(lambda payload: wrong)
+    result = run(p, provider=provider)
+    assert len(provider.prompts) == 1 and result.status == "failed" and not result.claims
+    assert provider.prompts[0]["focal_text"] == "A supports T-cell responses. 8"
+    assert provider.prompts[0]["callouts"][0]["text"] == "8"
+    assert result.context_results[0].rejected_proposals[0].reason_code == "QUOTE_NOT_FOUND"
+    factory.assert_not_called()
+
+
+def test_boundary_provider_candidates_unique_and_current_sources_clean():
+    from app.tests.test_citation_context import boundary_manuscript
+    p = boundary_manuscript("A supports T-cell responses.", "8 B shows higher titers [9].", ("8", "[9]"))
+    def handler(payload):
+        quote = "A supports T-cell responses" if payload["focal_text"].startswith("A") else "B shows higher titers"
+        return {"claims": [{"text": quote, "source_quotes": [{"quote": quote}], "citation_callout_ids": ["c1"]}]}
+    provider = FakeProvider(handler)
+    result = run(p, provider=provider)
+    assert result.status == "completed" and len(result.claims) == 2
+    assert [c.reference_ids for c in result.claims] == [("r0",), ("r1",)]
+    assert sorted(c["text"] for prompt in provider.prompts for c in prompt["callouts"]) == ["8", "[9]"]
+    current = next(prompt for prompt in provider.prompts if prompt["focal_text"].startswith("B"))
+    assert current["focal_text"] == "B shows higher titers [9]."
+    assert "A supports" in current["window_text"]  # Neighbor stays read-only.
+    assert [c["text"] for c in current["callouts"]] == ["[9]"]
+    assert all(s.start >= p.citation_callouts[0].span.end for s in result.claims[1].source_spans)
+
+
+def test_ambiguous_boundary_prefix_never_initializes_provider():
+    from unittest.mock import Mock
+    from app.tests.test_citation_context import boundary_manuscript
+    factory = Mock(side_effect=AssertionError("Ambiguous boundary must not call provider"))
+    result = run(boundary_manuscript("Background sentence.", "8 A improves accuracy."), provider_factory=factory)
+    assert result.status == "skipped" and not result.claims
+    assert {d.code for d in result.diagnostics} == {"AMBIGUOUS_BOUNDARY_CITATION"}
+    factory.assert_not_called()

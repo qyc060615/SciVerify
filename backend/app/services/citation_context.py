@@ -9,7 +9,7 @@ from app.researchguard.domain import (
     ParsedManuscript, TextSpan,
 )
 
-CONTEXT_POLICY_VERSION = "citation-sentence-v1"
+CONTEXT_POLICY_VERSION = "citation-sentence-boundary-v2"
 MAX_REQUEST_BYTES = 2 * 1024 * 1024
 MAX_TEXT = 200000
 MAX_CONTEXTS = 64
@@ -136,6 +136,63 @@ class ContextPlan:
     skip_code: str | None = None
 
 
+@dataclass
+class _SentenceOwner:
+    focal: TextSpan
+    callouts: list
+    index: int
+    kind: str = "sentence"
+    skip: str | None = None
+
+
+def _sentence_ownership(paragraph, sentences, calls):
+    """Plan ownership without changing canonical sentence/callout offsets.
+
+    Standalone markers retain the explicit trailing rule. For a leading group
+    followed by prose, only bare numeric surfaces after a closed prose sentence
+    qualify. Bracketed/punctuated prefixes and conflicting terminal groups abstain.
+    A three-word minimum excludes short labels/headings; it is not a grammar parser.
+    """
+    text = paragraph.text
+    owners = [_SentenceOwner(s, [c for c in calls if s.start <= c.span.start and c.span.end <= s.end], i)
+              for i, s in enumerate(sentences)]
+    for i, owner in enumerate(owners):
+        if not owner.callouts:
+            continue
+        local_groups = groups(text, owner.callouts)
+        leading = local_groups[0]
+        if not re.fullmatch(r"[\s.,;:()\[\]]*", text[owner.focal.start:leading[0].span.start]):
+            continue  # Ordinary inline citations, including narrative author names.
+        standalone = marker_only(text, owner.focal, owner.callouts)
+        if i == 0:
+            if standalone:
+                owner.skip = "UNRELIABLE_SENTENCE_SCOPE"
+            continue  # A real prefix without a previous sentence is never reassigned.
+        previous = owners[i - 1]
+        previous_text = text[previous.focal.start:previous.focal.end]
+        terminal_group = bool(previous.callouts and not text[
+            previous.callouts[-1].span.end:previous.focal.end].strip(" \t\r\n.,;:!?()"))
+        gap_clear = not text[previous.focal.end:leading[0].span.start].strip()
+        bare = all(re.fullmatch(r"[\d\s,–-]+", c.text) for c in leading)
+        prose_after = bool(re.match(r"\s+[^\W\d_]", text[leading[-1].span.end:owner.focal.end]))
+        closed_prose = (previous_text.endswith((".", "!", "?"))
+                        and len(re.findall(r"[^\W\d_]+", previous_text)) >= 3)
+        attach = (not previous.skip and gap_clear and not terminal_group
+                  and not marker_only(text, previous.focal, calls)
+                  and (standalone and len(local_groups) == 1
+                       or not standalone and bare and prose_after and closed_prose))
+        if not attach:
+            owner.skip = "UNRELIABLE_SENTENCE_SCOPE" if standalone else "AMBIGUOUS_BOUNDARY_CITATION"
+            continue
+        previous.focal = TextSpan(start=previous.focal.start, end=leading[-1].span.end)
+        previous.callouts.extend(leading)
+        previous.kind = "trailing_marker"
+        owner.callouts = owner.callouts[len(leading):]
+        if not standalone:
+            owner.focal = _trim_span(text, leading[-1].span.end, owner.focal.end)
+    return [(o.focal, o.callouts, o.kind, o.skip, o.index) for o in owners if o.callouts]
+
+
 def build_contexts(parsed: ParsedManuscript) -> tuple[ContextPlan, ...]:
     parsed = validate_input(parsed)
     plans = []
@@ -149,23 +206,8 @@ def build_contexts(parsed: ParsedManuscript) -> tuple[ContextPlan, ...]:
             skip = "UNRELIABLE_SENTENCE_SCOPE" if len(groups(p.text, calls)) != 1 else None
             focal_groups.append((TextSpan(start=0, end=len(p.text)), calls, "paragraph_fallback", skip, None))
         else:
-            assigned = set()
-            for i, s in enumerate(sentences):
-                local = [c for c in calls if s.start <= c.span.start and c.span.end <= s.end]
-                if not local:
-                    continue
-                assigned.update(c.id for c in local)
-                kind, skip, focal = "sentence", None, s
-                if marker_only(p.text, s, local):
-                    preceding = sentences[i - 1] if i else None
-                    preceding_calls = [c for c in calls if preceding and preceding.start <= c.span.start < preceding.end]
-                    if (preceding and not preceding_calls and not p.text[preceding.end:s.start].strip()
-                            and len(groups(p.text, local)) == 1):
-                        focal = TextSpan(start=preceding.start, end=s.end)
-                        kind = "trailing_marker"
-                    else:
-                        skip = "UNRELIABLE_SENTENCE_SCOPE"
-                focal_groups.append((focal, local, kind, skip, i))
+            focal_groups = _sentence_ownership(p, sentences, calls)
+            assigned = {c.id for _, local, _, _, _ in focal_groups for c in local}
             unassigned = [c for c in calls if c.id not in assigned]
             if unassigned:
                 focal_groups.append((TextSpan(start=0, end=len(p.text)), unassigned,
@@ -175,8 +217,11 @@ def build_contexts(parsed: ParsedManuscript) -> tuple[ContextPlan, ...]:
             if index is not None:
                 if index > 0 and sentences[index - 1].start < start:
                     start = sentences[index - 1].start
-                if index + 1 < len(sentences):
-                    end = sentences[index + 1].end
+                following = index + 1
+                while following < len(sentences) and sentences[following].end <= focal.end:
+                    following += 1  # Skip consumed standalone marker segments.
+                if following < len(sentences):
+                    end = sentences[following].end
                 if end - start > MAX_WINDOW:
                     start = focal.start
                 if end - start > MAX_WINDOW:

@@ -179,3 +179,120 @@ def test_unicode_code_points_not_utf8_bytes():
     assert call.span.start == text.index("[3]")
     assert call.span.start != len(text[:call.span.start].encode("utf-8"))
     assert build_contexts(p)[0].context.text == text
+
+
+def boundary_manuscript(first, second, markers=("8",), gap=" "):
+    """Explicit occurrences, including bare superscript-like numeric surfaces."""
+    text = first + gap + second if first else second
+    spans = [(0, len(first)), (len(first) + len(gap), len(text))] if first else [(0, len(text))]
+    calls, cursor = [], 0
+    for i, marker in enumerate(markers):
+        if marker.isdecimal():
+            match = re.search(r"(?<!\w)" + re.escape(marker) + r"(?!\w)", text[cursor:])
+            assert match is not None
+            start = cursor + match.start()
+        else:
+            start = text.index(marker, cursor)
+        cursor = start + len(marker)
+        calls.append(CitationCallout(id=f"callout:{i}", manuscript_id="m", paragraph_id="p", text=marker,
+            span=TextSpan(start=start, end=cursor), order=i, resolution_status="resolved", reference_ids=(f"r{i}",)))
+    return ParsedManuscript(manuscript=Manuscript(id="m", content_locator="test:memory"),
+        paragraphs=(Paragraph(id="p", manuscript_id="m", text=text, order=0,
+                              sentence_spans=tuple(TextSpan(start=a, end=b) for a, b in spans)),),
+        references=tuple(Reference(id=f"r{i}", manuscript_id="m", raw_text=f"Fixture {marker}") for i, marker in enumerate(markers)),
+        citation_callouts=tuple(calls))
+
+
+@pytest.mark.parametrize("gap", ["", " ", "\n"])
+def test_b1_leading_bare_marker_owned_by_previous_statement(gap):
+    p = boundary_manuscript("A supports T-cell responses.", "8 B shows higher titers.", gap=gap)
+    original = p.model_dump_json()
+    plans = build_contexts(p)
+    assert len(plans) == 1 and plans[0].skip_code is None
+    c = plans[0].context
+    assert c.scope_kind == "trailing_marker" and c.citation_callout_ids == ("callout:0",)
+    assert c.focal_span == TextSpan(start=0, end=p.citation_callouts[0].span.end)
+    assert "B shows" not in p.paragraphs[0].text[c.focal_span.start:c.focal_span.end]
+    assert p.model_dump_json() == original
+
+
+def test_b2_current_own_citation_and_trimmed_focal():
+    p = boundary_manuscript("A supports T-cell responses.", "8 B shows higher titers [9].", ("8", "[9]"))
+    plans = build_contexts(p)
+    assert [x.context.citation_callout_ids for x in plans] == [("callout:0",), ("callout:1",)]
+    assert plans[0].context.scope_kind == "trailing_marker" and plans[1].context.scope_kind == "sentence"
+    c = plans[1].context
+    assert p.paragraphs[0].text[c.focal_span.start:c.focal_span.end] == "B shows higher titers [9]."
+    assert c.focal_span.start > p.citation_callouts[0].span.end
+
+
+@pytest.mark.parametrize("surface", ["8,9", "8 9", "8, 9"])
+def test_b3_leading_group_is_one_ownership_unit(surface):
+    p = boundary_manuscript("A supports T-cell responses.", surface + " B shows higher titers.", ("8", "9"))
+    plans = build_contexts(p)
+    assert len(plans) == 1 and plans[0].context.citation_callout_ids == ("callout:0", "callout:1")
+    assert plans[0].context.focal_span.end == p.citation_callouts[1].span.end
+
+
+def test_b4_standalone_trailing_attachment_still_exact():
+    p = boundary_manuscript("A improves accuracy.", "[3]", ("[3]",))
+    plan = build_contexts(p)[0]
+    assert plan.skip_code is None and plan.context.scope_kind == "trailing_marker"
+    assert plan.context.focal_span == TextSpan(start=0, end=len(p.paragraphs[0].text))
+
+
+@pytest.mark.parametrize("marker", ["8", "[8]"])
+def test_b5_prefix_without_previous_never_creates_previous(marker):
+    p = boundary_manuscript("", marker + " A improves accuracy.", (marker,))
+    plans = build_contexts(p)
+    assert len(plans) == 1 and plans[0].context.scope_kind == "sentence"
+    assert plans[0].context.focal_span.start == 0
+
+
+@pytest.mark.parametrize("first,marker", [("Background sentence.", "8"), ("Background provides useful context.", "[8]")])
+def test_b6_ambiguous_prefix_abstains(first, marker):
+    p = boundary_manuscript(first, marker + " A improves accuracy.", (marker,))
+    plan = build_contexts(p)[0]
+    assert plan.skip_code == "AMBIGUOUS_BOUNDARY_CITATION"
+    assert plan.context.scope_kind == "sentence" and plan.context.focal_span.start == len(first) + 1
+
+
+def test_b7_terminal_citation_conflict_does_not_union():
+    p = boundary_manuscript("A improves accuracy [3].", "8 B reduces latency.", ("[3]", "8"))
+    plans = build_contexts(p)
+    assert [x.context.citation_callout_ids for x in plans] == [("callout:0",), ("callout:1",)]
+    assert plans[0].skip_code is None and plans[1].skip_code == "AMBIGUOUS_BOUNDARY_CITATION"
+    assert all(len(x.context.citation_callout_ids) == 1 for x in plans)
+
+
+def test_b8_ownership_unique_and_order_stable_when_merging_inline_context():
+    p = boundary_manuscript("Smith [3] reports improved accuracy.", "8 B shows higher titers [9].", ("[3]", "8", "[9]"))
+    plans = build_contexts(p)
+    assert plans == build_contexts(p)
+    assert [x.context.citation_callout_ids for x in plans] == [("callout:0", "callout:1"), ("callout:2",)]
+    memberships = [cid for plan in plans for cid in plan.context.citation_callout_ids]
+    assert len(memberships) == len(set(memberships)) == len(p.citation_callouts)
+    assert plans[0].context.focal_span.end <= plans[1].context.focal_span.start
+
+
+def test_b10_nejm_boundary_literals_move_seven_and_eight_together():
+    first = "The spike is locked in the prefusion conformation."
+    second = "7 Findings elicited robust CD8+ and Th1-type CD4+ T-cell responses."
+    third = "8 The 50% neutralizing geometric mean titers exceeded the comparison panel."
+    p = boundary_manuscript(first, second + " " + third, ("7", "8"))
+    text = p.paragraphs[0].text
+    a, b = len(first) + 1, len(first) + 1 + len(second)
+    paragraph = p.paragraphs[0].model_copy(update={"sentence_spans": (TextSpan(start=0, end=len(first)), TextSpan(start=a, end=b), TextSpan(start=b+1, end=len(text)))})
+    p = p.model_copy(update={"paragraphs": (paragraph,)})
+    plans = build_contexts(p)
+    assert len(plans) == 2
+    assert [plan.context.citation_callout_ids for plan in plans] == [("callout:0",), ("callout:1",)]
+    assert all(plan.context.scope_kind == "trailing_marker" for plan in plans)
+    assert plans[1].context.focal_span.start > p.citation_callouts[0].span.end
+    assert "The 50%" not in text[plans[1].context.focal_span.start:plans[1].context.focal_span.end]
+
+
+@pytest.mark.parametrize("first,second", [("An introductory label:", "8 A improves accuracy."), ("A supports T-cell responses.", "8,A improves accuracy.")])
+def test_weak_boundary_evidence_never_attaches(first, second):
+    plan = build_contexts(boundary_manuscript(first, second))[0]
+    assert plan.skip_code == "AMBIGUOUS_BOUNDARY_CITATION"
