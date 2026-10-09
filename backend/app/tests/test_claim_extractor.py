@@ -65,6 +65,20 @@ def test_single_call_per_sentence_prompt_minimal_and_alias_conversion():
     assert adapter(FakeProvider()).claims[0].citation_callout_ids == ("callout:0",)
 
 
+def test_sr_adapter_exposes_subject_contract_and_preserves_role():
+    provider = FakeProvider(lambda p: {"claims": [{"text": "A improves accuracy",
+        "source_quotes": [{"quote": "A", "role": "subject"},
+                          {"quote": "improves accuracy", "role": "predicate"}],
+        "citation_callout_ids": ["c1"]}]})
+    result = run(manuscript(), provider=provider)
+    assert result.claims[0].attribution_status == "resolved"
+    schema = provider.prompts[0]["output_schema"]["$defs"]["SourceQuote"]
+    assert schema["properties"]["role"]["enum"] == ["predicate", "subject", "qualifier", "shared_subject"]
+    assert schema["additionalProperties"] is False
+    assert "Use `subject`" in provider.systems[0]
+    assert "Use `shared_subject` only" in provider.systems[0]
+
+
 def test_success_stable_ids_fingerprint_and_legacy_contracts():
     a, b = run(manuscript(), provider=FakeProvider()), run(manuscript(), provider=FakeProvider())
     assert a == b and a.status == "completed" and a.metadata.input_provenance == "client_supplied"

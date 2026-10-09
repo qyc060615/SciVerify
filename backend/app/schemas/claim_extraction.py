@@ -17,7 +17,7 @@ class StrictDTO(BaseModel):
 
 class SourceQuote(StrictDTO):
     quote: ExactText
-    role: Literal["predicate", "qualifier", "shared_subject"] = "predicate"
+    role: Literal["predicate", "subject", "qualifier", "shared_subject"] = "predicate"
     left_anchor: Annotated[str, StringConstraints(strict=True, max_length=200)] | None = None
     right_anchor: Annotated[str, StringConstraints(strict=True, max_length=200)] | None = None
 

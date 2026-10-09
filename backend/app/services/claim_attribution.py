@@ -136,6 +136,9 @@ def validate_proposal(parsed, context, proposal) -> ValidatedClaim:
     scopes = _scopes(paragraph.text, context.focal_span, local,
                      context.scope_kind == "paragraph_fallback")
     scope = next(((a, b) for a, b in scopes if all(a <= s.start and s.end <= b for s in main)), None)
+    # Ordinary subjects have no cross-clause recovery permission, even on abstention.
+    if scope is None and any(q.role == "subject" for q in proposal.source_quotes):
+        raise ProposalRejected("WRONG_CITATION_SCOPE")
     # Text/semantic checks cannot be bypassed by asking the model to abstain.
     if scope:
         _semantic_guard(proposal, proposal.source_quotes,

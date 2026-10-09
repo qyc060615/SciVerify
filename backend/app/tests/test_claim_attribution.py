@@ -225,3 +225,66 @@ def test_proposal_forbids_model_authority_fields(extra):
     data[extra] = "untrusted"
     with pytest.raises(ValidationError):
         ClaimProposal.model_validate(data)
+
+
+@pytest.mark.parametrize("subject,predicate", [
+    ("The favorable safety profile observed during phase 1 testing of BNT162b2",
+     "was confirmed in the phase 2/3 portion of the trial"),
+    ("Findings from studies conducted in the United States and Germany among healthy men and women",
+     "showed that two 30-μg doses of BNT162b2 elicited high neutralizing antibody titers"),
+])
+def test_sr_long_local_and_reporting_subjects_resolved(subject, predicate):
+    p = manuscript(f"{subject} {predicate} [3].")
+    c = check(p, proposal(f"{subject} {predicate}", [
+        SourceQuote(quote=subject, role="subject"), SourceQuote(quote=predicate, role="predicate")]))
+    assert c.attribution_status == "resolved" and c.reference_ids == ("r3",)
+    assert [p.paragraphs[0].text[s.start:s.end] for s in c.source_spans] == [subject, predicate]
+
+
+@pytest.mark.parametrize("subject", ["A", "Long phrase A"])
+@pytest.mark.parametrize("association", ["proposed", "abstain"])
+def test_sr_subject_cannot_borrow_from_wrong_clause(subject, association):
+    p = manuscript(f"{subject} improves accuracy [3], while B reduces latency [4].")
+    with pytest.raises(ProposalRejected) as e:
+        check(p, proposal(f"{subject} reduces latency", [
+            SourceQuote(quote=subject, role="subject"), "reduces latency"], association=association))
+    assert e.value.code == "WRONG_CITATION_SCOPE"
+
+
+def test_sr_subject_from_read_only_neighbor_rejected():
+    first = "Long phrase A improves accuracy [3]."
+    text = first + " B reduces latency [4]."
+    p = manuscript(text, [(0, len(first)), (len(first) + 1, len(text))])
+    with pytest.raises(ProposalRejected) as e:
+        check(p, proposal("Long phrase A reduces latency", [
+            SourceQuote(quote="Long phrase A", role="subject"), "reduces latency"],
+            ids=("callout:1",)), 1)
+    assert e.value.code == "QUOTE_NOT_FOUND"
+
+
+def test_sr_subject_and_qualifier_require_predicate():
+    with pytest.raises(ProposalRejected) as e:
+        check(manuscript(), proposal("A improves accuracy", [
+            SourceQuote(quote="A", role="subject"),
+            SourceQuote(quote="improves accuracy", role="qualifier")]))
+    assert e.value.code == "INVALID_ATOMIC_PROPOSITION"
+
+
+@pytest.mark.parametrize("extra", ["reference_ids", "offsets", "verdict", "confidence", "reasoning"])
+def test_sr_subject_quote_forbids_authority_fields(extra):
+    with pytest.raises(ValidationError):
+        SourceQuote.model_validate({"quote": "A", "role": "subject", extra: "untrusted"})
+
+
+@pytest.mark.parametrize("subject,predicate", [
+    ("The 30-μg doses", "elicited high titers"),
+    ("The potentially favorable profile", "was confirmed experimentally"),
+    ("Findings among healthy adults", "showed high titers"),
+])
+def test_sr_semantic_guards_include_subject(subject, predicate):
+    p = manuscript(f"{subject} {predicate} [3].")
+    assert check(p, proposal(f"{subject} {predicate}", [
+        SourceQuote(quote=subject, role="subject"), predicate])).attribution_status == "resolved"
+    with pytest.raises(ProposalRejected) as e:
+        check(p, proposal(predicate))
+    assert e.value.code in {"SEMANTIC_NUMERIC_DRIFT", "SEMANTIC_MODIFIER_DRIFT", "SEMANTIC_SCOPE_DRIFT"}
