@@ -47,6 +47,10 @@ class _ParagraphText:
                 self.chars.append(char)
 
     def walk(self, node):
+        # A TEI sentence boundary supplies a separator even without an XML tail.
+        # Emit it before recording offsets; never edit canonical text afterwards.
+        if node.tag == TEI + "s" and self.sentences and self.chars:
+            self.append(" ")
         start = len(self.chars)
         self.append(node.text)
         for child in node:

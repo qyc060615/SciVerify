@@ -9,12 +9,58 @@ from app.researchguard.domain import (
     ParsedManuscript, TextSpan,
 )
 
-CONTEXT_POLICY_VERSION = "citation-sentence-boundary-v2"
+CONTEXT_POLICY_VERSION = "citation-sentence-boundary-v2-quality-v1"
 MAX_REQUEST_BYTES = 2 * 1024 * 1024
 MAX_TEXT = 200000
 MAX_CONTEXTS = 64
 MAX_FOCAL = 2000
 MAX_WINDOW = 3000
+
+# These are structural clues, not a vocabulary of paper/journal names.
+_ABBREVIATIONS = frozenset({"al", "cf", "dr", "eq", "fig", "jr", "mr", "mrs", "ms",
+                            "no", "prof", "sr", "st", "vs"})
+_CONTINUATION_SUFFIX = re.compile(r"^(?:tion|sion|ment|ness|ance|ence)\s+[a-z]{2,}\b")
+_TERMINAL = re.compile(r"[!?]|\.(?!\d)")
+
+
+def _text_quality_code(parsed, paragraph, focal, local):
+    """Bounded abstention only: do not infer grammar, repair words or merge prose.
+
+    Mask markers before inspecting text; ownership and canonical offsets stay intact.
+    A nearby broken token plus a bare morphological suffix is evidence of an
+    incomplete target, not evidence sufficient to join two paragraphs.
+    """
+    chars = list(paragraph.text[focal.start:focal.end])
+    for call in local:
+        a, b = max(focal.start, call.span.start), min(focal.end, call.span.end)
+        chars[a - focal.start:b - focal.start] = " " * (b - a)
+    prose = "".join(chars).strip()
+    opening = prose.lstrip("\"'“‘(")
+    if (re.search(r"\b[\w.-]+\.(?:org|com|edu|net)\b", opening[:180], re.IGNORECASE)
+            and re.search(r"\b(?:[A-Za-z]\s+){3,}", opening[:180])):
+        return "SKIPPED_UNRELIABLE_TEXT"
+    if re.match(r"(?:copyright\s*(?:©|\(c\))?\s*\d{4}|all rights reserved\b|"
+                r"downloaded from\s+\S+\s+at\b)", opening, re.IGNORECASE):
+        return "SKIPPED_UNRELIABLE_TEXT"
+    if focal.start == 0 and _CONTINUATION_SUFFIX.match(opening):
+        nearby = parsed.paragraphs[max(0, paragraph.order - 8):paragraph.order]
+        if any(p.section == paragraph.section and re.search(r"[a-z]{3,}-$", p.text)
+               for p in nearby):
+            return "SKIPPED_INCOMPLETE_TEXT"
+    if re.search(r"[a-z]{3,}-$", prose):
+        return "SKIPPED_INCOMPLETE_TEXT"
+    # Detect only clear additional prose after terminal punctuation. Abbreviations,
+    # initials and decimals are exempt; ambiguous cases are not re-tokenized.
+    for match in _TERMINAL.finditer(prose):
+        before = re.search(r"([A-Za-z]+)$", prose[:match.start()])
+        if match.group() == "." and before:
+            word = before.group(1)
+            if word.lower() in _ABBREVIATIONS or len(word) == 1:
+                continue
+        if re.match(r"\s*[\"'“‘(]?(?:[A-Z][\w-]*|\d+(?:[.,]\d+)?%?)\s+[A-Za-z]{2,}\b",
+                    prose[match.end():]):
+            return "SKIPPED_UNRELIABLE_TEXT"
+    return None
 
 
 class ExtractionInputError(ValueError):
@@ -234,10 +280,14 @@ def build_contexts(parsed: ParsedManuscript) -> tuple[ContextPlan, ...]:
                 scope_kind=kind, citation_callout_ids=tuple(c.id for c in local))
             if focal.end - focal.start > MAX_FOCAL:
                 skip = "CONTEXT_TOO_LARGE"
+            if not skip:
+                skip = _text_quality_code(parsed, p, focal, local)
             if not skip and not any(c.resolution_status == CitationResolutionStatus.RESOLVED for c in local):
                 skip = ("SKIPPED_UNRESOLVED_CITATION" if all(c.resolution_status == CitationResolutionStatus.UNRESOLVED for c in local)
                         else "SKIPPED_PARTIAL_CITATION")
             notes = (diagnostic(skip, context.id),) if skip else ()
+            if skip == "SKIPPED_INCOMPLETE_TEXT":
+                notes += (diagnostic("LAYOUT_METADATA_INSUFFICIENT", context.id, "info"),)
             if not sentences:
                 notes += (diagnostic("MISSING_SENTENCE_BOUNDARIES", context.id, "info"),)
             plans.append(ContextPlan(context, notes, skip))
