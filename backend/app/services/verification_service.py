@@ -194,6 +194,28 @@ async def analyze_verification_async(
     return await to_thread.run_sync(partial(_verify_evidence, claim, evidence_response, llm=llm))
 
 
+async def verify_prepared_evidence(
+    claim: str, evidence_response: EvidenceRetrievalResponse, *, llm: LLMProvider | None = None,
+) -> VerificationResponse:
+    """Verify accepted, already selected evidence without performing retrieval.
+
+    Source/chunk ownership is checked by the preparing caller. Only a successful
+    query (including a genuinely empty query) may cross this boundary.
+    """
+    from functools import partial
+    from anyio import to_thread
+
+    if claim != evidence_response.claim or preprocess_claim(claim).original != claim:
+        raise ValueError("Prepared evidence claim mismatch")
+    if evidence_response.status not in {
+        EvidenceRetrievalStatus.SUCCESS, EvidenceRetrievalStatus.NO_RELEVANT_EVIDENCE,
+    }:
+        raise ValueError("Prepared evidence requires a successful source query")
+    if bool(evidence_response.evidence) != (evidence_response.status == EvidenceRetrievalStatus.SUCCESS):
+        raise ValueError("Prepared evidence status disagrees with selected chunks")
+    return await to_thread.run_sync(partial(_verify_evidence, claim, evidence_response, llm=llm))
+
+
 __all__ = [
     "DocumentRetrievalFailure",
     "InvalidClaimError",
@@ -202,4 +224,5 @@ __all__ = [
     "PaperProviderError",
     "VerificationServiceError",
     "analyze_verification",
+    "verify_prepared_evidence",
 ]
