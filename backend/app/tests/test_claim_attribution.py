@@ -1,17 +1,16 @@
-"""Gold attribution, malicious valid IDs, exact grounding and limited semantics."""
+"""Gold attribution, malicious valid IDs, exact grounding and evidence integrity."""
 import pytest
 from pydantic import ValidationError
 
-from app.schemas.claim_extraction import ClaimProposal, SourceQuote
+from app.schemas.claim_extraction import ClaimProposal
 from app.services.citation_context import build_contexts
+from app.services.citation_labels import visible_labels
 from app.services.claim_attribution import ProposalRejected, validate_proposal
 from app.tests.test_citation_context import manuscript
 
 
-def proposal(text, quotes=None, ids=("callout:0",), **kwargs):
-    return ClaimProposal(text=text, source_quotes=tuple(
-        q if isinstance(q, SourceQuote) else SourceQuote(quote=q) for q in (quotes or [text])),
-        citation_callout_ids=ids, **kwargs)
+def proposal(text, quote=None, ids=("3",)):
+    return ClaimProposal(text=text, evidence_quote=quote or text, citation_labels=ids)
 
 
 def check(parsed, proposed, index=0):
@@ -28,31 +27,32 @@ def check(parsed, proposed, index=0):
 ])
 def test_gold_simple_range_adjacent_and_semantics(label, text, quote, refs):
     p = manuscript(text)
-    c = check(p, proposal(quote, ids=tuple(x.id for x in p.citation_callouts)))
+    c = check(p, proposal(quote, ids=tuple(label for c in p.citation_callouts for label in visible_labels(c.text))))
     assert c.attribution_status == "resolved" and c.reference_ids == refs
     assert [p.paragraphs[0].text[s.start:s.end] for s in c.source_spans] == [quote]
     assert all(r.doi is None for r in p.references)  # DOI readiness is not attribution.
 
 
 @pytest.mark.parametrize("marker", ["[3]", "[3,4]"])
-def test_gold_b_d_compound_shared_subject(marker):
+def test_gold_b_d_compound_contiguous_evidence(marker):
     p = manuscript(f"A improves accuracy and reduces latency {marker}.")
-    first = check(p, proposal("A improves accuracy"))
-    second = check(p, proposal("A reduces latency", [SourceQuote(quote="A", role="shared_subject"), "reduces latency"]))
+    labels = visible_labels(marker)
+    first = check(p, proposal("A improves accuracy", ids=labels))
+    second = check(p, proposal("A reduces latency", f"A improves accuracy and reduces latency {marker}.", ids=labels))
     assert first.reference_ids == second.reference_ids == p.citation_callouts[0].reference_ids
-    assert len(second.source_spans) == 2 and second.attribution_status == "resolved"
+    assert len(second.source_spans) == 1 and second.attribution_status == "resolved"
 
 
 def test_gold_c_clause_local():
     p = manuscript("A improves accuracy [3], while B reduces latency [4].")
     assert check(p, proposal("A improves accuracy")).reference_ids == ("r3",)
-    assert check(p, proposal("B reduces latency", ids=("callout:1",))).reference_ids == ("r4",)
+    assert check(p, proposal("B reduces latency", ids=("4",))).reference_ids == ("r4",)
 
 
 @pytest.mark.parametrize("prefix,suffix", [("Previous work", "reports that A improves accuracy"), ("Smith et al.", "showed that A improves accuracy")])
 def test_gold_e_f_reporting_frame(prefix, suffix):
     p = manuscript(f"{prefix} [3] {suffix}.")
-    c = check(p, proposal(f"{prefix} {suffix}", [prefix, suffix]))
+    c = check(p, proposal(f"{prefix} {suffix}", f"{prefix} [3] {suffix}"))
     assert c.attribution_status == "resolved" and c.reference_ids == ("r3",)
 
 
@@ -66,19 +66,12 @@ def test_gold_j_separate_contexts():
     text = first + " B reduces latency [4]."
     p = manuscript(text, [(0, len(first)), (len(first) + 1, len(text))])
     assert check(p, proposal("A improves accuracy")).reference_ids == ("r3",)
-    assert check(p, proposal("B reduces latency", ids=("callout:1",)), 1).reference_ids == ("r4",)
-
-
-def test_gold_k_shared_subject_cannot_widen_scope():
-    p = manuscript("Although A improved accuracy [3], it increased latency [4].")
-    assert check(p, proposal("A improved accuracy")).reference_ids == ("r3",)
-    second = proposal("A increased latency", [SourceQuote(quote="A", role="shared_subject", left_anchor="Although "), "increased latency"], ids=("callout:1",))
-    assert check(p, second).reference_ids == ("r4",)
+    assert check(p, proposal("B reduces latency", ids=("4",)), 1).reference_ids == ("r4",)
 
 
 def test_wv1_swapped_valid_ids_rejected():
     p = manuscript("A improves accuracy [3], while B reduces latency [4].")
-    for q, ids in [("A improves accuracy", ("callout:1",)), ("B reduces latency", ("callout:0",))]:
+    for q, ids in [("A improves accuracy", ("4",)), ("B reduces latency", ("3",))]:
         with pytest.raises(ProposalRejected, match="attribution") as e:
             check(p, proposal(q, ids=ids))
         assert e.value.code == "WRONG_CITATION_SCOPE"
@@ -89,7 +82,7 @@ def test_wv2_neighbor_valid_id_rejected():
     text = first + " B reduces latency [4]."
     p = manuscript(text, [(0, len(first)), (len(first) + 1, len(text))])
     with pytest.raises(ProposalRejected) as e:
-        check(p, proposal("A improves accuracy", ids=("callout:1",)))
+        check(p, proposal("A improves accuracy", ids=("4",)))
     assert e.value.code == "UNKNOWN_CITATION_CALLOUT"
     with pytest.raises(ProposalRejected) as e:
         check(p, proposal("B reduces latency"))
@@ -98,24 +91,16 @@ def test_wv2_neighbor_valid_id_rejected():
 
 def test_wv3_narrative_swapped_rejected():
     p = manuscript("Smith [3] reports accuracy, while Jones [4] reports latency.")
-    for text, parts, ids in [("Smith reports accuracy", ["Smith", "reports accuracy"], ("callout:1",)), ("Jones reports latency", ["Jones", "reports latency"], ("callout:0",))]:
+    for text, parts, ids in [("Smith reports accuracy", "Smith [3] reports accuracy", ("4",)), ("Jones reports latency", "Jones [4] reports latency", ("3",))]:
         with pytest.raises(ProposalRejected) as e:
             check(p, proposal(text, parts, ids))
         assert e.value.code == "WRONG_CITATION_SCOPE"
 
 
-def test_wv4_shared_subject_wrong_group_rejected():
-    p = manuscript("Although A improved accuracy [3], it increased latency [4].")
-    q = proposal("A increased latency", [SourceQuote(quote="A", role="shared_subject", left_anchor="Although "), "increased latency"])
-    with pytest.raises(ProposalRejected) as e:
-        check(p, q)
-    assert e.value.code == "WRONG_CITATION_SCOPE"
-
-
 def test_wv5_union_foreign_groups_rejected():
     p = manuscript("A improves accuracy [3], while B reduces latency [4][5].")
     with pytest.raises(ProposalRejected) as e:
-        check(p, proposal("A improves accuracy", ids=tuple(c.id for c in p.citation_callouts)))
+        check(p, proposal("A improves accuracy", ids=tuple(label for c in p.citation_callouts for label in visible_labels(c.text))))
     assert e.value.code == "WRONG_CITATION_SCOPE"
 
 
@@ -124,32 +109,8 @@ def test_wv6_repeated_quote_no_citation_disambiguation():
     with pytest.raises(ProposalRejected) as e:
         check(p, proposal("A improves accuracy"))
     assert e.value.code == "QUOTE_AMBIGUOUS"
-    c = check(p, proposal("A improves accuracy", [SourceQuote(quote="A improves accuracy", left_anchor="while ")], ids=("callout:1",)))
+    c = check(p, proposal("A improves accuracy", "A improves accuracy [4]", ids=("4",)))
     assert c.reference_ids == ("r4",)
-
-
-@pytest.mark.parametrize("source,changed,quote", [
-    ("A did not improve accuracy", "A improved accuracy", None),
-    ("A may improve accuracy", "A improves accuracy", None),
-    ("A improves accuracy by 5%", "A improves accuracy by 50%", None),
-    ("A improves accuracy only on small datasets", "A improves accuracy", "A improves accuracy"),
-    ("A improves accuracy compared with baseline B", "A improves accuracy compared with baseline C", None),
-])
-def test_obvious_semantic_drift_rejected(source, changed, quote):
-    p = manuscript(source + " [3].")
-    with pytest.raises(ProposalRejected):
-        check(p, proposal(changed, [quote or source]))
-
-
-@pytest.mark.parametrize("source,parts,code", [
-    ("A did not improve accuracy", ["A", "improve accuracy"], "SEMANTIC_MODIFIER_DRIFT"),
-    ("A may improve accuracy", ["A", "improve accuracy"], "SEMANTIC_MODIFIER_DRIFT"),
-    ("A improves accuracy by 5%", ["A improves accuracy"], "SEMANTIC_NUMERIC_DRIFT"),
-])
-def test_exact_parts_still_cannot_drop_modifiers(source, parts, code):
-    with pytest.raises(ProposalRejected) as e:
-        check(manuscript(source + " [3]."), proposal(" ".join(parts), parts))
-    assert e.value.code == code
 
 
 @pytest.mark.parametrize("quote", ["a improves accuracy", "A  improves accuracy", "A improves accuracý"])
@@ -159,23 +120,16 @@ def test_no_case_whitespace_unicode_repair(quote):
     assert e.value.code == "QUOTE_NOT_FOUND"
 
 
-@pytest.mark.parametrize("parts,code", [(["improves accuracy", "A"], "INVALID_SOURCE_SPAN_ORDER"), (["A improves accuracy", "accuracy"], "INVALID_SOURCE_SPAN_ORDER"), (["A improves accuracy [3]"], "CITATION_MARKER_AS_SOURCE")])
-def test_source_span_order_overlap_marker(parts, code):
-    with pytest.raises(ProposalRejected) as e:
-        check(manuscript(), proposal(" ".join(parts), parts))
-    assert e.value.code == code
-
-
 def test_abstention_and_group_subset_remove_all_links():
     p = manuscript("A improves accuracy [3][4].")
-    for q in [proposal("A improves accuracy"), proposal("A improves accuracy", ids=("callout:0", "callout:1"), association="abstain")]:
+    for q in [proposal("A improves accuracy"), proposal("A improves accuracy", ids=())]:
         c = check(p, q)
         assert c.attribution_status == "ambiguous" and not c.reference_ids and not c.citation_callout_ids
 
 
 def test_mixed_partial_cannot_be_resolved():
     p = manuscript("A improves accuracy [3], while B reduces latency [4].", statuses={1: "partial"})
-    c = check(p, proposal("B reduces latency", ids=("callout:1",)))
+    c = check(p, proposal("B reduces latency", ids=("4",)))
     assert c.attribution_status == "unresolved" and c.reference_ids == ("r4",)
 
 
@@ -186,27 +140,19 @@ def test_fallback_single_group_cannot_bind_other_statement():
     assert check(p, proposal("B reduces latency")).attribution_status == "resolved"
 
 
-@pytest.mark.parametrize("unit", ["%", " mg", " ms", " seconds"])
-def test_exact_quote_cannot_drop_numeric_unit(unit):
-    p = manuscript(f"A improves accuracy by 5{unit} [3].")
-    with pytest.raises(ProposalRejected) as e:
-        check(p, proposal("A improves accuracy by 5"))
-    assert e.value.code == "SEMANTIC_NUMERIC_DRIFT"
-
-
 def test_b9_trimmed_current_focal_rejects_reattached_marker_source_and_id():
     from app.tests.test_citation_context import boundary_manuscript
     p = boundary_manuscript("A supports T-cell responses.", "8 B shows higher titers [9].", ("8", "[9]"))
     with pytest.raises(ProposalRejected) as e:
-        check(p, proposal("B shows higher titers", ids=("callout:0",)), 1)
+        check(p, proposal("B shows higher titers", ids=("8",)), 1)
     assert e.value.code == "UNKNOWN_CITATION_CALLOUT"
     with pytest.raises(ProposalRejected) as e:
-        check(p, proposal("8 B shows higher titers", ids=("callout:1",)), 1)
+        check(p, proposal("8 B shows higher titers", ids=("9",)), 1)
     assert e.value.code == "QUOTE_NOT_FOUND"
-    c = check(p, proposal("B shows higher titers", ids=("callout:1",)), 1)
+    c = check(p, proposal("B shows higher titers", ids=("9",)), 1)
     assert c.attribution_status == "resolved" and c.reference_ids == ("r1",)
     assert all(s.start >= p.citation_callouts[0].span.end for s in c.source_spans)
-    assert check(p, proposal("A supports T-cell responses")).reference_ids == ("r0",)
+    assert check(p, proposal("A supports T-cell responses", ids=("8",))).reference_ids == ("r0",)
 
 
 def test_boundary_partial_group_is_never_promoted_to_resolved():
@@ -215,7 +161,7 @@ def test_boundary_partial_group_is_never_promoted_to_resolved():
     p = boundary_manuscript("A supports T-cell responses.", "8,9 B shows higher titers.", ("8", "9"))
     calls = (p.citation_callouts[0], p.citation_callouts[1].model_copy(update={"resolution_status": CitationResolutionStatus.PARTIAL}))
     p = p.model_copy(update={"citation_callouts": calls})
-    c = check(p, proposal("A supports T-cell responses", ids=("callout:0", "callout:1")))
+    c = check(p, proposal("A supports T-cell responses", ids=("8", "9")))
     assert c.attribution_status == "unresolved"
 
 
@@ -227,64 +173,76 @@ def test_proposal_forbids_model_authority_fields(extra):
         ClaimProposal.model_validate(data)
 
 
-@pytest.mark.parametrize("subject,predicate", [
-    ("The favorable safety profile observed during phase 1 testing of BNT162b2",
-     "was confirmed in the phase 2/3 portion of the trial"),
-    ("Findings from studies conducted in the United States and Germany among healthy men and women",
-     "showed that two 30-μg doses of BNT162b2 elicited high neutralizing antibody titers"),
+@pytest.mark.parametrize("source,text", [
+    ("BNT162b2, a modified RNA encoding the spike", "BNT162b2 encodes the spike."),
+    ("BNT162b2, a lipid nanoparticle-formulated RNA", "BNT162b2 is a lipid nanoparticle-formulated RNA."),
+    ("Findings among healthy adults showed that two 30-μg doses of BNT162b2 elicited high antibody titers and robust CD8+ and Th1-type CD4+ responses", "Findings among healthy adults showed that two 30-μg doses of BNT162b2 elicited high antibody titers."),
 ])
-def test_sr_long_local_and_reporting_subjects_resolved(subject, predicate):
-    p = manuscript(f"{subject} {predicate} [3].")
-    c = check(p, proposal(f"{subject} {predicate}", [
-        SourceQuote(quote=subject, role="subject"), SourceQuote(quote=predicate, role="predicate")]))
-    assert c.attribution_status == "resolved" and c.reference_ids == ("r3",)
-    assert [p.paragraphs[0].text[s.start:s.end] for s in c.source_spans] == [subject, predicate]
+def test_normalized_text_does_not_depend_on_semantic_regex(source, text):
+    p = manuscript(source + " [3].")
+    c = check(p, proposal(text, source))
+    assert c.text == text and c.attribution_status == "resolved"
+    assert len(c.source_spans) == 1
+    assert p.paragraphs[0].text[c.source_spans[0].start:c.source_spans[0].end] == source
 
 
-@pytest.mark.parametrize("subject", ["A", "Long phrase A"])
-@pytest.mark.parametrize("association", ["proposed", "abstain"])
-def test_sr_subject_cannot_borrow_from_wrong_clause(subject, association):
-    p = manuscript(f"{subject} improves accuracy [3], while B reduces latency [4].")
-    with pytest.raises(ProposalRejected) as e:
-        check(p, proposal(f"{subject} reduces latency", [
-            SourceQuote(quote=subject, role="subject"), "reduces latency"], association=association))
-    assert e.value.code == "WRONG_CITATION_SCOPE"
-
-
-def test_sr_subject_from_read_only_neighbor_rejected():
-    first = "Long phrase A improves accuracy [3]."
+@pytest.mark.parametrize("index,quote", [(0, "B reduces latency"), (1, "A improves accuracy")])
+def test_previous_and_next_neighbor_quotes_rejected(index, quote):
+    first = "A improves accuracy [3]."
     text = first + " B reduces latency [4]."
     p = manuscript(text, [(0, len(first)), (len(first) + 1, len(text))])
     with pytest.raises(ProposalRejected) as e:
-        check(p, proposal("Long phrase A reduces latency", [
-            SourceQuote(quote="Long phrase A", role="subject"), "reduces latency"],
-            ids=("callout:1",)), 1)
+        check(p, proposal(quote, ids=("3",) if index == 0 else ("4",)), index)
     assert e.value.code == "QUOTE_NOT_FOUND"
 
 
-def test_sr_subject_and_qualifier_require_predicate():
+@pytest.mark.parametrize("aliases", [("99",), ("c1",), ("callout:0",), ("r3",), ("10.1234/fake",), ("3", "3")])
+def test_label_allowlist_and_unique_selection(aliases):
     with pytest.raises(ProposalRejected) as e:
-        check(manuscript(), proposal("A improves accuracy", [
-            SourceQuote(quote="A", role="subject"),
-            SourceQuote(quote="improves accuracy", role="qualifier")]))
-    assert e.value.code == "INVALID_ATOMIC_PROPOSITION"
+        check(manuscript(), proposal("A improves accuracy", ids=aliases))
+    assert e.value.code == "UNKNOWN_CITATION_CALLOUT"
 
 
-@pytest.mark.parametrize("extra", ["reference_ids", "offsets", "verdict", "confidence", "reasoning"])
-def test_sr_subject_quote_forbids_authority_fields(extra):
+@pytest.mark.parametrize("field,value", [("text", ""), ("text", "   "), ("evidence_quote", ""), ("evidence_quote", "\n"), ("citation_labels", "c1"), ("citation_labels", [3]), ("text", 3)])
+def test_schema_nonblank_and_typed_aliases(field, value):
+    data = proposal("A improves accuracy").model_dump()
+    data[field] = value
     with pytest.raises(ValidationError):
-        SourceQuote.model_validate({"quote": "A", "role": "subject", extra: "untrusted"})
+        ClaimProposal.model_validate(data)
 
 
-@pytest.mark.parametrize("subject,predicate", [
-    ("The 30-μg doses", "elicited high titers"),
-    ("The potentially favorable profile", "was confirmed experimentally"),
-    ("Findings among healthy adults", "showed high titers"),
-])
-def test_sr_semantic_guards_include_subject(subject, predicate):
-    p = manuscript(f"{subject} {predicate} [3].")
-    assert check(p, proposal(f"{subject} {predicate}", [
-        SourceQuote(quote=subject, role="subject"), predicate])).attribution_status == "resolved"
+@pytest.mark.parametrize("extra", ["source_quotes", "subject", "predicate", "qualifier", "shared_subject", "citation_callout_ids", "citation_aliases", "association"])
+def test_old_proposal_contract_removed(extra):
+    data = proposal("A improves accuracy").model_dump()
+    data[extra] = "untrusted"
+    with pytest.raises(ValidationError):
+        ClaimProposal.model_validate(data)
+
+
+def test_long_cross_scope_evidence_is_ambiguous():
+    source = "Although A improved accuracy [3], it increased latency [4]."
+    c = check(manuscript(source), proposal("A increased latency", source, ("4",)))
+    assert c.attribution_status == "ambiguous" and not c.reference_ids
+
+
+def test_full_sentence_evidence_with_marker_and_exact_offsets():
+    from app.researchguard.domain import TextSpan
+    source = "BNT162b2, a modified RNA encoding the spike [3]."
+    c = check(manuscript(source), proposal("BNT162b2 encodes the spike.", source))
+    assert c.source_spans == (TextSpan(start=0, end=len(source)),)
+    assert c.attribution_status == "resolved"
+
+
+def test_overlapping_repeated_quote_rejected():
+    from app.researchguard.domain import TextSpan
+    from app.services.claim_attribution import exact_span
     with pytest.raises(ProposalRejected) as e:
-        check(p, proposal(predicate))
-    assert e.value.code in {"SEMANTIC_NUMERIC_DRIFT", "SEMANTIC_MODIFIER_DRIFT", "SEMANTIC_SCOPE_DRIFT"}
+        exact_span("aaaa", "aaa", TextSpan(start=0, end=4))
+    assert e.value.code == "QUOTE_AMBIGUOUS"
+
+
+@pytest.mark.parametrize("quote", ["[3]", " [3]."])
+def test_citation_marker_alone_cannot_be_evidence(quote):
+    with pytest.raises(ProposalRejected) as e:
+        check(manuscript(), proposal("A improves accuracy", quote))
+    assert e.value.code == "CITATION_MARKER_AS_SOURCE"

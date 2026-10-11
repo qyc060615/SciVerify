@@ -7,7 +7,7 @@ from app.researchguard.adapters.grobid_tei import parse_tei
 from app.services.citation_context import build_contexts
 from app.services.claim_attribution import ProposalRejected, validate_proposal
 from app.services.claim_extractor import extract_claims
-from app.schemas.claim_extraction import ClaimProposal, SourceQuote
+from app.schemas.claim_extraction import ClaimProposal
 from app.tests.test_claim_extractor import FakeProvider
 from app.tests.test_grobid_tei import MANUSCRIPT, bibliography, tei
 
@@ -91,8 +91,8 @@ def test_gr5_correct_neighbor_remains_read_only():
     p = parsed.paragraphs[0]
     assert 'Older adults' not in p.text[plan.context.focal_span.start:plan.context.focal_span.end]
     q = ClaimProposal(text='Older adults face higher risks',
-        source_quotes=(SourceQuote(quote='Older adults face higher risks'),),
-        citation_callout_ids=plan.context.citation_callout_ids)
+        evidence_quote='Older adults face higher risks',
+        citation_labels=('1',))
     with pytest.raises(ProposalRejected) as e:
         validate_proposal(parsed, plan.context, q)
     assert e.value.code == 'QUOTE_NOT_FOUND'

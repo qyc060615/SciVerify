@@ -37,7 +37,7 @@ class FakeProvider(LLMProvider):
                 data = self.handler(payload)
             else:
                 quote = payload["focal_text"].split(" [")[0].rstrip(".")
-                data = {"claims": [{"text": quote, "source_quotes": [{"quote": quote}], "citation_callout_ids": ["c1"]}]}
+                data = {"claims": [{"text": quote, "evidence_quote": quote, "citation_labels": payload["callouts"][0]["labels"]}]}
             return response_model.model_validate(data)
         finally:
             with self.lock:
@@ -54,29 +54,29 @@ def adapter(provider, parsed=None):
     return ClaimLLMAdapter(provider).propose(c, p.paragraphs[0], p.citation_callouts)
 
 
-def test_single_call_per_sentence_prompt_minimal_and_alias_conversion():
+def test_single_call_per_sentence_prompt_exposes_visible_labels():
     provider = FakeProvider(lambda p: {"claims": []})
     result = run(manuscript("A improves accuracy [3], while B reduces latency [4]."), provider=provider)
     assert len(provider.prompts) == 1 and result.status == "completed" and not result.claims
     data = provider.prompts[0]
-    assert [c["id"] for c in data["callouts"]] == ["c1", "c2"]
+    assert [c["labels"] for c in data["callouts"]] == [["3"], ["4"]]
     assert "Fixture r" not in json.dumps(data) and "reference_ids" not in data
     assert "Neighbors are read-only" in provider.systems[0]
-    assert adapter(FakeProvider()).claims[0].citation_callout_ids == ("callout:0",)
+    assert adapter(FakeProvider()).claims[0].citation_labels == ("3",)
 
 
-def test_sr_adapter_exposes_subject_contract_and_preserves_role():
-    provider = FakeProvider(lambda p: {"claims": [{"text": "A improves accuracy",
-        "source_quotes": [{"quote": "A", "role": "subject"},
-                          {"quote": "improves accuracy", "role": "predicate"}],
-        "citation_callout_ids": ["c1"]}]})
+def test_adapter_exposes_only_atomic_evidence_contract():
+    provider = FakeProvider()
     result = run(manuscript(), provider=provider)
     assert result.claims[0].attribution_status == "resolved"
-    schema = provider.prompts[0]["output_schema"]["$defs"]["SourceQuote"]
-    assert schema["properties"]["role"]["enum"] == ["predicate", "subject", "qualifier", "shared_subject"]
+    schema = provider.prompts[0]["output_schema"]["$defs"]["ClaimProposal"]
+    assert set(schema["properties"]) == {"text", "evidence_quote", "citation_labels"}
+    assert set(schema["required"]) == set(schema["properties"])
     assert schema["additionalProperties"] is False
-    assert "Use `subject`" in provider.systems[0]
-    assert "Use `shared_subject` only" in provider.systems[0]
+    system = provider.systems[0]
+    assert "Minimal grammatical normalization is allowed" in system
+    assert "rate/incidence of severe fatigue" in system
+    assert "subject, object, comparison target" in system
 
 
 def test_success_stable_ids_fingerprint_and_legacy_contracts():
@@ -109,7 +109,7 @@ def test_concurrency_two_and_failure_isolation_stable_order():
         if focal.startswith("B"):
             raise LLMProviderError("PRIVATE_BODY secret-key")
         quote = focal.split(" [")[0]
-        return {"claims": [{"text": quote, "source_quotes": [{"quote": quote}], "citation_callout_ids": ["c1"], "association": "abstain" if focal.startswith("C") else "proposed"}]}
+        return {"claims": [{"text": quote, "evidence_quote": quote, "citation_labels": [] if focal.startswith("C") else p["callouts"][0]["labels"]}]}
     provider = FakeProvider(handler)
     r = run(manuscript(text, bounds), provider=provider)
     assert provider.maximum == 2 and len(provider.prompts) == 4
@@ -154,7 +154,7 @@ def test_typed_timeout_cause_and_factory_failure_safe():
 @pytest.mark.parametrize("extra", ["reference_ids", "offsets", "verdict"])
 def test_invalid_structured_extra_fields(extra):
     def handler(p):
-        return {"claims": [{"text": "A improves accuracy", "source_quotes": [{"quote": "A improves accuracy"}], extra: "PRIVATE_BODY"}]}
+        return {"claims": [{"text": "A improves accuracy", "evidence_quote": "A improves accuracy", extra: "PRIVATE_BODY"}]}
     with pytest.raises(ClaimLLMError) as e:
         adapter(FakeProvider(handler))
     assert e.value.code == "EXTRACTION_INVALID_RESPONSE" and "PRIVATE_BODY" not in str(e.value)
@@ -179,8 +179,8 @@ def test_malformed_json_fake_provider_safe():
 
 
 def test_all_invalid_failed_some_valid_partial_and_dedup():
-    good = {"text": "A improves accuracy", "source_quotes": [{"quote": "A improves accuracy"}], "citation_callout_ids": ["c1"]}
-    bad = {**good, "citation_callout_ids": ["c99"]}
+    good = {"text": "A improves accuracy", "evidence_quote": "A improves accuracy", "citation_labels": ["3"]}
+    bad = {**good, "citation_labels": ["99"]}
     r = run(manuscript(), provider=FakeProvider(lambda p: {"claims": [bad]}))
     assert r.status == "failed" and failure_http_status(r) == 502
     assert r.context_results[0].rejected_proposals[0].reason_code == "UNKNOWN_CITATION_CALLOUT"
@@ -207,14 +207,15 @@ def test_existing_provider_via_injected_mock_transport_safe(status, body, expect
     assert "A improves accuracy" not in caplog.text
 
 
-def test_result_revalidates_foreign_links_and_marker_sources():
+def test_result_revalidates_foreign_links_and_span_bounds():
     from app.researchguard.domain import TextSpan
     from app.services.claim_attribution import validate_result
     parsed = manuscript()
     result = run(parsed, provider=FakeProvider())
     claim = result.claims[0]
     for update in [{"reference_ids": ("invented",)}, {"citation_callout_ids": ("foreign",)},
-                   {"source_spans": (TextSpan(start=0, end=len(parsed.paragraphs[0].text)),)}]:
+                   {"source_spans": (TextSpan(start=0, end=len(parsed.paragraphs[0].text) + 1),)},
+                   {"source_spans": ()}, {"paragraph_id": "foreign"}]:
         with pytest.raises(ValueError):
             validate_result(parsed, result.model_copy(update={"claims": (claim.model_copy(update=update),)}))
 
@@ -236,7 +237,7 @@ def test_boundary_wrong_neighbor_proposal_cannot_form_resolved_claim(monkeypatch
     factory = Mock(side_effect=AssertionError("Real provider factory must not run"))
     monkeypatch.setattr("app.services.llm.provider.get_llm_provider", factory)
     p = boundary_manuscript("A supports T-cell responses.", "8 B shows higher titers.")
-    wrong = {"claims": [{"text": "B shows higher titers", "source_quotes": [{"quote": "B shows higher titers"}], "citation_callout_ids": ["c1"]}]}
+    wrong = {"claims": [{"text": "B shows higher titers", "evidence_quote": "B shows higher titers", "citation_labels": ["8"]}]}
     provider = FakeProvider(lambda payload: wrong)
     result = run(p, provider=provider)
     assert len(provider.prompts) == 1 and result.status == "failed" and not result.claims
@@ -251,7 +252,7 @@ def test_boundary_provider_candidates_unique_and_current_sources_clean():
     p = boundary_manuscript("A supports T-cell responses.", "8 B shows higher titers [9].", ("8", "[9]"))
     def handler(payload):
         quote = "A supports T-cell responses" if payload["focal_text"].startswith("A") else "B shows higher titers"
-        return {"claims": [{"text": quote, "source_quotes": [{"quote": quote}], "citation_callout_ids": ["c1"]}]}
+        return {"claims": [{"text": quote, "evidence_quote": quote, "citation_labels": payload["callouts"][0]["labels"]}]}
     provider = FakeProvider(handler)
     result = run(p, provider=provider)
     assert result.status == "completed" and len(result.claims) == 2
@@ -272,3 +273,30 @@ def test_ambiguous_boundary_prefix_never_initializes_provider():
     assert result.status == "skipped" and not result.claims
     assert {d.code for d in result.diagnostics} == {"AMBIGUOUS_BOUNDARY_CITATION"}
     factory.assert_not_called()
+
+
+def test_extraction_disables_provider_retries_without_mutating_caller():
+    from app.services.llm.provider import OpenAICompatibleLLMProvider
+    requests = []
+    def transport(request):
+        requests.append(request)
+        return httpx.Response(429, json={"error": {"message": "PRIVATE_BODY"}})
+    with httpx.Client(transport=httpx.MockTransport(transport)) as client:
+        provider = OpenAICompatibleLLMProvider(api_key="secret-key", model="offline-fake",
+            base_url="https://offline.invalid", max_rate_limit_retries=3, client=client)
+        result = run(manuscript(), provider=provider)
+    assert len(requests) == 1 and provider.max_rate_limit_retries == 3
+    assert result.status == "failed"
+    assert "EXTRACTION_RATE_LIMITED" in {d.code for d in result.diagnostics}
+
+
+def test_result_rejects_span_grounded_only_in_neighbor():
+    from app.services.claim_attribution import validate_result
+    from app.researchguard.domain import TextSpan
+    first = "Background information."
+    text = first + " A improves accuracy [3]."
+    parsed = manuscript(text, [(0, len(first)), (len(first) + 1, len(text))])
+    result = run(parsed, provider=FakeProvider())
+    bad = result.claims[0].model_copy(update={"source_spans": (TextSpan(start=0, end=len(first)),)})
+    with pytest.raises(ValueError):
+        validate_result(parsed, result.model_copy(update={"claims": (bad,)}))

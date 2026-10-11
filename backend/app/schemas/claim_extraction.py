@@ -15,19 +15,18 @@ class StrictDTO(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
 
-class SourceQuote(StrictDTO):
-    quote: ExactText
-    role: Literal["predicate", "subject", "qualifier", "shared_subject"] = "predicate"
-    left_anchor: Annotated[str, StringConstraints(strict=True, max_length=200)] | None = None
-    right_anchor: Annotated[str, StringConstraints(strict=True, max_length=200)] | None = None
-
-
 class ClaimProposal(StrictDTO):
     text: ExactText
-    source_quotes: Annotated[tuple[SourceQuote, ...], Field(min_length=1, max_length=8)]
-    citation_callout_ids: Annotated[tuple[OpaqueID, ...], Field(max_length=2000)] = ()
-    association: Literal["proposed", "abstain"] = "proposed"
-    reason_code: Literal["UNCLEAR_SCOPE", "INCOMPLETE_TARGET", "NOT_FACTUAL"] | None = None
+    evidence_quote: ExactText
+    citation_labels: Annotated[tuple[OpaqueID, ...], Field(max_length=2000,
+        description="Visible citation labels present in focal callouts, e.g. ['4', '8']; never synthetic aliases or internal IDs.")]
+
+    @field_validator("text", "evidence_quote")
+    @classmethod
+    def nonblank(cls, value):
+        if not value.strip():
+            raise ValueError("Claim and evidence must be nonblank")
+        return value
 
 
 class ExtractionProposal(StrictDTO):
