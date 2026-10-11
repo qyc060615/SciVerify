@@ -23,6 +23,7 @@ from app.api.routes.papers import router as papers_router
 from app.api.routes.verification import router as verification_router
 from app.api.routes.sources import router as sources_router
 from app.api.routes.manuscripts import router as manuscripts_router
+from app.api.routes.verification_jobs import router as verification_jobs_router
 
 BACKEND_HOST = os.getenv("BACKEND_HOST", "0.0.0.0")
 BACKEND_PORT = int(os.getenv("PORT") or os.getenv("BACKEND_PORT", "8000"))
@@ -44,10 +45,20 @@ def _get_cors_origins() -> list[str]:
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     from app.researchguard.adapters.paperqa2 import clear_index_cache
+    from app.services.verification_jobs import VerificationJobRuntime, jobs_enabled, require_single_process
+    runtime = None
     clear_index_cache()
     try:
+        if jobs_enabled():
+            require_single_process()
+            runtime = VerificationJobRuntime()
+            await runtime.start()
+        _app.state.verification_jobs = runtime
         yield
     finally:
+        if runtime is not None:
+            await runtime.shutdown()
+        _app.state.verification_jobs = None
         clear_index_cache()
 
 
@@ -73,6 +84,7 @@ app.include_router(evidence_router)
 app.include_router(verification_router)
 app.include_router(sources_router)
 app.include_router(manuscripts_router)
+app.include_router(verification_jobs_router)
 
 
 @app.get("/health", tags=["health"])

@@ -70,20 +70,8 @@ def _default_retriever(chunks):
     return PaperQA2EvidenceRetriever(chunks, PaperQA2Config.from_environment())
 
 
-async def verify_manuscript_core(
-    parsed: ParsedManuscript, extraction: ClaimExtractionResult, *,
-    source_retriever=retrieve_paper, evidence_retriever_factory=None,
-    prepared_verifier=verify_prepared_evidence, llm=None, top_k=5,
-) -> ManuscriptCoreResult:
-    """Inject a sync source callable, retriever factory, and async verifier.
-
-    Factories receive canonical prepared chunks; their retrieve method uses the
-    existing PaperQA2 signature. All memoized successes/failures expire on return.
-    """
-    parsed, extraction = validate_combined_input(parsed, extraction)
-    if type(top_k) is not int or not 1 <= top_k <= 20:
-        raise ValueError("Core top_k must be between 1 and 20")
-    factory = evidence_retriever_factory or _default_retriever
+def plan_manuscript_pairs(parsed, extraction):
+    """Deterministic original-identity plan; callers validate combined input first."""
     references = {r.id: r for r in parsed.references}
     callouts = {c.id: c for c in parsed.citation_callouts}
     plan, blocked = [], []
@@ -95,10 +83,41 @@ async def verify_manuscript_core(
         for rid in claim.reference_ids:
             calls = tuple(cid for cid in claim.citation_callout_ids if rid in callouts[cid].reference_ids)
             plan.append((claim, references[rid], calls))
+    return tuple(plan), tuple(blocked)
+
+
+async def verify_manuscript_core(
+    parsed: ParsedManuscript, extraction: ClaimExtractionResult, *,
+    source_retriever=retrieve_paper, evidence_retriever_factory=None,
+    prepared_verifier=verify_prepared_evidence, llm=None, top_k=5,
+    selected_pairs=None, on_pair_started=None, on_pair_finished=None,
+    expected_raw_hashes=None, expected_source_versions=None,
+) -> ManuscriptCoreResult:
+    """Inject a sync source callable, retriever factory, and async verifier.
+
+    Factories receive canonical prepared chunks; their retrieve method uses the
+    existing PaperQA2 signature. All memoized successes/failures expire on return.
+    """
+    parsed, extraction = validate_combined_input(parsed, extraction)
+    if type(top_k) is not int or not 1 <= top_k <= 20:
+        raise ValueError("Core top_k must be between 1 and 20")
+    factory = evidence_retriever_factory or _default_retriever
+    plan, blocked = plan_manuscript_pairs(parsed, extraction)
+    if selected_pairs is not None:
+        selected_pairs = tuple(selected_pairs)
+        legal = {(c.id, r.id) for c, r, _ in plan}
+        if len(set(selected_pairs)) != len(selected_pairs) or not set(selected_pairs) <= legal:
+            raise ValueError("Core selection contains duplicate or unknown pairs")
+        plan = tuple(item for item in plan if (item[0].id, item[1].id) in set(selected_pairs))
+    expected_raw_hashes = expected_raw_hashes or {}
+    expected_source_versions = expected_source_versions or {}
 
     prepared, sources, outcomes = {}, {}, []
     original_claim_ids = {c.id for c in extraction.claims}
     for claim, reference, calls in plan:
+        # Runtime/storage exceptions propagate, outside semantic failure isolation.
+        if on_pair_started is not None:
+            await on_pair_started(claim.id, reference.id)
         binding, selected = None, ()
         status, reason = ProcessingStatus.FAILED, "SOURCE_PREPARATION_FAILURE"
         legacy_verdict, result = None, None
@@ -119,6 +138,8 @@ async def verify_manuscript_core(
                     response = RetrievePaperResponse.model_validate(response.model_dump())
                     if normalize_doi(response.paper.doi) != doi:
                         prepared[doi] = (ProcessingStatus.SOURCE_MISMATCH, "SOURCE_DOI_MISMATCH")
+                    elif doi in expected_raw_hashes and response.source.raw_content_sha256 != expected_raw_hashes[doi]:
+                        prepared[doi] = (ProcessingStatus.SOURCE_MISMATCH, "SOURCE_VERSION_CONFLICT")
                     elif response.status != PaperRetrievalStatus.SUCCESS:
                         required = response.status in {PaperRetrievalStatus.METADATA_ONLY,
                             PaperRetrievalStatus.FULL_TEXT_UNAVAILABLE, PaperRetrievalStatus.PARSING_FAILURE}
@@ -127,7 +148,9 @@ async def verify_manuscript_core(
                             if required else "SOURCE_" + response.status.value.upper())
                     else:
                         source, chunks = accepted_source_to_domain(response)
-                        if len(source.model_dump_json().encode("utf-8")) > MAX_PAIR_PAYLOAD_BYTES:
+                        if doi in expected_source_versions and source.content_hash != expected_source_versions[doi]:
+                            prepared[doi] = (ProcessingStatus.SOURCE_MISMATCH, "SOURCE_VERSION_CONFLICT")
+                        elif len(source.model_dump_json().encode("utf-8")) > MAX_PAIR_PAYLOAD_BYTES:
                             prepared[doi] = (ProcessingStatus.FAILED, "SOURCE_METADATA_SIZE_LIMIT")
                         else:
                             prepared[doi] = (source, tuple(chunks))
@@ -217,6 +240,8 @@ async def verify_manuscript_core(
             result = VerificationResult(claim_id=claim.id, processing_status=status, evidence_chunks=selected)
         outcomes.append(PairOutcome(reference_id=reference.id, citation_callout_ids=calls,
             reason_code=reason, binding=binding, verification=result, legacy_verdict=legacy_verdict))
+        if on_pair_finished is not None:
+            await on_pair_finished(outcomes[-1].model_copy(deep=True))
 
     completed = sum(p.processing_status == ProcessingStatus.COMPLETED for p in outcomes)
     failed = sum(p.processing_status == ProcessingStatus.FAILED for p in outcomes)
