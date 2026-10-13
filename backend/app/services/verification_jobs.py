@@ -12,7 +12,7 @@ from app.researchguard.manuscript_verification import PairOutcome
 from app.services.manuscript_verification import (
     verify_manuscript_core, validate_combined_input, plan_manuscript_pairs,
 )
-from app.services.source_store import LocalSourceStore
+from app.services.source_store import LocalSourceStore, verify_source_durability
 from app.services.verification_job_models import (
     JobSnapshot, TaskRecord, TaskState, JobState, EventRecord, task_key, aggregate_state,
 )
@@ -21,7 +21,8 @@ from app.utils.doi import normalize_doi
 
 RETRYABLE = frozenset({"VERIFIER_EXECUTION_FAILURE", "VERIFIER_LLM_UNAVAILABLE",
     "VERIFIER_VERIFICATION_FAILED", "PAPERQA2_ADAPTER_FAILURE", "EVIDENCE_RETRIEVAL_FAILURE",
-    "SOURCE_PROVIDER_ERROR", "SOURCE_PREPARATION_FAILURE"})
+    "SOURCE_PROVIDER_ERROR", "SOURCE_PREPARATION_FAILURE", "SOURCE_DURABILITY_UNAVAILABLE",
+    "SOURCE_DURABILITY_MISMATCH", "SOURCE_DURABILITY_HASH_REQUIRED"})
 RECOVERABLE_SOURCE = frozenset({"SOURCE_REQUIRED_METADATA_ONLY", "SOURCE_REQUIRED_FULL_TEXT_UNAVAILABLE",
     "SOURCE_REQUIRED_PARSING_FAILURE", "SOURCE_NOT_FOUND", "SOURCE_DOI_MISMATCH", "SOURCE_VERSION_CONFLICT"})
 
@@ -59,7 +60,7 @@ class VerificationJobRuntime:
         self.source_store = source_store or LocalSourceStore()
         self.core_dependencies = dict(core_dependencies or {})
         if self.core_dependencies.keys() & {"selected_pairs", "on_pair_started", "on_pair_finished",
-                "expected_raw_hashes", "expected_source_versions"}:
+                "expected_raw_hashes", "expected_source_versions", "source_durability_check"}:
             raise JobError("JOB_CONFIGURATION_INVALID", 503)
         if type(max_workers) is not int or max_workers <= 0:
             raise JobError("JOB_CONFIGURATION_INVALID", 503)
@@ -149,16 +150,24 @@ class VerificationJobRuntime:
         self.errors.pop(snapshot.job_id, None)
         return updated
 
+    def _check_source_durability(self, response):
+        # Legacy injected fixtures without raw-byte provenance keep the Phase 1 contract.
+        # Every response claiming a raw hash is checked, including injected retrievers.
+        injected = "source_retriever" in self.core_dependencies
+        verify_source_durability(response, self.source_store, allow_legacy=injected)
+
     def get(self, job_id):
-        if job_id in self.errors:
-            raise JobError(self.errors[job_id], 503)
+        # A worker error never hides committed data or masks snapshot corruption.
         return self.store.load(job_id)
 
     async def wait(self, job_id):
         task = self._workers.get(job_id)
         if task:
             await task
-        return self.get(job_id)
+        snapshot = self.get(job_id)
+        if job_id in self.errors:
+            raise JobError(self.errors[job_id], 503)
+        return snapshot
 
     async def resume(self, job_id, *, expected_revision, reference_ids=None, source_hashes=None, retry_failed=False):
         async with self._lock(job_id):
@@ -176,7 +185,6 @@ class VerificationJobRuntime:
             if job_id in self._workers:
                 raise JobError("JOB_RUNNING")
             if snapshot.state == JobState.COMPLETED:
-                self.errors.pop(job_id, None)
                 return snapshot
             if snapshot.state == JobState.FAILED:
                 raise JobError("JOB_RESUME_UNAVAILABLE")
@@ -224,7 +232,6 @@ class VerificationJobRuntime:
                                         expected_revision=snapshot.revision)
             self._workers[job_id] = asyncio.create_task(self._worker(job_id,
                 tuple((t.claim_id, t.reference_id) for t in selected)), name="verification-" + job_id)
-            self.errors.pop(job_id, None)
             return updated
 
     async def _worker(self, job_id, selected):
@@ -285,7 +292,8 @@ class VerificationJobRuntime:
 
                 await verify_manuscript_core(snapshot.parsed, snapshot.extraction, selected_pairs=selected,
                     on_pair_started=started, on_pair_finished=finished, expected_raw_hashes=expectations,
-                    expected_source_versions=versions, **self.core_dependencies)
+                    expected_source_versions=versions, source_durability_check=self._check_source_durability,
+                    **self.core_dependencies)
                 async with self._lock(job_id):
                     current = self.store.load(job_id)
                     state = aggregate_state(current)
@@ -295,6 +303,8 @@ class VerificationJobRuntime:
                     else:
                         event = "job_" + state.value
                     self.store.commit(evolve(current, event, state), expected_revision=current.revision)
+                    # Clear execution diagnostics only after a successful recovery checkpoint.
+                    self.errors.pop(job_id, None)
         except asyncio.CancelledError:
             async with self._lock(job_id):
                 try:

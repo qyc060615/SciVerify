@@ -518,3 +518,114 @@ async def test_version_conflict_outcome_retains_previous_pinned_binding(harness)
     with pytest.raises(JobError, match="VERSION_CONFLICT"):
         await h.runtime.resume(job.job_id, expected_revision=blocked.revision, source_hashes={"r1": new_hash})
     assert h.store.load(job.job_id) == blocked
+
+
+@pytest.mark.anyio
+async def test_durability_missing_artifact_blocks_verdict_and_can_resume(harness):
+    h = harness()
+    h.paper.source.raw_content_sha256 = hashlib.sha256(b'not persisted').hexdigest()
+    job = await h.runtime.create(*inputs((('r1',), ('r1',))))
+    failed = await h.runtime.wait(job.job_id)
+    assert all(t.reason_code == 'SOURCE_DURABILITY_UNAVAILABLE' for t in failed.tasks)
+    assert not h.verified and not h.queries
+    assert all(t.pair_outcome.verification.verdict is None for t in failed.tasks)
+    digest = h.accept('10.1234/local')
+    await h.runtime.resume(job.job_id, expected_revision=failed.revision,
+        source_hashes={'r1': digest}, retry_failed=True)
+    completed = await h.runtime.wait(job.job_id)
+    assert completed.state == JobState.COMPLETED
+    assert [t.attempt for t in completed.tasks] == [2, 2]
+
+
+@pytest.mark.anyio
+async def test_durability_same_doi_checks_once_and_retains_completed_pairs(harness, monkeypatch):
+    h = harness()
+    h.accept('10.1234/local')
+    checks = []
+    original = h.runtime._check_source_durability
+    def checked(response):
+        checks.append(response.paper.doi)
+        return original(response)
+    monkeypatch.setattr(h.runtime, '_check_source_durability', checked)
+    # The second source claims raw provenance but has no artifact.
+    h.paper.source.raw_content_sha256 = hashlib.sha256(b'missing').hexdigest()
+    job = await h.runtime.create(*inputs((('r1',), ('r2',), ('r1',)),
+        dois={'r1': '10.1234/local', 'r2': '10.1234/missing'}))
+    saved = await h.runtime.wait(job.job_id)
+    assert checks == ['10.1234/local', '10.1234/missing']
+    assert [t.state for t in saved.tasks] == [TaskState.COMPLETED, TaskState.FAILED, TaskState.COMPLETED]
+    original_completed = (saved.tasks[0], saved.tasks[2])
+    digest = h.accept('10.1234/missing')
+    await h.runtime.resume(job.job_id, expected_revision=saved.revision, reference_ids=['r2'],
+        source_hashes={'r2': digest}, retry_failed=True)
+    final = await h.runtime.wait(job.job_id)
+    assert (final.tasks[0], final.tasks[2]) == original_completed
+    assert len(h.verified) == 3
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize('damage', ['raw', 'wrong_doi', 'wrong_hash', 'wrong_version'])
+async def test_durability_corruption_or_identity_mismatch_has_no_verdict(harness, monkeypatch, damage):
+    from dataclasses import replace as replace_artifact
+    h = harness()
+    digest = h.accept('10.1234/local')
+    artifact = h.source_store.get('10.1234/local')
+    response = artifact.response(chunks=h.paper.chunks)
+    h.dependencies['source_retriever'] = lambda doi: response
+    h.runtime.core_dependencies = dict(h.dependencies)
+    if damage == 'raw':
+        (h.source_store.root / digest / 'source.html').write_bytes(b'corrupt')
+    elif damage == 'wrong_version':
+        h.accept('10.1234/local', b'changed persisted version')
+    else:
+        wrong = replace_artifact(artifact, **({'doi': '10.1234/other'} if damage == 'wrong_doi' else {'content': b'tampered'}))
+        monkeypatch.setattr(h.source_store, 'get', lambda doi: wrong)
+    job = await h.runtime.create(*inputs())
+    saved = await h.runtime.wait(job.job_id)
+    assert saved.tasks[0].reason_code.startswith('SOURCE_DURABILITY_')
+    assert saved.tasks[0].state == TaskState.FAILED
+    assert saved.tasks[0].pair_outcome.verification.verdict is None
+    assert not h.verified
+
+
+@pytest.mark.anyio
+async def test_durability_production_runtime_requires_raw_hash(harness):
+    from app.services.source_store import SourceDurabilityError
+    h = harness()
+    runtime = VerificationJobRuntime(h.store, source_store=h.source_store)
+    with pytest.raises(SourceDurabilityError, match='HASH_REQUIRED'):
+        runtime._check_source_durability(h.paper)
+    # Existing standalone core and explicit legacy test retrievers remain supported.
+    job = await h.runtime.create(*inputs())
+    assert (await h.runtime.wait(job.job_id)).state == JobState.COMPLETED
+
+
+@pytest.mark.anyio
+async def test_durability_real_retrieval_write_failure_then_retry(harness, monkeypatch):
+    from unittest.mock import Mock
+    from app.services import paper_retriever as retrieval
+    from app.services.document_retriever import RetrievedDocument
+    from app.tests.test_source_lifecycle import offline_auto, DOI
+    from app.tests.full_text_fixtures import FULL_TEXT_HTML
+    h = harness()
+    monkeypatch.setenv('RESEARCHGUARD_SOURCE_CACHE_DIR', str(h.source_store.root))
+    offline_auto(monkeypatch)
+    monkeypatch.setattr(retrieval, 'retrieve_document', Mock(return_value=RetrievedDocument(
+        FULL_TEXT_HTML, FULL_TEXT_HTML.decode(), 'html', 'text/html', 'https://accepted.example/source.html')))
+    h.runtime.core_dependencies['source_retriever'] = retrieval.retrieve_paper
+    original_put = LocalSourceStore.put
+    def disk_failure(*args):
+        raise OSError('injected source persistence error')
+    monkeypatch.setattr(LocalSourceStore, 'put', disk_failure)
+    parsed, extracted = inputs((('r1',), ('r1',)), dois={'r1': DOI})
+    job = await h.runtime.create(parsed, extracted)
+    failed = await h.runtime.wait(job.job_id)
+    assert all(t.reason_code == 'SOURCE_DURABILITY_UNAVAILABLE' for t in failed.tasks)
+    assert not h.verified and not h.queries and h.source_store.get(DOI) is None
+    monkeypatch.setattr(LocalSourceStore, 'put', original_put)
+    await h.runtime.resume(job.job_id, expected_revision=failed.revision, retry_failed=True)
+    final = await h.runtime.wait(job.job_id)
+    artifact = h.source_store.get(DOI)
+    assert final.state == JobState.COMPLETED and artifact.content == FULL_TEXT_HTML
+    assert all(t.source_version == 'sha256:' + artifact.raw_content_sha256 for t in final.tasks)
+    assert len(h.verified) == 2

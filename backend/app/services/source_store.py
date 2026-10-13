@@ -113,3 +113,36 @@ class LocalSourceStore:
                                           data["source_url"], data["provider"], data["origin"], paper)
         except (OSError, ValueError, KeyError, TypeError):
             return None
+
+
+class SourceDurabilityError(ValueError):
+    """Safe, retryable source preparation error, never a semantic verdict."""
+    def __init__(self, code):
+        super().__init__(code)
+        self.code = code
+
+
+def verify_source_durability(response, store, *, allow_legacy=False):
+    """Require a rereadable raw artifact before a durable job invokes its verifier."""
+    digest = response.source.raw_content_sha256
+    if not digest:
+        if allow_legacy:
+            return
+        raise SourceDurabilityError("SOURCE_DURABILITY_HASH_REQUIRED")
+    if not isinstance(digest, str) or not _SHA.fullmatch(digest):
+        raise SourceDurabilityError("SOURCE_DURABILITY_MISMATCH")
+    doi = normalize_doi(response.paper.doi)
+    try:
+        artifact = store.get(doi)
+    except OSError:
+        raise SourceDurabilityError("SOURCE_DURABILITY_UNAVAILABLE") from None
+    if artifact is None:
+        raise SourceDurabilityError("SOURCE_DURABILITY_UNAVAILABLE")
+    if (artifact.doi != doi or normalize_doi(artifact.paper.doi) != doi
+            or artifact.paper.paper_id != response.paper.paper_id
+            or artifact.raw_content_sha256 != digest
+            or hashlib.sha256(artifact.content).hexdigest() != digest
+            or artifact.origin != response.source.origin
+            or (response.paper.full_text_format is not None
+                and artifact.format != response.paper.full_text_format)):
+        raise SourceDurabilityError("SOURCE_DURABILITY_MISMATCH")

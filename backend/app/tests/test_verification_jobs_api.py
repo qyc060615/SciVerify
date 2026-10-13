@@ -180,3 +180,77 @@ async def test_mismatched_manual_pdf_keeps_job_blocked(api, monkeypatch):
     response = await client.post("/api/sources/manual", data={"doi": doi}, files={"file": ("wrong.pdf", wrong)})
     assert response.status_code == 400 and response.json()["detail"]["code"] == "SOURCE_MISMATCH"
     assert h.source_store.get(doi) is None and h.store.load(job_id) == waiting and not h.verified
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize('after_replace', [False, True])
+async def test_runtime_error_does_not_hide_atomic_checkpoint(api, monkeypatch, after_replace):
+    import json
+    import app.services.verification_job_store as module
+    from app.services.verification_job_store import JobError
+    from app.services.verification_jobs import VerificationJobRuntime
+    from app.schemas.verification_jobs import JobView
+    client, h = api
+    h.blocked.clear()
+    original = module.os.replace
+    injected = []
+    def replace_fault(src, dst):
+        if str(dst).endswith('.json') and str(src).endswith('.tmp'):
+            envelope = json.loads(__import__('pathlib').Path(src).read_bytes())
+            if envelope['snapshot']['events'][-1]['event_type'] == 'pair_completed' and not injected:
+                injected.append(True)
+                if after_replace:
+                    original(src, dst)
+                raise OSError('injected atomic checkpoint error')
+        return original(src, dst)
+    monkeypatch.setattr(module.os, 'replace', replace_fault)
+    created = await client.post('/api/verification/jobs', json=body())
+    job_id = created.json()['job_id']
+    with pytest.raises(JobError, match='JOB_STORAGE_ERROR'):
+        await h.runtime.wait(job_id)
+    read = await client.get('/api/verification/jobs/' + job_id)
+    assert read.status_code == 200
+    data = read.json()
+    assert data['runtime_error_code'] == 'JOB_STORAGE_ERROR'
+    assert h.runtime.errors[job_id] == 'JOB_STORAGE_ERROR'
+    events = (await client.get('/api/verification/jobs/' + job_id + '/events')).json()
+    assert events['runtime_error_code'] == 'JOB_STORAGE_ERROR'
+    assert sum(e['event_type'] == 'pair_completed' for e in events['events']) == int(after_replace)
+    legacy_shape = dict(data)
+    legacy_shape.pop('runtime_error_code')
+    assert JobView.model_validate(legacy_shape).runtime_error_code is None
+    saved = h.runtime.get(job_id)
+    if after_replace:
+        assert data['status'] == 'completed'
+        assert data['tasks'][0]['pair_outcome']['verification']['verdict'] == 'SUPPORTED'
+        for _ in range(2):
+            repeated = await client.post('/api/verification/jobs/' + job_id + '/resume', json={'expected_revision': saved.revision})
+            assert repeated.status_code == 202 and repeated.json()['runtime_error_code'] == 'JOB_STORAGE_ERROR'
+        assert h.runtime.get(job_id) == saved and len(h.verified) == 1
+    else:
+        assert data['status'] == 'interrupted'
+        assert data['tasks'][0]['pair_outcome'] is None
+        resumed = await client.post('/api/verification/jobs/' + job_id + '/resume', json={'expected_revision': saved.revision})
+        assert resumed.status_code == 202 and resumed.json()['runtime_error_code'] == 'JOB_STORAGE_ERROR'
+        final = await h.runtime.wait(job_id)
+        assert final.state == 'completed' and job_id not in h.runtime.errors
+    restarted = VerificationJobRuntime(LocalJobStore(h.store.root), source_store=h.source_store, core_dependencies=h.dependencies)
+    await restarted.start()
+    assert restarted.get(job_id) == h.store.load(job_id)
+    assert len(h.verified) == (1 if after_replace else 2)
+    await restarted.shutdown(0)
+
+
+@pytest.mark.anyio
+async def test_snapshot_corruption_takes_priority_over_runtime_error(api):
+    client, h = api
+    created = await client.post('/api/verification/jobs', json=body())
+    job_id = created.json()['job_id']
+    await h.runtime.wait(job_id)
+    h.runtime.errors[job_id] = 'JOB_STORAGE_ERROR'
+    (h.store.root / (job_id + '.json')).write_bytes(b'{broken')
+    for suffix in ('', '/events'):
+        response = await client.get('/api/verification/jobs/' + job_id + suffix)
+        assert response.status_code == 500
+        assert response.json()['detail']['code'] == 'JOB_SNAPSHOT_CORRUPT'
+    assert h.runtime.errors[job_id] == 'JOB_STORAGE_ERROR'

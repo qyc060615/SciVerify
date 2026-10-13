@@ -55,9 +55,10 @@ class JobView(DomainModel):
     attribution_blocked: tuple[AttributionBlockedClaim, ...]
     coverage: JobCoverage
     next_sequence: int
+    runtime_error_code: str | None = None
 
 
-def job_view(snapshot, max_attempts):
+def job_view(snapshot, max_attempts, *, runtime_error_code=None):
     from app.services.verification_jobs import RETRYABLE
     tasks = tuple(TaskView(task_key=t.task_key, claim_id=t.claim_id, reference_id=t.reference_id,
         state=t.state, reason_code=t.reason_code, attempt=t.attempt, source_binding=t.source_binding,
@@ -72,4 +73,5 @@ def job_view(snapshot, max_attempts):
         citation_callouts=snapshot.parsed.citation_callouts, contexts=snapshot.extraction.contexts,
         extraction_metadata=snapshot.extraction.metadata, context_results=snapshot.extraction.context_results,
         tasks=tasks, attribution_blocked=snapshot.attribution_blocked,
-        coverage=coverage(snapshot), next_sequence=snapshot.next_sequence)
+        coverage=coverage(snapshot), next_sequence=snapshot.next_sequence,
+        runtime_error_code=runtime_error_code)

@@ -462,3 +462,97 @@ def test_verifier_error_logs_do_not_contain_source_or_secrets(failure, caplog, m
         provider.generate(secret, response_model=ProsecutorAnalysis)
     assert secret not in caplog.text and key not in caplog.text
     assert "9876" not in caplog.text and "sk-s" not in caplog.text
+
+
+@pytest.mark.parametrize("metadata, expected", [
+    ('<meta name="citation_doi" content="10.1234/other">', 'conflict'),
+    ('<meta name="citation_title" content="Distant galaxies observed with a new radio telescope">', 'conflict'),
+    ('<meta name="citation_doi" content="' + DOI + '">', 'confirmed'),
+    ('<meta name="dc.identifier" content="https://doi.org/' + DOI + '">', 'confirmed'),
+    ('<meta name="citation_title" content="' + TITLE + '">', 'confirmed'),
+    ('', 'uncertain'),
+])
+def test_identity_authoritative_html_fields(metadata, expected):
+    from app.services.source_identity import qualify_source_identity
+    content = FULL_TEXT_HTML.replace(b'<html>', ('<html><head>' + metadata + '</head>').encode())
+    content += b'<div class="references">doi: 10.1234/unrelated-reference</div>'
+    result = qualify_source_identity(content, 'html', artifact().paper)
+    assert result.status == expected
+
+
+def test_identity_structured_article_ignores_reference_records():
+    from app.services.source_identity import qualify_source_identity
+    data = {'@type': 'ScholarlyArticle', 'identifier': {'propertyID': 'doi', 'value': DOI},
+            'headline': TITLE, 'citation': {'@type': 'ScholarlyArticle', 'doi': '10.1234/other'}}
+    content = FULL_TEXT_HTML.replace(b'<html>', ('<html><head><script type="application/ld+json">' +
+        json.dumps(data) + '</script></head>').encode())
+    assert qualify_source_identity(content, 'html', artifact().paper).status == 'confirmed'
+
+
+@pytest.mark.parametrize('kind, expected', [('normal', 'confirmed'), ('wrong', 'conflict'),
+                                           ('title', 'confirmed'), ('abstract', 'conflict')])
+def test_identity_real_pdf_header_and_body_boundaries(kind, expected):
+    from app.services.source_identity import qualify_source_identity
+    lines = [TITLE, 'Ada Lovelace 2020', 'doi: ' + (DOI if kind != 'wrong' else '10.1234/other'),
+             'Results', 'Trial outcomes were measured in the participants.', 'References', '10.1234/reference']
+    if kind == 'title':
+        lines = [TITLE, 'Ada Lovelace 2020', 'Results', 'Trial outcomes.']
+    elif kind == 'abstract':
+        lines = [TITLE, 'doi: ' + DOI, 'Abstract', 'A short summary without any full-text body.']
+    result = qualify_source_identity(pdf_bytes(lines), 'pdf', artifact().paper)
+    assert result.status == expected
+
+
+def test_identity_conflicting_candidate_falls_back_without_caching_wrong_paper(monkeypatch):
+    offline_auto(monkeypatch)
+    monkeypatch.setattr(retrieval, '_fetch_openalex_work', lambda *a: {'open_access': {'is_oa': True},
+        'best_oa_location': {'oa_url': 'https://accepted.example/wrong.html'},
+        'locations': [{'oa_url': 'https://accepted.example/right.html'}]})
+    wrong = FULL_TEXT_HTML.replace(b'<html>', b'<html><head><meta name="citation_doi" content="10.1234/other"></head>')
+    right = FULL_TEXT_HTML.replace(b'<html>', ('<html><head><meta name="citation_doi" content="' + DOI + '"></head>').encode())
+    def download(url, **kwargs):
+        content = wrong if 'wrong' in url else right
+        return RetrievedDocument(content, content.decode(), 'html', 'text/html', url)
+    monkeypatch.setattr(retrieval, 'retrieve_document', download)
+    result = retrieval.retrieve_paper(DOI)
+    assert result.status == 'success' and result.source.identity_status == 'confirmed'
+    assert result.source.url.endswith('/right.html')
+    assert LocalSourceStore().get(DOI).content == right
+
+
+def test_identity_existing_conflicting_cache_is_not_reused(monkeypatch):
+    offline_auto(monkeypatch)
+    wrong = FULL_TEXT_HTML.replace(b'<html>', b'<html><head><meta name="citation_doi" content="10.1234/other"></head>')
+    LocalSourceStore().put(artifact(wrong))
+    right = FULL_TEXT_HTML.replace(b'<html>', ('<html><head><meta name="citation_doi" content="' + DOI + '"></head>').encode())
+    monkeypatch.setattr(retrieval, 'retrieve_document', lambda url, **kw:
+        RetrievedDocument(right, right.decode(), 'html', 'text/html', url))
+    response = retrieval.retrieve_paper(DOI)
+    assert response.status == 'success' and not response.source.cache_hit
+    assert LocalSourceStore().get(DOI).content == right
+
+
+def test_identity_uncertainty_is_visible_in_evidence_provenance(monkeypatch):
+    offline_auto(monkeypatch)
+    monkeypatch.setattr(retrieval, 'retrieve_document', lambda url, **kw:
+        RetrievedDocument(FULL_TEXT_HTML, FULL_TEXT_HTML.decode(), 'html', 'text/html', url))
+    response = retrieval.retrieve_paper(DOI)
+    assert response.source.identity_status == 'uncertain'
+    _, chunks = accepted_source_to_domain(response)
+    assert all(c.metadata['source_identity_status'] == 'uncertain' for c in chunks)
+
+
+@pytest.mark.parametrize('kind', ['wrong_doi', 'wrong_title', 'abstract_pdf'])
+def test_identity_rejected_source_never_enters_store(monkeypatch, kind):
+    offline_auto(monkeypatch)
+    if kind == 'abstract_pdf':
+        content = pdf_bytes([TITLE, 'doi: ' + DOI, 'Abstract', 'Only the short abstract is present.'])
+        doc = RetrievedDocument(content, None, 'pdf', 'application/pdf', 'https://accepted.example/source.pdf')
+    else:
+        field = '<meta name="citation_doi" content="10.1234/other">' if kind == 'wrong_doi' else '<meta name="citation_title" content="Unrelated study of galaxies and stellar motions">'
+        content = FULL_TEXT_HTML.replace(b'<html>', ('<html><head>' + field + '</head>').encode())
+        doc = RetrievedDocument(content, content.decode(), 'html', 'text/html', 'https://accepted.example/source.html')
+    monkeypatch.setattr(retrieval, 'retrieve_document', Mock(return_value=doc))
+    result = retrieval.retrieve_paper(DOI)
+    assert result.status == 'full_text_unavailable'
+    assert LocalSourceStore().get(DOI) is None

@@ -22,6 +22,7 @@ from app.services.citation_context import fingerprint, validate_input
 from app.services.claim_attribution import validate_result
 from app.services.paper_retriever import retrieve_paper, PaperNotFoundError, PaperProviderError
 from app.services.verification_service import verify_prepared_evidence
+from app.services.source_store import SourceDurabilityError
 from app.utils.claim_preprocessor import preprocess_claim
 from app.utils.doi import InvalidDOIError, normalize_doi
 
@@ -91,7 +92,7 @@ async def verify_manuscript_core(
     source_retriever=retrieve_paper, evidence_retriever_factory=None,
     prepared_verifier=verify_prepared_evidence, llm=None, top_k=5,
     selected_pairs=None, on_pair_started=None, on_pair_finished=None,
-    expected_raw_hashes=None, expected_source_versions=None,
+    expected_raw_hashes=None, expected_source_versions=None, source_durability_check=None,
 ) -> ManuscriptCoreResult:
     """Inject a sync source callable, retriever factory, and async verifier.
 
@@ -147,6 +148,8 @@ async def verify_manuscript_core(
                         prepared[doi] = (failure_status, "SOURCE_REQUIRED_" + response.status.value.upper()
                             if required else "SOURCE_" + response.status.value.upper())
                     else:
+                        if source_durability_check is not None:
+                            await to_thread.run_sync(source_durability_check, response)
                         source, chunks = accepted_source_to_domain(response)
                         if doi in expected_source_versions and source.content_hash != expected_source_versions[doi]:
                             prepared[doi] = (ProcessingStatus.SOURCE_MISMATCH, "SOURCE_VERSION_CONFLICT")
@@ -154,6 +157,8 @@ async def verify_manuscript_core(
                             prepared[doi] = (ProcessingStatus.FAILED, "SOURCE_METADATA_SIZE_LIMIT")
                         else:
                             prepared[doi] = (source, tuple(chunks))
+                except SourceDurabilityError as exc:
+                    prepared[doi] = (ProcessingStatus.FAILED, exc.code)
                 except PaperNotFoundError:
                     prepared[doi] = (ProcessingStatus.SOURCE_UNAVAILABLE, "SOURCE_NOT_FOUND")
                 except PaperProviderError:

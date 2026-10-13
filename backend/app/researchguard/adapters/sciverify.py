@@ -81,6 +81,7 @@ def accepted_source_to_domain(paper_result: RetrievePaperResponse) -> tuple[Sour
                 "source_format": paper.full_text_format,
                 "content_hash_kind": "raw_bytes" if paper_result.source.raw_content_sha256 else "parsed_chunks",
                 "parsed_content_fingerprint": parsed_fingerprint,
+                "source_identity_status": paper_result.source.identity_status,
                 "source_origin": paper_result.source.origin, "source_cache_hit": paper_result.source.cache_hit,
             },
         ))

@@ -31,6 +31,7 @@ from app.services.document_retriever import (
 from app.services.evidence_chunker import chunk_sections
 from app.utils.doi import normalize_doi
 from app.services.source_store import AcceptedSourceArtifact, LocalSourceStore
+from app.services.source_identity import SourceIdentity, qualify_source_identity
 from app.services.full_text_qualifier import (
     discover_direct_full_text_links,
     is_full_text_document,
@@ -90,6 +91,12 @@ def retrieve_paper(
     store = LocalSourceStore()
     artifact = store.get(normalized)
     if artifact is not None:
+        identity = (SourceIdentity("confirmed", "MANUAL_UPLOAD_ACCEPTED") if artifact.origin == "manual"
+                    else qualify_source_identity(artifact.content, artifact.format, artifact.paper))
+        if identity.status == "conflict":
+            logger.warning("source_cache_rejected doi=%s reason=%s", normalized, identity.reason)
+            artifact = None
+    if artifact is not None:
         try:
             sections = parse_document(artifact.content, artifact.format)
             if not is_full_text_document(artifact.content, artifact.format):
@@ -98,7 +105,9 @@ def retrieve_paper(
                 chunks = chunk_sections(sections, artifact.paper.paper_id, artifact.source_url)
                 if chunks:
                     logger.info("source_cache_hit doi=%s origin=%s", normalized, artifact.origin)
-                    return artifact.response(cache_hit=True, sections=sections, chunks=chunks)
+                    response = artifact.response(cache_hit=True, sections=sections, chunks=chunks)
+                    response.source.identity_status = "confirmed" if artifact.origin == "manual" else identity.status
+                    return response
         except DocumentParseError:
             if not is_full_text_document(artifact.content, artifact.format):
                 logger.warning("source_cache_rejected doi=%s reason=not_full_text", normalized)
@@ -254,6 +263,11 @@ def retrieve_paper(
 
             if parse_failed:
                 continue
+            identity = qualify_source_identity(document.content, document.format, paper)
+            logger.info("source_identity doi=%s status=%s reason=%s", normalized, identity.status, identity.reason)
+            if identity.status == "conflict":
+                last_detail = identity.reason
+                continue
             chunks = chunk_sections(
                 sections=sections,
                 paper_id=paper.paper_id,
@@ -278,7 +292,9 @@ def retrieve_paper(
                 store.put(artifact)
             except OSError:
                 logger.warning("source_cache_write_failed doi=%s", normalized)
-            return artifact.response(sections=sections, chunks=chunks)
+            response = artifact.response(sections=sections, chunks=chunks)
+            response.source.identity_status = identity.status
+            return response
 
         paper.full_text_available = False
         paper.full_text_format = candidates[0].format

@@ -51,7 +51,8 @@ async def create_job(request: Request, runtime=Depends(get_job_runtime)):
     payload = await _payload(request, JobCreateRequest)
     try:
         snapshot = await runtime.create(payload.parsed, payload.extraction)
-        return job_view(snapshot, runtime.store.limits.max_attempts)
+        return job_view(snapshot, runtime.store.limits.max_attempts,
+                        runtime_error_code=runtime.errors.get(snapshot.job_id))
     except JobError as exc:
         raise _http_error(exc) from None
     except ValueError:
@@ -61,7 +62,9 @@ async def create_job(request: Request, runtime=Depends(get_job_runtime)):
 @router.get("/{job_id}", response_model=JobView)
 async def get_job(job_id: str, runtime=Depends(get_job_runtime)):
     try:
-        return job_view(runtime.get(job_id), runtime.store.limits.max_attempts)
+        snapshot = runtime.get(job_id)
+        return job_view(snapshot, runtime.store.limits.max_attempts,
+                        runtime_error_code=runtime.errors.get(job_id))
     except JobError as exc:
         raise _http_error(exc) from None
 
@@ -71,7 +74,7 @@ async def get_events(job_id: str, after: int = Query(0, ge=0), runtime=Depends(g
     try:
         snapshot = runtime.get(job_id)
         return {"job_id": job_id, "events": [e.model_dump(mode="json") for e in snapshot.events if e.sequence > after],
-                "next_sequence": snapshot.next_sequence}
+                "next_sequence": snapshot.next_sequence, "runtime_error_code": runtime.errors.get(job_id)}
     except JobError as exc:
         raise _http_error(exc) from None
 
@@ -81,6 +84,7 @@ async def resume_job(job_id: str, request: Request, runtime=Depends(get_job_runt
     payload = await _payload(request, JobResumeRequest)
     try:
         snapshot = await runtime.resume(job_id, **payload.model_dump())
-        return job_view(snapshot, runtime.store.limits.max_attempts)
+        return job_view(snapshot, runtime.store.limits.max_attempts,
+                        runtime_error_code=runtime.errors.get(snapshot.job_id))
     except JobError as exc:
         raise _http_error(exc) from None

@@ -56,6 +56,7 @@ class PaperSource(BaseModel):
     cache_hit: bool = False
     url: str | None = None
     provider: str
+    identity_status: Literal["confirmed", "conflict", "uncertain"] = "uncertain"
 
 
 class RetrievePaperRequest(BaseModel):

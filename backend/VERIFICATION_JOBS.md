@@ -50,3 +50,30 @@ with empty jobs. A checksum detects accidental corruption, not hostile tampering
 Completed means processing coverage, regardless of the scientific verdict. Empty
 extractions and attribution/extraction gaps yield partial coverage. SSE, frontend
 job pages, database persistence, and multi-process execution are not implemented.
+
+## Source durability and runtime diagnostics
+
+The production job runtime requires a successful source's raw SHA-256 to match
+an artifact reread from the local source store before evidence retrieval or
+verification. Missing, corrupt or mismatched artifacts produce retryable
+`SOURCE_DURABILITY_*` processing errors without a verdict. Retry uses the
+existing explicit `retry_failed` policy; completed pairs remain immutable.
+Checks are memoized per DOI within one core invocation. Standalone Phase 1 calls
+retain their existing contract; explicitly injected legacy retrievers without
+raw-byte provenance remain usable in offline tests. Injected responses claiming
+a raw hash are still checked against the source store.
+
+Automatic PDF/HTML candidates and remote cache hits reject explicit article DOI
+or authoritative-title conflicts. Bibliographic reference DOIs are excluded.
+`source.identity_status` and evidence metadata distinguish confirmed identity
+from uncertainty. DOI-free candidates with no authoritative identity fields
+retain the bounded OA discovery/full-text policy and are marked uncertain;
+this is not a guarantee that every candidate is the intended article. Existing
+manual PDF acceptance keeps its DOI/title-author-year identity contract.
+
+GET job and event responses include optional `runtime_error_code`. They read
+valid committed snapshots even after a worker/storage failure. Corrupt snapshots
+still return their storage integrity error. Reading or resuming a completed job
+does not clear an unresolved diagnostic; a successful recovery checkpoint does.
+`wait()` continues to raise execution errors. Diagnostics are process-local;
+a restart retains durable results/events but not the old in-memory diagnostic.
