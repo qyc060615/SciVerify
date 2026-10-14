@@ -43,6 +43,36 @@ def get_extraction_provider_factory():
     return get_llm_provider
 
 
+def get_reference_resolver():
+    from app.services.reference_resolver import resolve_references
+    return resolve_references
+
+
+@router.post("/resolve-references", response_model=ManuscriptParseResponse)
+async def resolve_references_endpoint(request: Request, resolver=Depends(get_reference_resolver)):
+    """Enrich original M3A identities before extraction. No LLM/source retrieval."""
+    import json
+    from app.schemas.claim_extraction import ClaimExtractionRequest
+    from app.services.citation_context import MAX_REQUEST_BYTES, ExtractionInputError, from_request
+    from app.services.reference_resolver import ResolutionInputError
+
+    content = bytearray()
+    async for chunk in request.stream():
+        if len(content) + len(chunk) > MAX_REQUEST_BYTES:
+            raise HTTPException(413, detail={"code": "RESOLUTION_INPUT_TOO_LARGE"})
+        content.extend(chunk)
+    try:
+        parsed = from_request(ClaimExtractionRequest.model_validate(json.loads(content)))
+        enriched = await resolver(parsed)
+        return ManuscriptParseResponse.from_domain(enriched)
+    except ResolutionInputError as exc:
+        raise HTTPException(422, detail={"code": str(exc)}) from None
+    except ExtractionInputError as exc:
+        raise HTTPException(exc.status_code, detail={"code": exc.code}) from None
+    except (ValidationError, ValueError, UnicodeError, RecursionError):
+        raise HTTPException(422, detail={"code": "INVALID_MANUSCRIPT_STRUCTURE"}) from None
+
+
 @router.post("/extract-claims")
 async def extract_claims_endpoint(request: Request, provider_factory=Depends(get_extraction_provider_factory)):
     """Extract attributed claims from client-supplied M3A structure using an external LLM.

@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/Badge'
 import type { BadgeVariant } from '@/components/ui/Badge'
 import type { DomainVerdict, JobTask, VerificationJob } from '@/types/verification-job'
 import { codePointSlice } from '@/services/manuscriptBridge'
+import { ReferenceReview } from '@/components/manuscript/ReferenceReview'
 
 const verdicts: Record<DomainVerdict, { label: string; variant: BadgeVariant }> = {
   SUPPORTED: { label: 'Supported', variant: 'success' }, PARTIALLY_SUPPORTED: { label: 'Partially supported', variant: 'warning' },
@@ -20,7 +21,7 @@ function PairCard({ task, job }: { task: JobTask; job: VerificationJob }) {
     <p className="text-sm font-medium">{ref?.title ?? ref?.raw_text ?? task.reference_id}</p>
     <p className="text-sm text-text-muted">DOI: {ref?.doi ?? 'Missing DOI'}</p>
     <div className="flex flex-wrap items-center gap-2"><Badge>Task: {task.state.replaceAll('_', ' ')}</Badge>{verdict && <Badge variant={verdict.variant}>{verdict.label}</Badge>}{completed && result.confidence != null && <span className="text-xs text-text-muted">Confidence: {(result.confidence * 100).toFixed(0)}%</span>}</div>
-    {!completed && <p className="text-sm text-warning">{task.state === 'blocked_source' ? 'A matching source is required before verification.' : task.state === 'failed' ? 'Processing failed. No scientific verdict was produced.' : 'Verification has not completed.'}</p>}
+    {!completed && <p className="text-sm text-warning">{task.reason_code === 'DOI_MISSING' ? (ref?.resolution?.source_type === 'url' ? 'URL source discovered only. URL evidence retrieval is not supported. No scientific verdict was produced.' : 'Reference identity is unresolved. No scientific verdict was produced; this does not mean the claim is incorrect.') : task.state === 'blocked_source' ? 'A matching source is required before verification.' : task.state === 'failed' ? 'Processing failed. No scientific verdict was produced.' : 'Verification has not completed.'}</p>}
     {completed && result.explanation && <p className="text-sm leading-relaxed">{result.explanation}</p>}
     {task.reason_code && <p className="text-xs text-text-muted">Reason: {task.reason_code}</p>}
     {result?.evidence_chunks.map(chunk => {
@@ -75,6 +76,7 @@ export function WholePaperReport({ job }: { job: VerificationJob }) {
       </Panel>
     })}
     <Panel className="space-y-3"><h2 className="font-semibold">References</h2>{job.references.map(ref => <div key={ref.id} id={`reference-${encodeURIComponent(ref.id)}`} className="scroll-mt-4 border-t border-border pt-3 text-sm"><p>{ref.title ?? ref.raw_text}</p><p className="text-text-muted">{ref.id} · DOI: {ref.doi ?? 'missing'}</p></div>)}</Panel>
+    {job.references.some(r => r.resolution) && <Panel className="space-y-3"><h2 className="font-semibold">Reference identity diagnostics</h2><ReferenceReview references={job.references} /></Panel>}
     <Panel className="space-y-3"><h2 className="font-semibold">Coverage gaps &amp; diagnostics</h2>{job.attribution_blocked.map(item => <p key={item.claim_id} className="text-sm text-warning">{item.claim_id}: {item.reason_code}</p>)}{[...(job.extraction_diagnostics ?? []), ...job.context_results.flatMap(r => r.diagnostics)].map((d, i) => <p key={i} className="text-sm text-text-secondary">{d.code}: {d.safe_message}</p>)}{job.context_results.filter(r => r.status !== 'completed').map(r => <p key={r.context_id} className="text-sm text-warning">Context {r.context_id}: {r.status}</p>)}</Panel>
   </div>
 }

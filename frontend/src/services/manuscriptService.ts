@@ -15,6 +15,12 @@ export async function parseManuscript(file: File): Promise<ParseResponse> {
   const form = new FormData(); form.append('file', file)
   return (await apiClient.post<ParseResponse>('/api/manuscripts/parse', form, { headers: { 'Content-Type': undefined } })).data
 }
+export async function resolveReferences(parsed: ParseResponse): Promise<ParseResponse> {
+  const response = (await apiClient.post<ParseResponse>('/api/manuscripts/resolve-references', buildExtractionRequest(parsed))).data
+  // M3A diagnostics remain display-only; the enriched parsed object is the exact
+  // input shared by extraction and job creation.
+  return { ...response, status: parsed.status, diagnostics: parsed.diagnostics }
+}
 function isExtractionResult(value: unknown): value is ExtractionResult {
   const result = value as ExtractionResult | null
   return !!result && ['completed', 'partial', 'failed', 'skipped'].includes(result.status) && typeof result.manuscript_id === 'string'

@@ -143,8 +143,17 @@ def parse_tei(xml: bytes, manuscript: Manuscript) -> ParsedManuscript:
             continue
         if reconstructed:
             diagnostics.append(_diag("RECONSTRUCTED_REFERENCE_TEXT", "Reference text was reconstructed from structured fields, not extracted verbatim.", reference_id))
+        # Preserve explicit bibliographic URL attributes without fetching them.
+        url = next((n.get("target") for n in entry.iter()
+                    if n.tag in {TEI + "ref", TEI + "ptr"}
+                    and (n.get("target") or "").lower().startswith(("http://", "https://"))), None)
+        if url is None:
+            url = next((_text(n) for n in entry.findall(f".//{TEI}idno")
+                        if n.get("type", "").lower() in {"url", "uri"} and _text(n)), None)
+        if url and len(url) > 4000:
+            url = None
         references.append(Reference(id=reference_id, manuscript_id=manuscript.id, raw_text=raw,
-                                    title=title, authors=authors, year=year, journal=journal, doi=doi))
+                                    title=title, authors=authors, year=year, journal=journal, doi=doi, url=url))
         if not title or not authors or year is None:
             diagnostics.append(_diag("MISSING_REFERENCE_METADATA", "A reference has incomplete bibliographic metadata.", reference_id))
         if entry.get(XML_ID):

@@ -1,6 +1,6 @@
 import { beforeEach, expect, it, vi } from 'vitest'
 import { ApiResponseError, apiClient } from '@/services/api'
-import { extractClaims, parseManuscript, getUploadLimits } from '@/services/manuscriptService'
+import { extractClaims, parseManuscript, resolveReferences, getUploadLimits } from '@/services/manuscriptService'
 import { uploadManualSource } from '@/services/verificationService'
 import { createVerificationJob, resumeVerificationJob } from '@/services/verificationJobService'
 import { buildJobCreateRequest } from '@/services/manuscriptBridge'
@@ -8,6 +8,14 @@ import type { ExtractionResult, ParseResponse } from '@/types/manuscript'
 import fixture from './fixtures/manuscript.json'
 
 beforeEach(() => vi.restoreAllMocks())
+it('resolves references using the bounded manuscript DTO and preserves parse diagnostics', async () => {
+  const enriched = { ...fixture.parse_response, diagnostics: [], parsed: { ...fixture.parse_response.parsed, references: fixture.parse_response.parsed.references.map(r => ({ ...r, doi: r.doi ?? '10.1234/enriched' })) } }
+  const post = vi.spyOn(apiClient, 'post').mockResolvedValue({ data: enriched })
+  const result = await resolveReferences(fixture.parse_response as ParseResponse)
+  expect(post).toHaveBeenCalledWith('/api/manuscripts/resolve-references', fixture.extraction_request)
+  expect(result.parsed.references[1].doi).toBe('10.1234/enriched')
+  expect(result.diagnostics).toEqual(fixture.parse_response.diagnostics)
+})
 it('uses the existing multipart parse endpoint and backend upload bounds', async () => {
   const post = vi.spyOn(apiClient, 'post').mockResolvedValue({ data: fixture.parse_response })
   const file = new File(['%PDF'], 'paper.pdf')

@@ -8,7 +8,7 @@ from __future__ import annotations
 from enum import Enum
 from typing import Annotated, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, JsonValue, StringConstraints, model_validator
+from pydantic import BaseModel, ConfigDict, Field, JsonValue, StringConstraints, model_serializer, model_validator
 
 Identifier = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 Text = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
@@ -133,6 +133,35 @@ class CitationCallout(DomainModel):
         return self
 
 
+class ReferenceCandidate(DomainModel):
+    doi: str
+    title: str
+    authors: tuple[str, ...] = ()
+    years: tuple[int, ...] = ()
+    journal: str | None = None
+    publication_type: str | None = None
+    provider: Literal["crossref", "openalex"]
+    relations: tuple[str, ...] = ()
+    match_confidence: Probability = 0
+    evidence: tuple[str, ...] = ()
+    rejection_reason: str | None = None
+
+
+class ReferenceResolution(DomainModel):
+    reference_id: Identifier
+    status: Literal["resolved", "ambiguous", "not_found", "metadata_insufficient", "provider_error", "non_doi_source"]
+    original_doi: str | None = None
+    resolved_doi: str | None = None
+    matched_title: str | None = None
+    provider: Literal["original", "crossref", "openalex"] | None = None
+    source_type: Literal["doi", "url", "unknown"] = "unknown"
+    source_url: str | None = None
+    match_reason: str
+    match_confidence: Probability | None = None
+    diagnostics: tuple[str, ...] = ()
+    candidates: Annotated[tuple[ReferenceCandidate, ...], Field(max_length=20)] = ()
+
+
 class Reference(DomainModel):
     id: Identifier
     manuscript_id: Identifier
@@ -142,6 +171,24 @@ class Reference(DomainModel):
     authors: tuple[str, ...] = ()
     year: int | None = None
     journal: str | None = None
+    url: Annotated[str, StringConstraints(max_length=4000)] | None = None
+    resolution: ReferenceResolution | None = None
+
+    @model_serializer(mode="wrap")
+    def preserve_legacy_projection(self, handler):
+        # Old snapshots were fingerprinted without these keys. Null additions
+        # must stay absent, including nested dumps used by JobSnapshot validation.
+        data = handler(self)
+        for name in ("url", "resolution"):
+            if data.get(name) is None:
+                data.pop(name, None)
+        return data
+
+    @model_validator(mode="after")
+    def validate_resolution_identity(self) -> Self:
+        if self.resolution and self.resolution.reference_id != self.id:
+            raise ValueError("Resolution belongs to another reference")
+        return self
 
 
 class CitationContext(DomainModel):
