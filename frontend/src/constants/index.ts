@@ -13,8 +13,13 @@ export const ROUTES = {
   APP_VERIFY: '/app/verify',
   APP_HISTORY: '/app/history',
   APP_SETTINGS: '/app/settings',
+  APP_MANUSCRIPTS: '/app/manuscripts',
 } as const
 
 export function verificationReportPath(verificationId: string) {
   return `/app/verify/${verificationId}`
+}
+
+export function wholePaperJobPath(jobId: string) {
+  return `/app/manuscripts/jobs/${encodeURIComponent(jobId)}`
 }

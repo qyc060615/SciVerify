@@ -1,0 +1,16 @@
+export interface Span { start: number; end: number }
+export interface Diagnostic { code: string; severity: 'info' | 'warning'; entity_id: string | null; safe_message: string }
+export interface Paragraph { id: string; manuscript_id: string; text: string; order: number; page: number | null; section: string | null; sentence_spans: Span[] }
+export interface Reference { id: string; manuscript_id: string; raw_text: string; doi: string | null; title: string | null; authors: string[]; year: number | null; journal: string | null }
+export interface Callout { id: string; manuscript_id: string; paragraph_id: string; text: string; reference_ids: string[]; page: number | null; span: Span; order: number; resolution_status: 'resolved' | 'partial' | 'unresolved' }
+export interface ParsedDTO { manuscript: { id: string; title: string | null; content_hash: string | null }; paragraphs: Paragraph[]; references: Reference[]; citation_callouts: Callout[]; citation_contexts: [] }
+export interface ParseResponse { schema_version: 1; scope: 'body_prose'; offset_unit: 'python_unicode_code_point'; status: 'completed' | 'partial'; parsed: ParsedDTO; diagnostics: Diagnostic[] }
+export interface ExtractionRequest { schema_version: 1; scope: 'body_prose'; offset_unit: 'python_unicode_code_point'; parsed: ParsedDTO }
+export interface Context { id: string; manuscript_id: string; paragraph_id: string; text: string; citation_callout_ids: string[]; page: number | null; span: Span; focal_span: Span; scope_kind: string }
+export interface Claim { id: string; manuscript_id: string; text: string; paragraph_id: string; context_id: string; citation_callout_ids: string[]; reference_ids: string[]; page: number | null; source_spans: Span[]; attribution_status: 'resolved' | 'ambiguous' | 'unresolved' | null }
+export interface ContextResult { context_id: string; status: 'completed' | 'partial' | 'failed' | 'skipped'; accepted_claim_ids: string[]; diagnostics: Diagnostic[]; rejected_proposals: { proposal_index: number; reason_code: string }[] }
+export interface ExtractionMetadata { model: string | null; prompt_version: string; context_policy_version: string; attribution_policy_version: string; input_fingerprint: string; input_provenance: 'client_supplied' }
+export interface ExtractionResult { manuscript_id: string; status: 'completed' | 'partial' | 'failed' | 'skipped'; contexts: Context[]; claims: Claim[]; context_results: ContextResult[]; diagnostics: Diagnostic[]; metadata: ExtractionMetadata }
+export interface JobCreateRequest { parsed: ParsedDTO & { manuscript: ParsedDTO['manuscript'] & { content_locator: string }; diagnostics: [] }; extraction: ExtractionResult }
+export interface UploadLimits { manuscript_max_bytes: number; source_max_bytes: number }
+export interface ManualSourceResponse { status: 'accepted'; doi: string; raw_content_sha256: string; identity_match: string }

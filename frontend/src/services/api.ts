@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { env } from '@/lib/env'
 import type { VerificationApiErrorBody } from '@/types/backend-verification'
+import { ApiResponseError } from './ApiResponseError'
+export { ApiResponseError } from './ApiResponseError'
 
 function formatDetail(detail: VerificationApiErrorBody['detail']): string | null {
   if (typeof detail === 'string' && detail.trim()) {
@@ -81,5 +83,5 @@ export const apiClient = axios.create({
 
 apiClient.interceptors.response.use(
   (response) => response,
-  (error) => Promise.reject(new Error(formatApiError(error))),
+  (error) => Promise.reject(new ApiResponseError(formatApiError(error), axios.isAxiosError(error) ? error.response?.status : undefined, axios.isAxiosError(error) ? error.response?.data : undefined)),
 )

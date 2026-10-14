@@ -9,6 +9,16 @@ from app.services.manuscript_parser import create_parser, get_manuscript_limit, 
 router = APIRouter(prefix="/api/manuscripts", tags=["manuscripts"])
 
 
+@router.get("/limits")
+def upload_limits():
+    """Read-only upload bounds shared with the local manuscript/source UI."""
+    from app.config import source_max_size
+    try:
+        return {"manuscript_max_bytes": get_manuscript_limit(), "source_max_bytes": source_max_size()}
+    except (ValueError, ManuscriptParseError):
+        raise HTTPException(503, detail={"code": "UPLOAD_CONFIGURATION_INVALID"}) from None
+
+
 def get_parser_factory():
     """Dependency override for offline tests; never accepts a URL from the user."""
     return create_parser

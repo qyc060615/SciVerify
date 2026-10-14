@@ -22,6 +22,12 @@ type SubmissionPhase = 'idle' | 'loading' | 'error' | 'source-required'
 
 export default function VerifyPage() {
   const { verificationId } = useParams<{ verificationId?: string }>()
+  // A new route owns a fresh submission state; no cascading effect reset.
+  return <VerificationPageContent key={verificationId ?? 'new'} />
+}
+
+function VerificationPageContent() {
+  const { verificationId } = useParams<{ verificationId?: string }>()
   const location = useLocation()
   const navigate = useNavigate()
   const { user, isLocalDemo } = useAuth()
@@ -47,13 +53,6 @@ export default function VerifyPage() {
       navigate(verificationReportPath(legacyRecordId), { replace: true, state: null })
     }
   }, [location.state, navigate, verificationId])
-
-  useEffect(() => {
-    // Reset transient submission state on route change
-    setSubmissionPhase('idle')
-    setErrorMessage(null)
-    setFreshResult(null)
-  }, [verificationId])
 
   const phase = (() => {
     if (submissionPhase === 'loading') return 'loading' as const

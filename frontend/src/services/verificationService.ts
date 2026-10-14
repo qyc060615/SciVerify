@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { extractDoi, InvalidDoiError } from '@/lib/doi'
 import { apiClient } from '@/services/api'
+import { ApiResponseError } from '@/services/ApiResponseError'
+import type { ManualSourceResponse } from '@/types/manuscript'
 import {
   mapBackendVerificationToResult,
   mapInsufficientEvidenceResult,
@@ -32,14 +34,15 @@ export class SourceRequiredError extends VerificationServiceError {
   }
 }
 
-export async function uploadManualSource(doi: string, file: File): Promise<void> {
+export async function uploadManualSource(doi: string, file: File): Promise<ManualSourceResponse> {
   const form = new FormData()
   form.append('doi', doi)
   form.append('file', file)
   try {
-    await apiClient.post('/api/sources/manual', form, {
+    const { data } = await apiClient.post<ManualSourceResponse>('/api/sources/manual', form, {
       headers: { 'Content-Type': undefined },
     })
+    return data
   } catch (error) {
     throw parseApiError(error)
   }
@@ -53,6 +56,8 @@ function parseApiError(error: unknown): VerificationServiceError {
   if (error instanceof InvalidDoiError) {
     return new VerificationServiceError(error.message, 400)
   }
+
+  if (error instanceof ApiResponseError) return new VerificationServiceError(error.message, error.status)
 
   if (axios.isAxiosError<VerificationApiErrorBody>(error)) {
     if (!error.response) {

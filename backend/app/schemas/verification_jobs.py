@@ -6,6 +6,7 @@ from pydantic import Field
 from app.researchguard.domain import (
     DomainModel, ParsedManuscript, ClaimExtractionResult, AtomicClaim, Reference,
     Paragraph, CitationCallout, CitationContext, ClaimExtractionMetadata, ContextExtractionResult,
+    ManuscriptDiagnostic,
 )
 from app.researchguard.manuscript_verification import PairOutcome, AttributionBlockedClaim, SourceBinding
 from app.services.verification_job_models import JobId, RawHash, Count, JobState, TaskState, JobCoverage, coverage
@@ -44,6 +45,8 @@ class JobView(DomainModel):
     revision: Count
     input_provenance: Literal["client_supplied"] = "client_supplied"
     manuscript_id: str
+    manuscript_title: str | None = None
+    extraction_diagnostics: tuple[ManuscriptDiagnostic, ...] = ()
     paragraphs: tuple[Paragraph, ...]
     claims: tuple[AtomicClaim, ...]
     references: tuple[Reference, ...]
@@ -68,7 +71,8 @@ def job_view(snapshot, max_attempts, *, runtime_error_code=None):
             and (t.state in {TaskState.PENDING, TaskState.BLOCKED_SOURCE}
                  or (t.state == TaskState.FAILED and t.reason_code in RETRYABLE))) for t in snapshot.tasks)
     return JobView(job_id=snapshot.job_id, status=snapshot.state, revision=snapshot.revision,
-        manuscript_id=snapshot.parsed.manuscript.id, paragraphs=snapshot.parsed.paragraphs,
+        manuscript_id=snapshot.parsed.manuscript.id, manuscript_title=snapshot.parsed.manuscript.title,
+        extraction_diagnostics=snapshot.extraction.diagnostics, paragraphs=snapshot.parsed.paragraphs,
         claims=snapshot.extraction.claims, references=snapshot.parsed.references,
         citation_callouts=snapshot.parsed.citation_callouts, contexts=snapshot.extraction.contexts,
         extraction_metadata=snapshot.extraction.metadata, context_results=snapshot.extraction.context_results,

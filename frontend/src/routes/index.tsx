@@ -13,6 +13,9 @@ import VerifyPage from '@/pages/VerifyPage'
 import HistoryPage from '@/pages/HistoryPage'
 import SettingsPage from '@/pages/SettingsPage'
 import { ROUTES } from '@/constants'
+import WholePaperVerifyPage from '@/pages/WholePaperVerifyPage'
+import WholePaperJobPage from '@/pages/WholePaperJobPage'
+import { WholePaperRoute } from '@/routes/WholePaperRoute'
 
 export const router = createBrowserRouter([
   {
@@ -56,6 +59,13 @@ export const router = createBrowserRouter([
       {
         element: <AppLayout />,
         children: [
+          {
+            element: <WholePaperRoute />,
+            children: [
+              { path: 'manuscripts', element: <WholePaperVerifyPage /> },
+              { path: 'manuscripts/jobs/:jobId', element: <WholePaperJobPage /> },
+            ],
+          },
           {
             index: true,
             element: <Navigate to={ROUTES.APP_HOME} replace />,

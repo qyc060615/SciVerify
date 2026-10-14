@@ -24,6 +24,7 @@ from app.api.routes.verification import router as verification_router
 from app.api.routes.sources import router as sources_router
 from app.api.routes.manuscripts import router as manuscripts_router
 from app.api.routes.verification_jobs import router as verification_jobs_router
+from app.api.routes.verification_job_stream import router as verification_job_stream_router
 
 BACKEND_HOST = os.getenv("BACKEND_HOST", "0.0.0.0")
 BACKEND_PORT = int(os.getenv("PORT") or os.getenv("BACKEND_PORT", "8000"))
@@ -85,6 +86,7 @@ app.include_router(verification_router)
 app.include_router(sources_router)
 app.include_router(manuscripts_router)
 app.include_router(verification_jobs_router)
+app.include_router(verification_job_stream_router)
 
 
 @app.get("/health", tags=["health"])

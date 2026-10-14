@@ -12,6 +12,7 @@ import { toast } from 'sonner'
 import { useState } from 'react'
 import { cn } from '@/lib/cn'
 import { ROUTES } from '@/constants'
+import { isLocalDemoMode } from '@/lib/demo-mode'
 import { useAuth } from '@/hooks/useAuth'
 import { useUserDisplayName } from '@/hooks/useUserDisplayName'
 import { Avatar } from '@/components/ui/Avatar'
@@ -47,7 +48,7 @@ function NavSection({
       </p>
       <div className="flex flex-col gap-0.5">
         {items.map((item) => {
-          const active = location.pathname === item.to
+          const active = location.pathname === item.to || (item.to === ROUTES.APP_MANUSCRIPTS && location.pathname.startsWith(item.to + '/'))
           const Icon = item.icon
 
           return (
@@ -147,7 +148,7 @@ export function AppSidebar({
       </Link>
 
       <div className="flex flex-1 flex-col gap-6">
-        <NavSection title="Workspace" items={workspaceItems} onNavigate={onNavigate} />
+        <NavSection title="Workspace" items={isLocalDemoMode() ? [...workspaceItems, { label: 'Whole-paper Verification', to: ROUTES.APP_MANUSCRIPTS, icon: ShieldCheck }] : workspaceItems} onNavigate={onNavigate} />
         <NavSection title="Account" items={accountItems} onNavigate={onNavigate} />
       </div>
 
