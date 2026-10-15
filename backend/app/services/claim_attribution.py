@@ -1,4 +1,4 @@
-"""Exact grounding and conservative clause-local attribution, never verification."""
+"""Exact grounding and local citation integrity, never semantic verification."""
 import hashlib
 import json
 import re
@@ -8,7 +8,7 @@ from app.researchguard.domain import AtomicClaim, AttributionStatus, CitationRes
 from app.services.citation_context import diagnostic, groups
 from app.services.citation_labels import local_label_index, visible_labels
 
-ATTRIBUTION_POLICY_VERSION = "exact-evidence-visible-labels-v4"
+ATTRIBUTION_POLICY_VERSION = "exact-evidence-explicit-local-labels-v5"
 _STRONG = re.compile(r";|\b(?:while|whereas|but)\b", re.IGNORECASE)
 
 
@@ -95,18 +95,23 @@ def validate_proposal(parsed, context, proposal) -> ValidatedClaim:
     selected_ids = {labels[x][0].id for x in proposal.citation_labels}
     selected = [c for c in local if c.id in selected_ids]
     code, status = None, AttributionStatus.RESOLVED
+    local_groups = groups(paragraph.text, local)
     candidates = []
     if scope:
-        candidates = [g for g in groups(paragraph.text, local)
+        candidates = [g for g in local_groups
                       if scope[0] <= g[0].span.start and g[-1].span.end <= scope[1]]
     if context.scope_kind == "trailing_marker" and scope:
         # Explicit attachment is the only supported citation-after-sentence exception.
-        candidates = groups(paragraph.text, local)
-    if (len(candidates) == 1
-            and any(c.id not in {c.id for c in candidates[0]} for c in selected)):
+        candidates = local_groups
+    candidate_ids = {c.id for group in candidates for c in group}
+    if candidates and any(c.id not in candidate_ids for c in selected):
         raise ProposalRejected("WRONG_CITATION_SCOPE")
-    if (not scope or len(candidates) != 1
-            or {c.id for c in candidates[0]} != {c.id for c in selected}
+    # Other groups in a broad envelope do not veto explicit local selection.
+    # A touched adjacent group must still be selected in its entirety.
+    incomplete_group = any(selected_ids.intersection(c.id for c in group)
+                           and any(c.id not in selected_ids for c in group)
+                           for group in local_groups)
+    if (not scope or not candidates or not selected or incomplete_group
             or any(not set(visible_labels(c.text)) <= set(proposal.citation_labels) for c in selected)):
         code, status = "AMBIGUOUS_CITATION_SCOPE", AttributionStatus.AMBIGUOUS
         selected = []
