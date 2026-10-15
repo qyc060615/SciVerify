@@ -90,7 +90,7 @@ def test_gr5_correct_neighbor_remains_read_only():
     assert plan.skip_code is None and 'Older adults' in plan.context.text
     p = parsed.paragraphs[0]
     assert 'Older adults' not in p.text[plan.context.focal_span.start:plan.context.focal_span.end]
-    q = ClaimProposal(text='Older adults face higher risks',
+    q = ClaimProposal(text='Older adults face higher risks', attribution_intent='cited',
         evidence_quote='Older adults face higher risks',
         citation_labels=('1',))
     with pytest.raises(ProposalRejected) as e:

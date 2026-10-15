@@ -18,6 +18,7 @@ class StrictDTO(BaseModel):
 class ClaimProposal(StrictDTO):
     text: ExactText
     evidence_quote: ExactText
+    attribution_intent: Literal["cited", "none", "uncertain"]
     citation_labels: Annotated[tuple[OpaqueID, ...], Field(max_length=2000,
         description="Visible citation labels present in focal callouts, e.g. ['4', '8']; never synthetic aliases or internal IDs.")]
 
@@ -27,6 +28,12 @@ class ClaimProposal(StrictDTO):
         if not value.strip():
             raise ValueError("Claim and evidence must be nonblank")
         return value
+
+    @model_validator(mode="after")
+    def consistent_attribution_intent(self):
+        if (self.attribution_intent == "cited") != bool(self.citation_labels):
+            raise ValueError("Cited intent requires labels; none and uncertain require no labels")
+        return self
 
 
 class ExtractionProposal(StrictDTO):

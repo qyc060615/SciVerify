@@ -88,7 +88,7 @@ async def test_ambiguous_citation_bridge_does_not_invent_pairs(harness):
     rebuilt = from_request(ClaimExtractionRequest.model_validate(request))
     # A globally cited proposal spanning both clauses must keep ambiguous attribution.
     provider = FakeProvider(handler=lambda p: {'claims': [{'text': 'A improves accuracy and B reduces latency',
-        'evidence_quote': p['focal_text'], 'citation_labels': ['3', '4']}]})
+        'evidence_quote': p['focal_text'], 'attribution_intent': 'cited', 'citation_labels': ['3', '4']}]})
     extraction = await extract_claims(rebuilt, provider_factory=lambda: provider)
     assert extraction.claims and extraction.claims[0].attribution_status == 'ambiguous'
     validate_combined_input(rebuilt, extraction)

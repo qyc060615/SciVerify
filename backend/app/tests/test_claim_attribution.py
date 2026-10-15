@@ -10,7 +10,8 @@ from app.tests.test_citation_context import manuscript
 
 
 def proposal(text, quote=None, ids=("3",)):
-    return ClaimProposal(text=text, evidence_quote=quote or text, citation_labels=ids)
+    return ClaimProposal(text=text, evidence_quote=quote or text,
+        attribution_intent="cited" if ids else "uncertain", citation_labels=ids)
 
 
 def check(parsed, proposed, index=0):

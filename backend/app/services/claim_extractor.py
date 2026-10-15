@@ -8,10 +8,13 @@ from anyio import to_thread
 from app.researchguard.adapters.claim_llm import ClaimLLMAdapter, ClaimLLMError, PROMPT_VERSION
 from app.researchguard.domain import (
     AttributionStatus, ClaimExtractionMetadata, ClaimExtractionResult, ContextExtractionResult,
-    ExtractionStatus, RejectedClaimProposalSummary,
+    ExtractionStatus, ManuscriptDiagnostic, RejectedClaimProposalSummary,
 )
 from app.services.citation_context import CONTEXT_POLICY_VERSION, build_contexts, diagnostic, fingerprint, validate_input
-from app.services.claim_attribution import ATTRIBUTION_POLICY_VERSION, ProposalRejected, validate_proposal, validate_result
+from app.services.claim_attribution import (
+    ATTRIBUTION_POLICY_VERSION, ProposalRejected, exact_span, _without_markers,
+    validate_proposal, validate_result,
+)
 
 MAX_CONCURRENT_CONTEXTS = 2
 logger = logging.getLogger(__name__)
@@ -52,6 +55,18 @@ async def extract_claims(parsed, *, provider=None, provider_factory=None):
         accepted, rejected, notes = [], [], list(plan.diagnostics)
         for i, proposed in enumerate(proposal.claims):
             try:
+                if proposed.attribution_intent == "none":
+                    # Exclude before attribution/reference derivation, but keep
+                    # the same exact focal grounding and marker-only protection.
+                    paragraph = paragraphs[context.paragraph_id]
+                    span = exact_span(paragraph.text, proposed.evidence_quote, context.focal_span)
+                    local = [calls[cid] for cid in context.citation_callout_ids]
+                    if not _without_markers(paragraph.text, span.start, span.end, local).strip(" ,;.!?()[]"):
+                        raise ProposalRejected("CITATION_MARKER_AS_SOURCE")
+                    notes.append(ManuscriptDiagnostic(code="NO_EXTERNAL_ATTRIBUTION", severity="info",
+                        entity_id=context.id,
+                        safe_message=f"Proposition {i + 1} has no external citation attribution and was excluded."))
+                    continue
                 checked = validate_proposal(parsed, context, proposed)
                 if checked.claim.id not in {c.id for c in accepted}:
                     accepted.append(checked.claim)
@@ -59,7 +74,7 @@ async def extract_claims(parsed, *, provider=None, provider_factory=None):
             except ProposalRejected as exc:
                 rejected.append(RejectedClaimProposalSummary(proposal_index=i, reason_code=exc.code))
                 notes.append(diagnostic(exc.code, context.id))
-        if proposal.claims and not accepted:
+        if rejected and not accepted:
             status = ExtractionStatus.FAILED
             notes.append(diagnostic("EXTRACTION_VALIDATION_FAILED", context.id))
         elif rejected or any(c.attribution_status != AttributionStatus.RESOLVED for c in accepted):

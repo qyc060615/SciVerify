@@ -37,7 +37,7 @@ class FakeProvider(LLMProvider):
                 data = self.handler(payload)
             else:
                 quote = payload["focal_text"].split(" [")[0].rstrip(".")
-                data = {"claims": [{"text": quote, "evidence_quote": quote, "citation_labels": payload["callouts"][0]["labels"]}]}
+                data = {"claims": [{"text": quote, "evidence_quote": quote, "attribution_intent": "cited", "citation_labels": payload["callouts"][0]["labels"]}]}
             return response_model.model_validate(data)
         finally:
             with self.lock:
@@ -70,7 +70,7 @@ def test_adapter_exposes_only_atomic_evidence_contract():
     result = run(manuscript(), provider=provider)
     assert result.claims[0].attribution_status == "resolved"
     schema = provider.prompts[0]["output_schema"]["$defs"]["ClaimProposal"]
-    assert set(schema["properties"]) == {"text", "evidence_quote", "citation_labels"}
+    assert set(schema["properties"]) == {"text", "evidence_quote", "attribution_intent", "citation_labels"}
     assert set(schema["required"]) == set(schema["properties"])
     assert schema["additionalProperties"] is False
     system = provider.systems[0]
@@ -109,7 +109,9 @@ def test_concurrency_two_and_failure_isolation_stable_order():
         if focal.startswith("B"):
             raise LLMProviderError("PRIVATE_BODY secret-key")
         quote = focal.split(" [")[0]
-        return {"claims": [{"text": quote, "evidence_quote": quote, "citation_labels": [] if focal.startswith("C") else p["callouts"][0]["labels"]}]}
+        return {"claims": [{"text": quote, "evidence_quote": quote,
+            "attribution_intent": "uncertain" if focal.startswith("C") else "cited",
+            "citation_labels": [] if focal.startswith("C") else p["callouts"][0]["labels"]}]}
     provider = FakeProvider(handler)
     r = run(manuscript(text, bounds), provider=provider)
     assert provider.maximum == 2 and len(provider.prompts) == 4
@@ -154,7 +156,8 @@ def test_typed_timeout_cause_and_factory_failure_safe():
 @pytest.mark.parametrize("extra", ["reference_ids", "offsets", "verdict"])
 def test_invalid_structured_extra_fields(extra):
     def handler(p):
-        return {"claims": [{"text": "A improves accuracy", "evidence_quote": "A improves accuracy", extra: "PRIVATE_BODY"}]}
+        return {"claims": [{"text": "A improves accuracy", "evidence_quote": "A improves accuracy",
+            "attribution_intent": "cited", "citation_labels": ["3"], extra: "PRIVATE_BODY"}]}
     with pytest.raises(ClaimLLMError) as e:
         adapter(FakeProvider(handler))
     assert e.value.code == "EXTRACTION_INVALID_RESPONSE" and "PRIVATE_BODY" not in str(e.value)
@@ -179,7 +182,7 @@ def test_malformed_json_fake_provider_safe():
 
 
 def test_all_invalid_failed_some_valid_partial_and_dedup():
-    good = {"text": "A improves accuracy", "evidence_quote": "A improves accuracy", "citation_labels": ["3"]}
+    good = {"text": "A improves accuracy", "evidence_quote": "A improves accuracy", "attribution_intent": "cited", "citation_labels": ["3"]}
     bad = {**good, "citation_labels": ["99"]}
     r = run(manuscript(), provider=FakeProvider(lambda p: {"claims": [bad]}))
     assert r.status == "failed" and failure_http_status(r) == 502
@@ -237,7 +240,7 @@ def test_boundary_wrong_neighbor_proposal_cannot_form_resolved_claim(monkeypatch
     factory = Mock(side_effect=AssertionError("Real provider factory must not run"))
     monkeypatch.setattr("app.services.llm.provider.get_llm_provider", factory)
     p = boundary_manuscript("A supports T-cell responses.", "8 B shows higher titers.")
-    wrong = {"claims": [{"text": "B shows higher titers", "evidence_quote": "B shows higher titers", "citation_labels": ["8"]}]}
+    wrong = {"claims": [{"text": "B shows higher titers", "evidence_quote": "B shows higher titers", "attribution_intent": "cited", "citation_labels": ["8"]}]}
     provider = FakeProvider(lambda payload: wrong)
     result = run(p, provider=provider)
     assert len(provider.prompts) == 1 and result.status == "failed" and not result.claims
@@ -252,7 +255,7 @@ def test_boundary_provider_candidates_unique_and_current_sources_clean():
     p = boundary_manuscript("A supports T-cell responses.", "8 B shows higher titers [9].", ("8", "[9]"))
     def handler(payload):
         quote = "A supports T-cell responses" if payload["focal_text"].startswith("A") else "B shows higher titers"
-        return {"claims": [{"text": quote, "evidence_quote": quote, "citation_labels": payload["callouts"][0]["labels"]}]}
+        return {"claims": [{"text": quote, "evidence_quote": quote, "attribution_intent": "cited", "citation_labels": payload["callouts"][0]["labels"]}]}
     provider = FakeProvider(handler)
     result = run(p, provider=provider)
     assert result.status == "completed" and len(result.claims) == 2
