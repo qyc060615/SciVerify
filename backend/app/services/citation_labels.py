@@ -2,7 +2,28 @@
 import re
 
 
+def canonicalize_visible_citation_label(surface):
+    """Recognize one ASCII number with optional parser-fragment punctuation.
+
+    Multiple tokens, ranges and nonnumeric identifiers stay on the existing
+    visible-label path. Raw callout text and occurrence identity are never edited.
+    """
+    match = re.fullmatch(
+        r"(?P<opening>\(|\[)?\s*(?P<number>[0-9]+)\s*[,;]?\s*(?P<closing>\)|\])?",
+        surface.strip(),
+    )
+    if not match:
+        return None
+    opening, closing = match.group("opening", "closing")
+    if opening and closing and (opening, closing) not in {("(", ")"), ("[", "]")}:
+        return None
+    return match.group("number")
+
+
 def visible_labels(surface):
+    canonical = canonicalize_visible_citation_label(surface)
+    if canonical is not None:
+        return (canonical,)
     label = surface.strip()
     if len(label) >= 2 and (label[0], label[-1]) in {("[", "]"), ("(", ")")}:
         label = label[1:-1].strip()
