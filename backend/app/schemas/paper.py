@@ -3,7 +3,8 @@ from __future__ import annotations
 from enum import Enum
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_serializer
+from app.researchguard.source_locator import SourceLocator, SourceProvenance
 
 
 class PaperRetrievalStatus(str, Enum):
@@ -17,7 +18,7 @@ class PaperRetrievalStatus(str, Enum):
 
 class PaperMetadata(BaseModel):
     paper_id: str
-    doi: str
+    doi: str | None = None
     title: str | None = None
     authors: list[str] = Field(default_factory=list)
     abstract: str | None = None
@@ -57,6 +58,16 @@ class PaperSource(BaseModel):
     url: str | None = None
     provider: str
     identity_status: Literal["confirmed", "conflict", "uncertain"] = "uncertain"
+    locator: SourceLocator | None = None
+    provenance: SourceProvenance | None = None
+
+    @model_serializer(mode='wrap')
+    def legacy_projection(self, handler):
+        data = handler(self)
+        for key in ('locator', 'provenance'):
+            if data.get(key) is None:
+                data.pop(key, None)
+        return data
 
 
 class RetrievePaperRequest(BaseModel):

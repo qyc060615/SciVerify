@@ -44,6 +44,17 @@ def is_full_text_document(content: bytes, doc_format: DocumentFormat) -> bool:
     if doc_format != 'html' or is_interstitial_content(content) or is_paywall_content(content):
         return False
     soup = BeautifulSoup(content, 'html.parser')
+    # Short research reports and perspectives may have no IMRAD headings. A
+    # dedicated body, article metadata and bibliography/figures corroborate full
+    # text; length alone (or an article wrapper alone) is never sufficient.
+    body = soup.select_one('article .main-article-body, article [itemprop="articleBody"], article .article-body')
+    if body is not None and soup.select_one('meta[name="citation_doi"], meta[name="citation_title"]'):
+        scholarly_end = body.select_one('.ref-list, [role="doc-bibliography"], .fig, figure') is not None
+        for node in body.select('.abstract, #abstract, .ref-list, [role="doc-bibliography"], .fig, figure, .ack, .app, .associated-data, nav, header, footer, aside, script, style'):
+            node.decompose()
+        paragraphs = [n.get_text(' ', strip=True) for n in body.select('p') if len(n.get_text(' ', strip=True)) >= 100]
+        if scholarly_end and len(paragraphs) >= 5 and sum(map(len, paragraphs)) >= 3000:
+            return True
     has_fulltext_metadata = any(
         str(meta.get('name', '')).casefold() == 'citation_fulltext_html_url'
         and bool(meta.get('content'))

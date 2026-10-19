@@ -6,9 +6,9 @@ import { ApiResponseError } from '@/services/api'
 import { jobFixture, jobId } from './fixtures/job'
 import type { VerificationJob } from '@/types/verification-job'
 
-const actions = vi.hoisted(() => ({ upload: vi.fn(), resume: vi.fn(), limits: vi.fn() }))
+const actions = vi.hoisted(() => ({ upload: vi.fn(), resume: vi.fn(), limits: vi.fn(), acquire: vi.fn() }))
 vi.mock('@/services/verificationService', () => ({ uploadManualSource: actions.upload }))
-vi.mock('@/services/verificationJobService', () => ({ resumeVerificationJob: actions.resume }))
+vi.mock('@/services/verificationJobService', () => ({ resumeVerificationJob: actions.resume, acquireJobSource: actions.acquire }))
 vi.mock('@/services/manuscriptService', async original => ({ ...await original<object>(), getUploadLimits: actions.limits }))
 const hash = 'd'.repeat(64)
 function recoveryJob() {
@@ -78,4 +78,21 @@ it('uses explicit retry_failed for verifier failure rather than pretending a PDF
   renderRecovery(job); expect(screen.queryByRole('button', { name: 'Upload source PDF' })).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Retry reference r3' }))
   await waitFor(() => expect(actions.resume).toHaveBeenCalledWith(jobId, { expected_revision: 6, reference_ids: ['r3'], retry_failed: true }))
+})
+
+it('acquires a URL document first and requires separate explicit paid resume confirmation', async () => {
+  const job = recoveryJob(); job.references = job.references.map(r => r.id === 'r4' ? { ...r, doi: null, url: 'https://www.fda.gov/media/123/download' } : r)
+  actions.acquire.mockResolvedValue({ status: 'accepted', raw_content_sha256: hash, source: {} })
+  const { acceptSnapshot } = renderRecovery(job)
+  expect(screen.queryByRole('button', { name: 'Upload source PDF' })).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Fetch URL source' }))
+  await screen.findByRole('button', { name: 'Confirm resume URL reference' })
+  expect(actions.acquire).toHaveBeenCalledWith(jobId, 'r4', 6)
+  expect(actions.resume).not.toHaveBeenCalled()
+  expect(screen.getByText(/Historical version is unconfirmed/)).toBeTruthy()
+  const button = screen.getByRole('button', { name: 'Confirm resume URL reference' })
+  fireEvent.click(button); fireEvent.click(button)
+  await waitFor(() => expect(actions.resume).toHaveBeenCalledTimes(1))
+  expect(actions.resume).toHaveBeenCalledWith(jobId, { expected_revision: 6, reference_ids: ['r4'], source_hashes: { r4: hash } })
+  expect(acceptSnapshot).toHaveBeenCalled()
 })

@@ -23,7 +23,7 @@ class EvidenceRetrievalRequest(BaseModel):
 
 class EvidencePaperSummary(BaseModel):
     paper_id: str
-    doi: str
+    doi: str | None = None
     title: str | None = None
 
 

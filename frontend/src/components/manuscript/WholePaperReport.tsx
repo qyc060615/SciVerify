@@ -17,11 +17,26 @@ function PairCard({ task, job }: { task: JobTask; job: VerificationJob }) {
   const result = task.pair_outcome?.verification
   const completed = task.state === 'completed' && result?.processing_status === 'completed'
   const verdict = completed && result.verdict ? verdicts[result.verdict] : undefined
+  const binding = task.source_binding
+  const provenance = binding?.provenance
+  const locator = binding?.locator
+  const sourceUrl = safeUrl(provenance?.final_url ?? locator?.value ?? null)
+  const identities = { EXACT_IDENTITY: 'Exact', PROBABLE_SAME_WORK: 'Probable Same Work', IDENTITY_UNCERTAIN: 'Uncertain', IDENTITY_CONFLICT: 'Conflict' }
   return <div className="space-y-3 rounded-lg border border-border bg-surface p-4" data-testid="pair-card">
     <p className="text-sm font-medium">{ref?.title ?? ref?.raw_text ?? task.reference_id}</p>
-    <p className="text-sm text-text-muted">DOI: {ref?.doi ?? 'Missing DOI'}</p>
+    <p className="text-sm text-text-muted">{locator?.kind === 'url' ? `URL Source: ${locator.value}` : `DOI Source: ${binding?.doi ?? ref?.doi ?? 'Identity not resolved'}`}</p>
+    {provenance && <div className="space-y-1 text-sm">
+      <p>Identity: {identities[provenance.identity]} · Full Text: {task.source_version ? 'Available' : 'Unavailable'}</p>
+      {provenance.identity === 'PROBABLE_SAME_WORK' && <p className="text-warning">The retrieved document is probably the same study, but may differ from the version originally cited. This is not an exact identity match.</p>}
+      {provenance.retrieved_title && <p>Retrieved title: {provenance.retrieved_title}</p>}
+      {provenance.publication_date && <p>Publication / update date: {provenance.publication_date}</p>}
+      {provenance.retrieved_at && <p>Retrieved at: {provenance.retrieved_at}</p>}
+      <p className="break-all">Retrieved version / content hash: {provenance.retrieved_version ?? task.source_version ?? 'Unavailable'}</p>
+      {sourceUrl && <a className="break-all text-primary" href={sourceUrl} target="_blank" rel="noreferrer">Actual source URL: {sourceUrl}</a>}
+      {provenance.warnings.map(w => <p key={w} className="text-warning">{w === 'HISTORICAL_VERSION_UNCONFIRMED' ? 'Historical Version Unconfirmed: current content may differ from the cited historical document.' : w}</p>)}
+    </div>}
     <div className="flex flex-wrap items-center gap-2"><Badge>Task: {task.state.replaceAll('_', ' ')}</Badge>{verdict && <Badge variant={verdict.variant}>{verdict.label}</Badge>}{completed && result.confidence != null && <span className="text-xs text-text-muted">Confidence: {(result.confidence * 100).toFixed(0)}%</span>}</div>
-    {!completed && <p className="text-sm text-warning">{task.reason_code === 'DOI_MISSING' ? (ref?.resolution?.source_type === 'url' ? 'URL source discovered only. URL evidence retrieval is not supported. No scientific verdict was produced.' : 'Reference identity is unresolved. No scientific verdict was produced; this does not mean the claim is incorrect.') : task.state === 'blocked_source' ? 'A matching source is required before verification.' : task.state === 'failed' ? 'Processing failed. No scientific verdict was produced.' : 'Verification has not completed.'}</p>}
+    {!completed && <p className="text-sm text-warning">{task.reason_code === 'DOI_MISSING' ? 'Reference identity is unresolved in this saved job. No scientific verdict was produced; this does not mean the claim is incorrect.' : task.state === 'blocked_source' ? 'A matching full-text source is required. No scientific verdict was produced; this does not mean the claim is incorrect.' : task.state === 'failed' ? 'Processing failed. No scientific verdict was produced.' : 'Verification has not completed.'}</p>}
     {completed && result.explanation && <p className="text-sm leading-relaxed">{result.explanation}</p>}
     {task.reason_code && <p className="text-xs text-text-muted">Reason: {task.reason_code}</p>}
     {result?.evidence_chunks.map(chunk => {

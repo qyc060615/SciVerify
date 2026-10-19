@@ -18,13 +18,15 @@ from app.services.verification_job_models import (
 )
 from app.services.verification_job_store import LocalJobStore, JobError, positive_setting
 from app.utils.doi import normalize_doi
+from app.services.source_locator import reference_locator
 
 RETRYABLE = frozenset({"VERIFIER_EXECUTION_FAILURE", "VERIFIER_LLM_UNAVAILABLE",
     "VERIFIER_VERIFICATION_FAILED", "PAPERQA2_ADAPTER_FAILURE", "EVIDENCE_RETRIEVAL_FAILURE",
     "SOURCE_PROVIDER_ERROR", "SOURCE_PREPARATION_FAILURE", "SOURCE_DURABILITY_UNAVAILABLE",
     "SOURCE_DURABILITY_MISMATCH", "SOURCE_DURABILITY_HASH_REQUIRED"})
 RECOVERABLE_SOURCE = frozenset({"SOURCE_REQUIRED_METADATA_ONLY", "SOURCE_REQUIRED_FULL_TEXT_UNAVAILABLE",
-    "SOURCE_REQUIRED_PARSING_FAILURE", "SOURCE_NOT_FOUND", "SOURCE_DOI_MISMATCH", "SOURCE_VERSION_CONFLICT"})
+    "SOURCE_REQUIRED_PARSING_FAILURE", "SOURCE_NOT_FOUND", "SOURCE_DOI_MISMATCH", "SOURCE_VERSION_CONFLICT",
+    'SOURCE_IDENTITY_CONFLICT', 'SOURCE_IDENTITY_UNCERTAIN', 'SOURCE_VERSION_UNCONFIRMED'})
 
 
 def jobs_enabled():
@@ -198,7 +200,10 @@ class VerificationJobRuntime:
             accepted, updates, doi_versions = {}, {}, {}
             for task in selected:
                 try:
-                    doi = normalize_doi(references[task.reference_id].doi)
+                    locator = reference_locator(references[task.reference_id])
+                    if locator is None:
+                        raise ValueError('No recoverable locator')
+                    doi = locator.key
                 except (ValueError, AttributeError):
                     raise JobError("JOB_SOURCE_NOT_RECOVERABLE") from None
                 expected = hashes.get(task.reference_id) or task.expected_raw_hash
@@ -212,11 +217,11 @@ class VerificationJobRuntime:
                     if not isinstance(expected, str) or len(expected) != 64 or any(c not in "0123456789abcdef" for c in expected):
                         raise JobError("JOB_SOURCE_HASH_INVALID", 422)
                     if doi not in accepted:
-                        accepted[doi] = await to_thread.run_sync(self.source_store.get, doi)
+                        accepted[doi] = await to_thread.run_sync(self.source_store.get_locator, locator)
                     artifact = accepted[doi]
                     if artifact is None:
                         raise JobError("JOB_SOURCE_NOT_ACCEPTED")
-                    if (artifact.doi != doi or normalize_doi(artifact.paper.doi) != doi
+                    if (artifact.source_locator != locator
                             or artifact.raw_content_sha256 != expected
                             or hashlib.sha256(artifact.content).hexdigest() != expected
                             or (task.expected_raw_hash is not None and task.expected_raw_hash != expected)
@@ -245,7 +250,10 @@ class VerificationJobRuntime:
                     if (t.claim_id, t.reference_id) not in selected:
                         continue
                     if t.expected_raw_hash or t.source_version:
-                        doi = normalize_doi(references[t.reference_id].doi)
+                        locator = reference_locator(references[t.reference_id])
+                        if locator is None:
+                            raise JobError('JOB_SOURCE_NOT_RECOVERABLE')
+                        doi = locator.key
                         for mapping, value in ((expectations, t.expected_raw_hash), (versions, t.source_version)):
                             if value is not None:
                                 if doi in mapping and mapping[doi] != value:

@@ -108,10 +108,14 @@ def qualify_source_identity(content, doc_format, paper):
             metadata = reader.metadata or {}
             pages = [page.extract_text() or '' for page in reader.pages]
             text = '\n'.join(pages)
-            if (len(pages) == 1 and len(text) < 2000
+            if (len(pages) == 1
                     and re.search(r'(?im)^\s*abstract\s*:?[ \t]*$', text) and not _BODY.search(text)):
                 return SourceIdentity('conflict', 'ABSTRACT_ONLY_PDF')
             header = _BOUNDARY.split(pages[0] if pages else '')[0][:4000]
+            # Some preprint footers extract the adjacent label without a space:
+            # "...20245175doi:". Separate only that numeric-DOI/label boundary;
+            # never fuzzy-match a different DOI or use bibliography identifiers.
+            header = re.sub(r'(?<=\d)doi:(?=\s|$)', ' doi:', header, flags=re.I)
             for value in [header, *(str(metadata.get(k, '')) for k in ('/DOI', '/doi', '/Subject', '/Keywords'))]:
                 dois.update(filter(None, (_doi(m.group()) for m in _DOI.finditer(value))))
             title = metadata.get('/Title')

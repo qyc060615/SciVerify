@@ -25,6 +25,9 @@ from app.services.verification_service import verify_prepared_evidence
 from app.services.source_store import SourceDurabilityError
 from app.utils.claim_preprocessor import preprocess_claim
 from app.utils.doi import InvalidDOIError, normalize_doi
+from app.researchguard.source_locator import SourceLocator
+from app.services.source_locator import reference_locator
+from app.services.source_acquisition import retrieve_reference_source
 
 MAX_CLAIMS = 256
 MAX_PAIRS = 1024
@@ -113,7 +116,7 @@ async def verify_manuscript_core(
     expected_raw_hashes = expected_raw_hashes or {}
     expected_source_versions = expected_source_versions or {}
 
-    prepared, sources, outcomes = {}, {}, []
+    prepared, sources, outcomes, provenance = {}, {}, [], {}
     original_claim_ids = {c.id for c in extraction.claims}
     for claim, reference, calls in plan:
         # Runtime/storage exceptions propagate, outside semantic failure isolation.
@@ -123,54 +126,76 @@ async def verify_manuscript_core(
         status, reason = ProcessingStatus.FAILED, "SOURCE_PREPARATION_FAILURE"
         legacy_verdict, result = None, None
         try:
-            if not reference.doi:
-                status, reason = ProcessingStatus.CITATION_UNRESOLVED, "DOI_MISSING"
-                raise _PairBlocked()
             try:
-                doi = normalize_doi(reference.doi)
-            except InvalidDOIError:
-                status, reason = ProcessingStatus.CITATION_UNRESOLVED, "DOI_INVALID"
+                locator = reference_locator(reference)
+            except ValueError:
+                status, reason = ProcessingStatus.CITATION_UNRESOLVED, 'DOI_INVALID' if reference.doi else 'SOURCE_URL_INVALID'
                 raise _PairBlocked() from None
-            binding = SourceBinding(reference_id=reference.id, doi=doi)
-            if doi not in prepared:
+            if locator is None:
+                status, reason = ProcessingStatus.CITATION_UNRESOLVED, 'DOI_MISSING'
+                raise _PairBlocked()
+            doi = locator.value if locator.kind == 'doi' else None
+            key = locator.key
+            # A provisional version requires its own content review even when an
+            # exact DOI reference happened to prepare that same source earlier.
+            memo = (key, reference.id if not reference.doi and locator.kind == 'doi' else None)
+            binding = SourceBinding(reference_id=reference.id, doi=doi,
+                                    locator=locator if not reference.doi else None)
+            if memo not in prepared:
                 # Store only normalized domain data, not mutable provider responses.
                 try:
-                    response = await to_thread.run_sync(source_retriever, doi)
+                    if reference.doi and source_retriever is not retrieve_paper:
+                        response = await to_thread.run_sync(source_retriever, doi)
+                    else:
+                        from functools import partial
+                        response = await to_thread.run_sync(partial(retrieve_reference_source, reference,
+                            doi_retriever=source_retriever if source_retriever is not retrieve_paper else None))
                     response = RetrievePaperResponse.model_validate(response.model_dump())
-                    if normalize_doi(response.paper.doi) != doi:
-                        prepared[doi] = (ProcessingStatus.SOURCE_MISMATCH, "SOURCE_DOI_MISMATCH")
-                    elif doi in expected_raw_hashes and response.source.raw_content_sha256 != expected_raw_hashes[doi]:
-                        prepared[doi] = (ProcessingStatus.SOURCE_MISMATCH, "SOURCE_VERSION_CONFLICT")
+                    actual_locator = response.source.locator or SourceLocator(kind='doi', value=response.paper.doi)
+                    provenance[memo] = response.source.provenance
+                    if response.source.provenance:
+                        binding = binding.model_copy(update={'provenance': response.source.provenance})
+                    if actual_locator != locator or (locator.kind == 'url' and response.paper.doi is not None):
+                        prepared[memo] = (ProcessingStatus.SOURCE_MISMATCH, "SOURCE_DOI_MISMATCH" if doi else 'SOURCE_LOCATOR_MISMATCH')
+                    elif key in expected_raw_hashes and response.source.raw_content_sha256 != expected_raw_hashes[key]:
+                        prepared[memo] = (ProcessingStatus.SOURCE_MISMATCH, "SOURCE_VERSION_CONFLICT")
+                    elif response.detail in {'SOURCE_IDENTITY_CONFLICT', 'SOURCE_IDENTITY_UNCERTAIN', 'SOURCE_VERSION_UNCONFIRMED'}:
+                        prepared[memo] = (ProcessingStatus.SOURCE_MISMATCH if response.detail == 'SOURCE_IDENTITY_CONFLICT'
+                                          else ProcessingStatus.SOURCE_UNAVAILABLE, response.detail)
                     elif response.status != PaperRetrievalStatus.SUCCESS:
                         required = response.status in {PaperRetrievalStatus.METADATA_ONLY,
                             PaperRetrievalStatus.FULL_TEXT_UNAVAILABLE, PaperRetrievalStatus.PARSING_FAILURE}
                         failure_status = ProcessingStatus.FAILED if response.status == PaperRetrievalStatus.PROVIDER_ERROR else ProcessingStatus.SOURCE_UNAVAILABLE
-                        prepared[doi] = (failure_status, "SOURCE_REQUIRED_" + response.status.value.upper()
+                        prepared[memo] = (failure_status, "SOURCE_REQUIRED_" + response.status.value.upper()
                             if required else "SOURCE_" + response.status.value.upper())
                     else:
                         if source_durability_check is not None:
                             await to_thread.run_sync(source_durability_check, response)
                         source, chunks = accepted_source_to_domain(response)
-                        if doi in expected_source_versions and source.content_hash != expected_source_versions[doi]:
-                            prepared[doi] = (ProcessingStatus.SOURCE_MISMATCH, "SOURCE_VERSION_CONFLICT")
+                        if key in expected_source_versions and source.content_hash != expected_source_versions[key]:
+                            prepared[memo] = (ProcessingStatus.SOURCE_MISMATCH, "SOURCE_VERSION_CONFLICT")
                         elif len(source.model_dump_json().encode("utf-8")) > MAX_PAIR_PAYLOAD_BYTES:
-                            prepared[doi] = (ProcessingStatus.FAILED, "SOURCE_METADATA_SIZE_LIMIT")
+                            prepared[memo] = (ProcessingStatus.FAILED, "SOURCE_METADATA_SIZE_LIMIT")
                         else:
-                            prepared[doi] = (source, tuple(chunks))
+                            prepared[memo] = (source, tuple(chunks))
                 except SourceDurabilityError as exc:
-                    prepared[doi] = (ProcessingStatus.FAILED, exc.code)
+                    prepared[memo] = (ProcessingStatus.FAILED, exc.code)
                 except PaperNotFoundError:
-                    prepared[doi] = (ProcessingStatus.SOURCE_UNAVAILABLE, "SOURCE_NOT_FOUND")
+                    prepared[memo] = (ProcessingStatus.SOURCE_UNAVAILABLE, "SOURCE_NOT_FOUND")
                 except PaperProviderError:
-                    prepared[doi] = (ProcessingStatus.FAILED, "SOURCE_PROVIDER_ERROR")
+                    prepared[memo] = (ProcessingStatus.FAILED, "SOURCE_PROVIDER_ERROR")
                 except Exception:
-                    prepared[doi] = (ProcessingStatus.FAILED, "SOURCE_PREPARATION_FAILURE")
-            source, chunks = prepared[doi]
+                    prepared[memo] = (ProcessingStatus.FAILED, "SOURCE_PREPARATION_FAILURE")
+            source, chunks = prepared[memo]
             if isinstance(source, ProcessingStatus):
                 status, reason = source, chunks
                 raise _PairBlocked()
             sources[source.id] = source
-            binding = binding.model_copy(update={"source_document_id": source.id, "source_version": source.content_hash})
+            prov = provenance.get(memo)
+            if prov:
+                prov = prov.model_copy(update={'original_citation': reference.raw_text})
+            binding = binding.model_copy(update={"source_document_id": source.id, "source_version": source.content_hash,
+                                                 'provenance': prov})
             reason = "EVIDENCE_RETRIEVAL_FAILURE"
             processed = preprocess_claim(claim.text)
             projection = standalone_claim_to_domain(processed, source)
@@ -228,7 +253,7 @@ async def verify_manuscript_core(
                 confidence=legacy.confidence, evidence_chunks=selected,
                 explanation=legacy.reasoning or legacy.summary,
                 traceability=VerificationTraceability(evidence_ids=tuple(c.id for c in selected),
-                    method="paperqa2+prepared_verifier", warnings=tuple(legacy.validation_warnings or ()),
+                    method="paperqa2+prepared_verifier", warnings=tuple(legacy.validation_warnings or ()) + (prov.warnings if prov else ()),
                     metadata={"legacy_provenance": legacy.model_dump(mode="json", exclude={
                         "claim", "paper", "evidence", "confidence", "reasoning", "summary"})}))
             legacy_verdict = legacy.verdict

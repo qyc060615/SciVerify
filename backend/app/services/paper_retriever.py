@@ -54,6 +54,8 @@ _KNOWN_OA_REPOSITORY_HOSTS = (
     "pubmedcentral.nih.gov",
     "ncbi.nlm.nih.gov/pmc",
     "pmc.ncbi.nlm.nih.gov",
+    "medrxiv.org",
+    "biorxiv.org",
 )
 
 
@@ -85,6 +87,7 @@ class FullTextCandidate:
 def retrieve_paper(
     doi: str,
     client: httpx.Client | None = None,
+    *, candidate_urls: tuple[str, ...] = (),
 ) -> RetrievePaperResponse:
     """Retrieve paper metadata and, when available, parsed evidence chunks."""
     normalized = normalize_doi(doi)
@@ -137,15 +140,6 @@ def retrieve_paper(
         paper = _build_paper_metadata(citation, openalex_work)
         source = _build_source(citation, openalex_work)
 
-        if provider_error is not None and openalex_work is None:
-            return RetrievePaperResponse(
-                status=PaperRetrievalStatus.METADATA_ONLY,
-                paper=paper,
-                sections=[],
-                chunks=[],
-                source=source,
-            )
-
         openalex_candidates = (
             discover_full_text_candidates(openalex_work)
             if openalex_work is not None
@@ -161,7 +155,14 @@ def retrieve_paper(
         # Phase 20: query Semantic Scholar for OA PDF candidates not already found
         s2_candidates = _discover_semantic_scholar_candidates(normalized, http_client)
 
-        all_raw = epmc_candidates + openalex_candidates + unpaywall_candidates + s2_candidates
+        if len(candidate_urls) > 3:
+            raise ValueError('SOURCE_CANDIDATE_LIMIT')
+        hints = []
+        for value in candidate_urls:
+            url = normalize_candidate_url(value)
+            if url:
+                hints.append(FullTextCandidate(url, _format_from_url(url), 'explicit_candidate', 'repository'))
+        all_raw = hints + epmc_candidates + openalex_candidates + unpaywall_candidates + s2_candidates
         candidates = _order_candidates(_dedupe_candidates(all_raw))
         logger.info(
             "Candidate discovery complete: doi=%s total=%d sources=epmc:%d openalex:%d unpaywall:%d s2:%d",
@@ -176,7 +177,7 @@ def retrieve_paper(
         if not candidates:
             paper.full_text_available = False
             return RetrievePaperResponse(
-                status=PaperRetrievalStatus.FULL_TEXT_UNAVAILABLE,
+                status=PaperRetrievalStatus.METADATA_ONLY if provider_error else PaperRetrievalStatus.FULL_TEXT_UNAVAILABLE,
                 paper=paper,
                 sections=[],
                 chunks=[],
@@ -209,7 +210,7 @@ def retrieve_paper(
                 document = retrieve_document(
                     candidate.url,
                     expected_format=candidate.format,
-                    client=http_client,
+                    client=http_client if client is not None else None,
                 )
             except DocumentRetrievalError as exc:
                 last_detail = str(exc)
@@ -283,10 +284,25 @@ def retrieve_paper(
 
             paper.full_text_format = document.format
             paper.full_text_url = document.source_url
+            from app.services.source_versions import document_version_date
+            actual_date = document_version_date(document.content, document.format)
+            if actual_date:
+                paper.publication_date = actual_date
+            from app.researchguard.source_locator import SourceProvenance
+            from datetime import datetime, timezone
+            import hashlib
+            provenance = SourceProvenance(matched_doi=normalized,
+                source_url=candidate.url, final_url=document.source_url,
+                retrieved_at=datetime.now(timezone.utc).isoformat(), retrieved_title=paper.title,
+                publication_date=paper.publication_date,
+                retrieved_version='sha256:' + hashlib.sha256(document.content).hexdigest(),
+                identity='EXACT_IDENTITY' if identity.status == 'confirmed' else 'IDENTITY_UNCERTAIN',
+                document_kind='ARTICLE_FULL_TEXT', match_evidence=(identity.reason,),
+                warnings=() if identity.status == 'confirmed' else ('SOURCE_IDENTITY_UNCERTAIN',))
             artifact = AcceptedSourceArtifact.create(
                 doi=normalized, content=document.content, format=document.format,
                 source_url=document.source_url, provider=candidate.provider,
-                origin="remote", paper=paper,
+                origin="remote", paper=paper, provenance=provenance,
             )
             try:
                 store.put(artifact)
@@ -785,7 +801,14 @@ def _build_paper_metadata(
 
     if openalex_work is not None:
         abstract = _extract_openalex_abstract(openalex_work)
-        publication_date = openalex_work.get("publication_date")
+        # OpenAlex sometimes merges a preprint DOI into its later journal work.
+        # Its locations remain candidates, but its date is not the cited version.
+        work_doi = openalex_work.get('doi')
+        try:
+            same_doi = not work_doi or normalize_doi(work_doi) == normalize_doi(citation.doi)
+        except (ValueError, AttributeError):
+            same_doi = False
+        publication_date = openalex_work.get("publication_date") if same_doi else None
         if not isinstance(publication_date, str):
             publication_date = None
 

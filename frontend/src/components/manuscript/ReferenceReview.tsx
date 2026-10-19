@@ -15,7 +15,8 @@ export function ReferenceReview({ references }: { references: Reference[] }) {
         <p>Original DOI: {result?.original_doi ?? 'Not provided'} · Resolved DOI: {result?.resolved_doi ?? 'Unresolved'}</p>
         <p>Provider: {result?.provider ?? 'None'} · Source type: {result?.source_type ?? 'unknown'}</p>
         {result?.source_url && <p className="break-all">Original source URL: {result.source_url}</p>}
-        {result?.status === 'non_doi_source' && <p className="text-warning">Discovered only. URL source retrieval and historical content verification are not supported yet.</p>}
+        {result?.status === 'non_doi_source' && <p className="text-warning">URL source discovered. Verification will attempt document retrieval and identity checks. The historical cited version is not yet confirmed.</p>}
+        {result?.match_reason === 'VERSION_UNCERTAIN' && <p className="text-warning">A compatible preprint candidate may be retrieved for further identity checks. A probable match will keep its version warnings and will not replace the original citation.</p>}
         {result?.match_reason && <p>{result.match_reason}</p>}
         {!!result?.diagnostics.length && <p className="text-warning">{result.diagnostics.join(' · ')}</p>}
         {!!result?.candidates.length && <details><summary className="cursor-pointer text-primary">Matching evidence and candidates</summary>{result.candidates.map((c, j) => <div key={`${c.provider}-${c.doi}-${j}`} className="mt-2 space-y-1 border-t border-border pt-2">

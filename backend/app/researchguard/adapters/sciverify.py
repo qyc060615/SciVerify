@@ -58,8 +58,10 @@ def accepted_source_to_domain(paper_result: RetrievePaperResponse) -> tuple[Sour
     digest = hashlib.sha256(json.dumps(payload, ensure_ascii=False, separators=(",", ":")).encode()).hexdigest()
     parsed_fingerprint = digest
     digest = paper_result.source.raw_content_sha256 or parsed_fingerprint
-    source_id = "source:" + hashlib.sha256((paper.doi + ":" + digest).encode()).hexdigest()
-    reference_id = "reference:" + paper.doi
+    from app.researchguard.source_locator import SourceLocator
+    locator = paper_result.source.locator or SourceLocator(kind='doi', value=paper.doi)
+    source_id = "source:" + hashlib.sha256((locator.key + ":" + digest).encode()).hexdigest()
+    reference_id = "reference:" + locator.key
     source_url = paper_result.source.url
     source = SourceDocument(
         id=source_id, reference_id=reference_id, doi=paper.doi, title=paper.title,
@@ -83,6 +85,9 @@ def accepted_source_to_domain(paper_result: RetrievePaperResponse) -> tuple[Sour
                 "parsed_content_fingerprint": parsed_fingerprint,
                 "source_identity_status": paper_result.source.identity_status,
                 "source_origin": paper_result.source.origin, "source_cache_hit": paper_result.source.cache_hit,
+                **({"source_locator": locator.model_dump(mode='json')} if locator.kind == 'url' else {}),
+                **({"source_provenance": paper_result.source.provenance.model_dump(mode='json')}
+                   if paper_result.source.provenance else {}),
             },
         ))
     return source, chunks

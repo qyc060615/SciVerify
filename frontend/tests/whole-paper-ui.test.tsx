@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import WholePaperVerifyPage from '@/pages/WholePaperVerifyPage'
@@ -113,7 +113,7 @@ describe('whole-paper upload and review', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' })); await resolveAndReview()
     expect(screen.getByText(/2 DOI identities ready/)).toBeTruthy()
     expect(screen.getByText('ambiguous')).toBeTruthy(); expect(screen.getByText('provider_error')).toBeTruthy()
-    expect(screen.getByText(/Discovered only/)).toBeTruthy(); expect(screen.getByText(/OPENALEX_RATE_LIMIT/)).toBeTruthy()
+    expect(screen.getByText(/will attempt document retrieval and identity checks/)).toBeTruthy(); expect(screen.getByText(/OPENALEX_RATE_LIMIT/)).toBeTruthy()
     expect(screen.getByText(/Resolved DOI: 10.1234\/enriched/)).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Extract claims' })); await screen.findByText('Review extracted claims')
     expect(services.extract).toHaveBeenCalledWith(enriched)
@@ -164,12 +164,12 @@ describe('pair-level report contracts', () => {
     const job = jobFixture(); job.tasks[0].state = 'failed'
     render(<WholePaperReport job={job} />)
     expect(screen.queryByText('Contradicted')).toBeNull(); expect(screen.queryByText(/Confidence:/)).toBeNull()
-    expect(screen.getByText(/No scientific verdict was produced/)).toBeTruthy()
+    expect(within(screen.getAllByTestId('pair-card')[0]).getByText(/No scientific verdict was produced/)).toBeTruthy()
   })
   it('explains missing DOI as an unresolved identity rather than an incorrect claim', () => {
     const job = jobFixture(); job.tasks[0].state = 'failed'; job.tasks[0].reason_code = 'DOI_MISSING'
     render(<WholePaperReport job={job} />)
-    expect(screen.getByText(/does not mean the claim is incorrect/)).toBeTruthy()
+    expect(within(screen.getAllByTestId('pair-card')[0]).getByText(/does not mean the claim is incorrect/)).toBeTruthy()
     expect(screen.queryByText('Contradicted')).toBeNull()
   })
   it('explains URL-only retrieval limitations in a durable job report', () => {
@@ -177,7 +177,8 @@ describe('pair-level report contracts', () => {
     const ref = job.references.find(r => r.id === task.reference_id)!
     ref.doi = null; ref.resolution = resolution('non_doi_source', { reference_id: ref.id, source_type: 'url', source_url: 'https://www.who.int/speech' })
     render(<WholePaperReport job={job} />)
-    expect(screen.getByText(/URL evidence retrieval is not supported/)).toBeTruthy()
+    expect(screen.getByText(/unresolved in this saved job/)).toBeTruthy()
+    expect(screen.getByText(/will attempt document retrieval and identity checks/)).toBeTruthy()
     expect(screen.getByText('Reference identity diagnostics')).toBeTruthy()
   })
   it('shows zero pairs and extraction coverage gaps without fake completion', () => {
@@ -185,6 +186,17 @@ describe('pair-level report contracts', () => {
     render(<WholePaperReport job={job} />)
     expect(screen.queryByRole('progressbar')).toBeNull(); expect(screen.getByText(/Completion percentage is not applicable/)).toBeTruthy()
     expect(screen.getByText(/1 skipped contexts/)).toBeTruthy()
+  })
+  it('keeps probable identity and historical version warnings visible beside a verdict', () => {
+    const job = jobFixture()
+    job.tasks[0].source_binding!.locator = { kind: 'doi', value: '10.1234/local' }
+    job.tasks[0].source_binding!.provenance = { identity: 'PROBABLE_SAME_WORK', document_kind: 'ARTICLE_FULL_TEXT', warnings: ['HISTORICAL_VERSION_UNCONFIRMED'], match_evidence: ['AUTHORS_MATCH'], retrieved_title: 'Retrieved manuscript version', final_url: 'https://example.org/manuscript', retrieved_version: 'sha256:' + 'b'.repeat(64) }
+    render(<WholePaperReport job={job} />)
+    expect(screen.getByText(/Identity: Probable Same Work/)).toBeTruthy()
+    expect(screen.getByText(/not an exact identity match/)).toBeTruthy()
+    expect(screen.getByText(/current content may differ/)).toBeTruthy()
+    expect(screen.getByText(/Retrieved title: Retrieved manuscript version/)).toBeTruthy()
+    expect(screen.getByText('Contradicted')).toBeTruthy()
   })
   it('keeps runtime diagnostics separate from scientific verdicts', async () => {
     const job = jobFixture(); job.runtime_error_code = 'JOB_STORAGE_ERROR'

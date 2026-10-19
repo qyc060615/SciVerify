@@ -106,24 +106,30 @@ def retrieve_document(
     url: str,
     expected_format: DocumentFormat | None = None,
     client: httpx.Client | None = None,
+    *, public_only: bool = False,
 ) -> RetrievedDocument:
     """Download an accessible PDF or HTML document."""
     owns_client = client is None
-    http_client = client or httpx.Client(
-        timeout=PAPER_REQUEST_TIMEOUT,
-        headers={"User-Agent": USER_AGENT, "Accept": DOCUMENT_ACCEPT_HEADER},
-        follow_redirects=True,
-    )
+    from app.services.public_http import source_client, fetch_public, UnsafeSourceURL
+    http_client = client or source_client(PAPER_REQUEST_TIMEOUT)
 
     try:
         logger.info("Document retrieval started: candidate_url=%s", url)
 
         try:
-            response = http_client.get(
-                url,
-                headers={"Accept": DOCUMENT_ACCEPT_HEADER, "User-Agent": USER_AGENT},
-                follow_redirects=True,
-            )
+            if owns_client or public_only:
+                response = fetch_public(http_client, url,
+                    headers={"Accept": DOCUMENT_ACCEPT_HEADER, "User-Agent": USER_AGENT},
+                    max_bytes=MAX_DOCUMENT_SIZE, timeout=PAPER_REQUEST_TIMEOUT)
+            else:
+                # Trusted injected dependency, retained for existing DOI callers/tests.
+                response = http_client.get(
+                    url, headers={"Accept": DOCUMENT_ACCEPT_HEADER, "User-Agent": USER_AGENT},
+                    follow_redirects=True)
+        except UnsafeSourceURL as exc:
+            raise DocumentRetrievalError(str(exc)) from exc
+        except ValueError as exc:
+            raise DocumentRetrievalError('SOURCE_URL_INVALID') from exc
         except httpx.TimeoutException as exc:
             raise DocumentRetrievalError("Document request timed out.") from exc
         except httpx.RequestError as exc:
@@ -133,6 +139,8 @@ def retrieve_document(
         content_type = _normalize_content_type(
             response.headers.get("content-type", "")
         )
+        if public_only and content_type not in PDF_CONTENT_TYPES | HTML_CONTENT_TYPES:
+            raise UnsupportedContentTypeError('SOURCE_CONTENT_TYPE_UNSUPPORTED')
 
         logger.info(
             "Document retrieval response: candidate_url=%s status=%s final_url=%s content_type=%s",

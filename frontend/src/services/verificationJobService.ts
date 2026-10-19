@@ -1,7 +1,7 @@
 import { apiClient } from './api'
 import { env } from '@/lib/env'
 import type { JobCreateRequest } from '@/types/manuscript'
-import type { ResumeRequest, VerificationJob } from '@/types/verification-job'
+import type { ResumeRequest, VerificationJob, SourceProvenance } from '@/types/verification-job'
 
 const path = (id: string) => `/api/verification/jobs/${encodeURIComponent(id)}`
 export async function createVerificationJob(request: JobCreateRequest): Promise<VerificationJob> {
@@ -12,6 +12,9 @@ export async function getVerificationJob(id: string, signal?: AbortSignal): Prom
 }
 export async function resumeVerificationJob(id: string, request: ResumeRequest): Promise<VerificationJob> {
   return (await apiClient.post<VerificationJob>(`${path(id)}/resume`, request)).data
+}
+export async function acquireJobSource(id: string, referenceId: string, revision: number) {
+  return (await apiClient.post<{ status: string; raw_content_sha256?: string; detail?: string; source: { provenance?: SourceProvenance } }>(`${path(id)}/source`, { reference_id: referenceId, expected_revision: revision })).data
 }
 export function jobStreamUrl(id: string, after: number): string {
   return `${env.apiBaseUrl.replace(/\/$/, '')}${path(id)}/stream?after=${after}`

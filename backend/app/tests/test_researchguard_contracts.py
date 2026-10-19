@@ -215,7 +215,7 @@ def test_ports_accept_domain_only_implementations():
 def test_core_dependency_direction():
     core = Path(__file__).resolve().parents[1] / "researchguard"
     # Adapters may import legacy schemas; domain/ports/package must not.
-    allowed = {"__future__", "enum", "typing", "pydantic", "domain"}
+    allowed = {"__future__", "enum", "typing", "pydantic", "domain", "source_locator", "hashlib", "ipaddress", "re", "urllib"}
     for path in core.glob("*.py"):
         for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
             if isinstance(node, ast.Import):

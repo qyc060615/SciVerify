@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { Panel } from '@/components/ui/Card'
 import { getUploadLimits, validatePdf } from '@/services/manuscriptService'
 import { uploadManualSource } from '@/services/verificationService'
-import { resumeVerificationJob } from '@/services/verificationJobService'
+import { resumeVerificationJob, acquireJobSource } from '@/services/verificationJobService'
 import { wholePaperError } from '@/services/wholePaperErrors'
 import { extractDoi } from '@/lib/doi'
 import { ApiResponseError } from '@/services/api'
@@ -79,6 +79,40 @@ function SourceRecovery({ job, doi, refresh, acceptSnapshot }: Props & { doi: st
   </Panel>
 }
 
+function UrlSourceRecovery({ job, referenceId, refresh, acceptSnapshot }: Props & { referenceId: string }) {
+  const [accepted, setAccepted] = useState<{ hash: string; revision: number } | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState<string | null>(null)
+  const active = useRef(false)
+  const ref = job.references.find(r => r.id === referenceId)
+  async function acquireOrResume(resume: boolean) {
+    if (active.current) return
+    active.current = true; setBusy(true); setMessage(null)
+    try {
+      const latest = await refresh()
+      if (latest.revision !== (resume ? accepted?.revision : job.revision)) throw new Error('The job changed. Review the refreshed report before continuing.')
+      if (!resume) {
+        const result = await acquireJobSource(job.job_id, referenceId, latest.revision)
+        if (result.status !== 'accepted' || !/^[a-f0-9]{64}$/.test(result.raw_content_sha256 ?? '')) throw new Error(`Source not accepted: ${result.detail ?? result.status}`)
+        setAccepted({ hash: result.raw_content_sha256!, revision: latest.revision })
+        setMessage('Source cached. Historical version is unconfirmed. Confirm resume separately to run scientific verification.')
+      } else if (accepted) {
+        acceptSnapshot(await resumeVerificationJob(job.job_id, { expected_revision: latest.revision, reference_ids: [referenceId], source_hashes: { [referenceId]: accepted.hash } }))
+        setAccepted(null)
+      }
+    } catch (error) { setAccepted(null); setMessage(wholePaperError(error)) }
+    finally { active.current = false; setBusy(false) }
+  }
+  return <Panel className="space-y-3">
+    <h3 className="font-medium">Recover URL source</h3><p>{ref?.title ?? referenceId}</p>
+    <p className="break-all text-sm">{ref?.resolution?.source_url ?? ref?.url}</p>
+    <p className="text-sm">Fetch the official document and validate its identity. This step does not run scientific verification.</p>
+    <Button disabled={busy} variant="outline" onClick={() => void acquireOrResume(false)}>Fetch URL source</Button>
+    {accepted && <><p className="break-all text-xs">Content hash: {accepted.hash}</p><p className="text-warning">Resume may incur embedding and verification API fees.</p><Button disabled={busy} onClick={() => void acquireOrResume(true)}>Confirm resume URL reference</Button></>}
+    {message && <p role="status" className="text-warning">{message}</p>}
+  </Panel>
+}
+
 export function JobSourceRecovery(props: Props) {
   const { job, refresh, acceptSnapshot } = props
   const groups = [...new Set(job.references.filter(r => job.tasks.some(t => t.reference_id === r.id && needsSource(t))).map(doiOf).filter((doi): doi is string => doi !== null))]
@@ -100,6 +134,7 @@ export function JobSourceRecovery(props: Props) {
   }
   return <div className="space-y-4">
     {groups.map(doi => <SourceRecovery key={job.job_id + doi} {...props} doi={doi} />)}
+    {job.references.filter(r => !r.doi && (r.resolution?.source_url || r.url) && job.tasks.some(t => t.reference_id === r.id && needsSource(t))).map(r => <UrlSourceRecovery key={r.id} {...props} referenceId={r.id} />)}
     {processingRefs.length > 0 && <Panel className="space-y-3"><h2 className="font-semibold">Continue or retry processing</h2><p className="text-sm text-warning">This retries eligible unfinished tasks using their pinned sources. It may incur API fees; completed pairs are not rerun.</p>{processingRefs.map(id => <Button key={id} className="mr-2" variant="outline" disabled={busy} onClick={() => void retry(id)}>Retry reference {id}</Button>)}{message && <p role="alert" className="text-warning">{message}</p>}</Panel>}
   </div>
 }
