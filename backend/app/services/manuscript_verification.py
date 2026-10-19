@@ -233,6 +233,16 @@ async def verify_manuscript_core(
                 evidence=evidence, total_chunks_considered=len(chunks))
             reason = "VERIFIER_EXECUTION_FAILURE"
             kwargs = {"llm": llm} if llm is not None else {}
+            # Optional context belongs to the built-in semantic verifier, not to
+            # the historical/custom prepared-verifier two-argument contract.
+            if prepared_verifier is verify_prepared_evidence:
+                context = next(c for c in extraction.contexts if c.id == claim.context_id)
+                kwargs["verification_context"] = json.dumps({
+                    "manuscript_title": parsed.manuscript.title,
+                    "citation_context": context.text,
+                    "cited_source_title": source.title,
+                    "cited_source_year": source.year,
+                }, ensure_ascii=False)
             # Keep an untouched bridge to detect verifier mutation/foreign output.
             legacy = await prepared_verifier(claim.text, bridge.model_copy(deep=True), **kwargs)
             legacy = VerificationResponse.model_validate(legacy.model_dump())

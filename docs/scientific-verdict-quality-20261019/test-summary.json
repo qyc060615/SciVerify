@@ -1,0 +1,25 @@
+{
+  "targeted": {
+    "passed": 161,
+    "failed": 0,
+    "warning": 1,
+    "note": "Before the final explanation consistency test was added; that test is covered by final full suite."
+  },
+  "backend_final": {
+    "passed": 1455,
+    "skipped": 1,
+    "failed": 0,
+    "warning": 1,
+    "seconds": 41.47,
+    "exit_code": 0,
+    "basetemp": "C:/rgtest-verifier-20261019-audit-b"
+  },
+  "protected_files_after_final_tests": {
+    "count": 24,
+    "unchanged": true,
+    "original_pdf_sha256": "572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0"
+  },
+  "paid_model_requests": 0,
+  "embedding_requests": 0,
+  "new_or_resumed_jobs": 0
+}

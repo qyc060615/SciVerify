@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from app.services.agents.scientific_policy import SCIENTIFIC_VERDICT_POLICY
 from app.schemas.evidence import EvidenceItem
 from app.schemas.verification import ProsecutorAnalysis
 from app.services.agents.defender import _build_agent_prompt as _shared_prompt  # noqa: F401
@@ -10,10 +11,11 @@ from app.services.evidence_validation import (
 from app.services.llm.provider import LLMProvider, LLMResponseError
 
 PROSECUTOR_SYSTEM_PROMPT = """You are the Prosecutor agent in a scientific claim verification system.
-Your job is to challenge the claim using ONLY the supplied evidence chunks.
+Identify substantive scientific errors using ONLY the supplied evidence chunks.
+It is acceptable to find no material objection.
 Do not invent papers, quotes, numbers, citations, or experimental results.
 Reference evidence only by chunk_id from the supplied list.
-Return JSON matching the requested schema exactly."""
+Return JSON matching the requested schema exactly.""" + "\n\n" + SCIENTIFIC_VERDICT_POLICY
 
 
 def run_prosecutor(
@@ -26,9 +28,9 @@ def run_prosecutor(
         claim=claim,
         evidence=evidence,
         instructions=(
-            "Attempt to disprove, weaken, or challenge the claim. Focus on contradictions, "
-            "numeric mismatches, overstated conclusions, missing conditions, scope limitations, "
-            "and methodological limitations."
+            "Look for direct counterexamples, important numerical or entity errors, and material "
+            "scope or causal exaggeration. Distinguish them from faithful academic summaries. "
+            "Do not manufacture objections or treat missing details as refutation."
         ),
     )
     result = llm.generate(

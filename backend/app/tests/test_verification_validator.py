@@ -149,6 +149,7 @@ class TestVerificationValidator:
             adjudicator=_adjudicator(
                 verdict=Verdict.CONTRADICTS,
                 confidence=0.82,
+                reasoning='The same mortality endpoint says "No mortality reduction was observed."; this conflicts with the claimed reduction.',
                 supporting_evidence=[],
                 contradicting_evidence=["c1"],
             ),
@@ -202,7 +203,7 @@ class TestVerificationValidator:
             ),
         )
 
-        assert result.verdict == Verdict.SUPPORTS
+        assert result.verdict == Verdict.INSUFFICIENT
         assert any("without supporting evidence" in warning for warning in result.validation_warnings)
 
     def test_adjudicator_contradicts_without_contradicting_evidence_is_adjusted(self) -> None:
@@ -219,7 +220,7 @@ class TestVerificationValidator:
             ),
         )
 
-        assert result.verdict == Verdict.OVERSTATED
+        assert result.verdict == Verdict.INSUFFICIENT
         assert any("CONTRADICTS" in warning for warning in result.validation_warnings)
 
     def test_prosecutor_defender_disagreement_is_detected(self) -> None:

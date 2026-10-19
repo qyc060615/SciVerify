@@ -1,0 +1,367 @@
+{
+  "provenance": "Unmodified subset of persisted job_355c3d27d93e47ecaa4126378989f61b; not a new LLM run",
+  "job_id": "job_355c3d27d93e47ecaa4126378989f61b",
+  "claim": {
+    "attribution_status": "resolved",
+    "citation_callout_ids": [
+      "callout:manuscript:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0:grobid-0.9.1-body-prose-v1:3"
+    ],
+    "context_id": "context:710fc83661a1ea068effd195970e53d3a2710a73ec04e89eddfa2fc6c840e911",
+    "id": "claim:afccee360b5f82b78f56e46644020d9702684f57e1f0b9866a852ea8cc5e12e6",
+    "manuscript_id": "manuscript:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0",
+    "page": null,
+    "paragraph_id": "paragraph:manuscript:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0:grobid-0.9.1-body-prose-v1:1",
+    "reference_ids": [
+      "reference:manuscript:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0:grobid-0.9.1-body-prose-v1:3"
+    ],
+    "source_spans": [
+      {
+        "end": 122,
+        "start": 0
+      }
+    ],
+    "text": "The authors previously reported phase 1 safety and immunogenicity results from clinical trials of the vaccine candidate BNT162b2."
+  },
+  "paragraph": {
+    "id": "paragraph:manuscript:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0:grobid-0.9.1-body-prose-v1:1",
+    "manuscript_id": "manuscript:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0",
+    "order": 1,
+    "page": null,
+    "section": null,
+    "sentence_spans": [
+      {
+        "end": 310,
+        "start": 0
+      },
+      {
+        "end": 567,
+        "start": 311
+      },
+      {
+        "end": 828,
+        "start": 568
+      },
+      {
+        "end": 963,
+        "start": 829
+      },
+      {
+        "end": 1048,
+        "start": 964
+      }
+    ],
+    "text": "We previously reported phase 1 safety and immunogenicity results from clinical trials of the vaccine candidate BNT162b2, 4 a lipid nanoparticleformulated, 5 nucleoside-modified RNA (modRNA) 6 encoding the SARS-CoV-2 full-length spike, modified by two proline mutations to lock it in the prefusion conformation. 7 Findings from studies conducted in the United States and Germany among healthy men and women showed that two 30-μg doses of BNT162b2 elicited high SARS-CoV-2 neutralizing antibody titers and robust antigenspecific CD8+ and Th1-type CD4+ T-cell responses. 8 The 50% neutralizing geometric mean titers elicited by 30 μg of BNT162b2 in older and younger adults exceeded the geometric mean titer measured in a human convalescent serum panel, despite a lower neutralizing response in older adults than in younger adults. In addition, the reactogenicity profile of BNT162b2 represented mainly short-term local (i.e., injection site) and systemic responses. These findings supported progression of the BNT162b2 vaccine candidate into phase 3."
+  },
+  "context": {
+    "citation_callout_ids": [
+      "callout:manuscript:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0:grobid-0.9.1-body-prose-v1:3",
+      "callout:manuscript:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0:grobid-0.9.1-body-prose-v1:4",
+      "callout:manuscript:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0:grobid-0.9.1-body-prose-v1:5",
+      "callout:manuscript:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0:grobid-0.9.1-body-prose-v1:6"
+    ],
+    "focal_span": {
+      "end": 312,
+      "start": 0
+    },
+    "id": "context:710fc83661a1ea068effd195970e53d3a2710a73ec04e89eddfa2fc6c840e911",
+    "manuscript_id": "manuscript:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0",
+    "page": null,
+    "paragraph_id": "paragraph:manuscript:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0:grobid-0.9.1-body-prose-v1:1",
+    "scope_kind": "trailing_marker",
+    "span": {
+      "end": 567,
+      "start": 0
+    },
+    "text": "We previously reported phase 1 safety and immunogenicity results from clinical trials of the vaccine candidate BNT162b2, 4 a lipid nanoparticleformulated, 5 nucleoside-modified RNA (modRNA) 6 encoding the SARS-CoV-2 full-length spike, modified by two proline mutations to lock it in the prefusion conformation. 7 Findings from studies conducted in the United States and Germany among healthy men and women showed that two 30-μg doses of BNT162b2 elicited high SARS-CoV-2 neutralizing antibody titers and robust antigenspecific CD8+ and Th1-type CD4+ T-cell responses."
+  },
+  "reference": {
+    "authors": [
+      "E E Walsh",
+      "R W Frenck",
+      "Jr",
+      "A R Falsey"
+    ],
+    "doi": "10.1056/nejmoa2027906",
+    "id": "reference:manuscript:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0:grobid-0.9.1-body-prose-v1:3",
+    "journal": "N Engl J Med",
+    "manuscript_id": "manuscript:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0",
+    "raw_text": "Walsh EE, Frenck RW Jr, Falsey AR, et al. Safety and immunogenicity of two RNA- based Covid-19 vaccine candidates. N Engl J Med. DOI: 10.1056/NEJMoa2027906.",
+    "resolution": {
+      "candidates": [],
+      "diagnostics": [],
+      "match_confidence": null,
+      "match_reason": "ORIGINAL_DOI_PRESERVED",
+      "matched_title": null,
+      "original_doi": "10.1056/nejmoa2027906",
+      "provider": "original",
+      "reference_id": "reference:manuscript:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0:grobid-0.9.1-body-prose-v1:3",
+      "resolved_doi": "10.1056/nejmoa2027906",
+      "source_type": "doi",
+      "source_url": null,
+      "status": "resolved"
+    },
+    "title": "Safety and immunogenicity of two RNAbased Covid-19 vaccine candidates",
+    "year": null
+  },
+  "original_verification": {
+    "claim_id": "claim:afccee360b5f82b78f56e46644020d9702684f57e1f0b9866a852ea8cc5e12e6",
+    "confidence": 0.98,
+    "evidence_chunks": [
+      {
+        "id": "evidence:a1bd6abb2104fd22967c41393bbb13b3bbc01034babc234f7acb0c551edef6f6",
+        "metadata": {
+          "content_hash_kind": "raw_bytes",
+          "legacy_chunk_id": "10.1056/nejmoa2027906:Results:3",
+          "legacy_chunk_index": 3,
+          "legacy_metadata": {
+            "section_order": 0
+          },
+          "paperqa_context_id": "pqac-6be5acb3",
+          "paperqa_context_summary": "The excerpt reports a randomized phase 1 trial of two RNA-based COVID-19 vaccine candidates in 195 participants across 13 groups, with 12 participants receiving vaccine and 3 receiving placebo per group. BNT162b2 was associated with lower incidence and severity of systemic reactions than BNT162b1, particularly in older adults. In both younger and older adults, the two candidates elicited similar dose-dependent SARS-CoV-2-neutralizing geometric mean titers, which were similar to or higher than those of convalescent serum samples. These findings support the safety and immunogenicity of BNT162b2.",
+          "paperqa_docname": "source:43166d6ea578e90727d3252720da46b9bf0205a33597b0d1660e12be0fdb1da3",
+          "paperqa_score": 9,
+          "paperqa_text_name": "evidence:a1bd6abb2104fd22967c41393bbb13b3bbc01034babc234f7acb0c551edef6f6",
+          "paperqa_version": "2026.8.12",
+          "parsed_content_fingerprint": "f46adfe24cbfc1b7bb9229280d2bc2b1c62dfae47227bc14da82828b1a55acba",
+          "source_cache_hit": true,
+          "source_format": "html",
+          "source_identity_status": "confirmed",
+          "source_origin": "remote"
+        },
+        "page": null,
+        "retrieval_score": 9,
+        "section": "Results",
+        "source_document_id": "source:43166d6ea578e90727d3252720da46b9bf0205a33597b0d1660e12be0fdb1da3",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7583697/",
+        "text": "A total of 195 participants underwent randomization. In each of 13 groups of 15 participants, 12 participants received vaccine and 3 received placebo. BNT162b2 was associated with a lower incidence and severity of systemic reactions than BNT162b1, particularly in older adults. In both younger and older adults, the two vaccine candidates elicited similar dose-dependent SARS-CoV-2–neutralizing geometric mean titers, which were similar to or higher than the geometric mean titer of a panel of SARS-CoV-2 convalescent serum samples."
+      },
+      {
+        "id": "evidence:d4e40ebececf211a27e42c522d282248136184ca93c550ee0f5e3cfc14783ebc",
+        "metadata": {
+          "content_hash_kind": "raw_bytes",
+          "legacy_chunk_id": "10.1056/nejmoa2027906:Methods:2",
+          "legacy_chunk_index": 2,
+          "legacy_metadata": {
+            "section_order": 0
+          },
+          "paperqa_context_id": "pqac-9e854f1a",
+          "paperqa_context_summary": "The excerpt describes an ongoing placebo-controlled, observer-blinded, dose-escalation phase 1 trial in the United States in healthy adults 18–55 and 65–85 years of age. Participants were randomized to placebo or one of two lipid nanoparticle–formulated, nucleoside-modified RNA vaccine candidates: BNT162b1, encoding a secreted trimerized SARS-CoV-2 receptor–binding domain, or BNT162b2, encoding a membrane-anchored full-length spike stabilized in the prefusion conformation. The primary outcome was safety, including local and systemic reactions and adverse events; immunogenicity was secondary. Groups differed by vaccine candidate, age, and dose level (10, 20, 30, or 100 μg), with two doses 21 days apart except one 100-μg BNT162b1 group.",
+          "paperqa_docname": "source:43166d6ea578e90727d3252720da46b9bf0205a33597b0d1660e12be0fdb1da3",
+          "paperqa_score": 9,
+          "paperqa_text_name": "evidence:d4e40ebececf211a27e42c522d282248136184ca93c550ee0f5e3cfc14783ebc",
+          "paperqa_version": "2026.8.12",
+          "parsed_content_fingerprint": "f46adfe24cbfc1b7bb9229280d2bc2b1c62dfae47227bc14da82828b1a55acba",
+          "source_cache_hit": true,
+          "source_format": "html",
+          "source_identity_status": "confirmed",
+          "source_origin": "remote"
+        },
+        "page": null,
+        "retrieval_score": 9,
+        "section": "Methods",
+        "source_document_id": "source:43166d6ea578e90727d3252720da46b9bf0205a33597b0d1660e12be0fdb1da3",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7583697/",
+        "text": "In an ongoing, placebo-controlled, observer-blinded, dose-escalation, phase 1 trial conducted in the United States, we randomly assigned healthy adults 18 to 55 years of age and those 65 to 85 years of age to receive either placebo or one of two lipid nanoparticle–formulated, nucleoside-modified RNA vaccine candidates: BNT162b1, which encodes a secreted trimerized SARS-CoV-2 receptor–binding domain; or BNT162b2, which encodes a membrane-anchored SARS-CoV-2 full-length spike, stabilized in the prefusion conformation. The primary outcome was safety (e.g., local and systemic reactions and adverse events); immunogenicity was a secondary outcome. Trial groups were defined according to vaccine candidate, age of the participants, and vaccine dose level (10 μg, 20 μg, 30 μg, and 100 μg). In all groups but one, participants received two doses, with a 21-day interval between doses; in one group (100 μg of BNT162b1), participants received one dose."
+      },
+      {
+        "id": "evidence:00d7e77fe824135ac984d228dc1ff6437494bf2c0fa12309ff7bf0f7916f5f8d",
+        "metadata": {
+          "content_hash_kind": "raw_bytes",
+          "legacy_chunk_id": "10.1056/nejmoa2027906:Discussion:34",
+          "legacy_chunk_index": 34,
+          "legacy_metadata": {
+            "section_order": 0
+          },
+          "paperqa_context_id": "pqac-398df463",
+          "paperqa_context_summary": "The excerpt states that previously reported data from vaccination with 10 μg or 30 μg of BNT162b1 in adults 18 to 55 years suggested it was a promising Covid-19 vaccine candidate. It does not say that phase 1 safety and immunogenicity results were previously reported for BNT162b2. Instead, the authors compared clinical data after BNT162b1, which encodes the RBD, with data after BNT162b2, which encodes the full-length spike. These data guided the decision to advance BNT162b2 at the 30-μg dose level to a phase 2–3 international trial.",
+          "paperqa_docname": "source:43166d6ea578e90727d3252720da46b9bf0205a33597b0d1660e12be0fdb1da3",
+          "paperqa_score": 8,
+          "paperqa_text_name": "evidence:00d7e77fe824135ac984d228dc1ff6437494bf2c0fa12309ff7bf0f7916f5f8d",
+          "paperqa_version": "2026.8.12",
+          "parsed_content_fingerprint": "f46adfe24cbfc1b7bb9229280d2bc2b1c62dfae47227bc14da82828b1a55acba",
+          "source_cache_hit": true,
+          "source_format": "html",
+          "source_identity_status": "confirmed",
+          "source_origin": "remote"
+        },
+        "page": null,
+        "retrieval_score": 8,
+        "section": "Discussion",
+        "source_document_id": "source:43166d6ea578e90727d3252720da46b9bf0205a33597b0d1660e12be0fdb1da3",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7583697/",
+        "text": "Previously reported data from vaccination with 10 μg or 30 μg of BNT162b1 in adults 18 to 55 years of age suggested that it could be a promising Covid-19 vaccine candidate.\n2\n5\nConsistent with our strategy to evaluate several RNA vaccine candidates and make a data-driven decision to advance the candidate with the best safety and immunogenicity profile, we compared clinical data obtained after vaccination with BNT162b1,\n2\n5\nwhich encodes the RBD, with data obtained after vaccination with BNT162b2, which encodes the full-length spike. The data presented here include those that guided our decision to advance BNT162b2 at the 30-μg dose level to the phase 2–3, international trial to evaluate its safety and efficacy in participants 18 to 85 years of age."
+      },
+      {
+        "id": "evidence:f35b16e3e253dbd10b88bb1faeee407357dfd0b52db8e7de21906332c8c2b440",
+        "metadata": {
+          "content_hash_kind": "raw_bytes",
+          "legacy_chunk_id": "10.1056/nejmoa2027906:Conclusions:4",
+          "legacy_chunk_index": 4,
+          "legacy_metadata": {
+            "section_order": 0
+          },
+          "paperqa_context_id": "pqac-ae45919a",
+          "paperqa_context_summary": "The excerpt states that safety and immunogenicity data from a U.S. phase 1 trial of two Covid-19 vaccine candidates in younger and older adults were added to earlier interim safety and immunogenicity data regarding BNT162b1 in younger adults from trials in Germany and the United States. These data supported selecting BNT162b2 for advancement to a pivotal phase 2–3 safety and efficacy evaluation. The excerpt specifically refers to earlier phase 1 data for BNT162b1, not BNT162b2, which is relevant to evaluating the claim that the authors previously reported phase 1 results for BNT162b2.",
+          "paperqa_docname": "source:43166d6ea578e90727d3252720da46b9bf0205a33597b0d1660e12be0fdb1da3",
+          "paperqa_score": 8,
+          "paperqa_text_name": "evidence:f35b16e3e253dbd10b88bb1faeee407357dfd0b52db8e7de21906332c8c2b440",
+          "paperqa_version": "2026.8.12",
+          "parsed_content_fingerprint": "f46adfe24cbfc1b7bb9229280d2bc2b1c62dfae47227bc14da82828b1a55acba",
+          "source_cache_hit": true,
+          "source_format": "html",
+          "source_identity_status": "confirmed",
+          "source_origin": "remote"
+        },
+        "page": null,
+        "retrieval_score": 8,
+        "section": "Conclusions",
+        "source_document_id": "source:43166d6ea578e90727d3252720da46b9bf0205a33597b0d1660e12be0fdb1da3",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7583697/",
+        "text": "The safety and immunogenicity data from this U.S. phase 1 trial of two vaccine candidates in younger and older adults, added to earlier interim safety and immunogenicity data regarding BNT162b1 in younger adults from trials in Germany and the United States, support the selection of BNT162b2 for advancement to a pivotal phase 2–3 safety and efficacy evaluation. (Funded by BioNTech and Pfizer; ClinicalTrials.gov number,\nNCT04368728\n.)\n\nSince the first cases of coronavirus disease 2019 (Covid-19) in Wuhan, China, in December 2019, pandemic illness has spread to millions of persons worldwide. An increased risk of severe disease and death has been noted among the elderly and among persons with preexisting medical conditions. No Covid-19 vaccines are currently available, and they are urgently needed to combat escalating cases and deaths worldwide.\n1"
+      },
+      {
+        "id": "evidence:66348886de70e659bd0e87105800ad7a367e478947e33fe4879eeee4aecfa6ba",
+        "metadata": {
+          "content_hash_kind": "raw_bytes",
+          "legacy_chunk_id": "10.1056/nejmoa2027906:Background:1",
+          "legacy_chunk_index": 1,
+          "legacy_metadata": {
+            "section_order": 0
+          },
+          "paperqa_context_id": "pqac-5c8369ac",
+          "paperqa_context_summary": "The excerpt states that interim safety and immunogenicity data for the vaccine candidate BNT162b1 in younger adults had been reported previously from trials in Germany and the United States. It does not state that phase 1 safety and immunogenicity results were previously reported for BNT162b2. Thus, the excerpt is relevant because it identifies BNT162b1, not BNT162b2, as the candidate with previously reported interim data. The title refers more broadly to two RNA-based Covid-19 vaccine candidates, but the specific prior-reporting statement in the excerpt concerns BNT162b1.",
+          "paperqa_docname": "source:43166d6ea578e90727d3252720da46b9bf0205a33597b0d1660e12be0fdb1da3",
+          "paperqa_score": 7,
+          "paperqa_text_name": "evidence:66348886de70e659bd0e87105800ad7a367e478947e33fe4879eeee4aecfa6ba",
+          "paperqa_version": "2026.8.12",
+          "parsed_content_fingerprint": "f46adfe24cbfc1b7bb9229280d2bc2b1c62dfae47227bc14da82828b1a55acba",
+          "source_cache_hit": true,
+          "source_format": "html",
+          "source_identity_status": "confirmed",
+          "source_origin": "remote"
+        },
+        "page": null,
+        "retrieval_score": 7,
+        "section": "Background",
+        "source_document_id": "source:43166d6ea578e90727d3252720da46b9bf0205a33597b0d1660e12be0fdb1da3",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7583697/",
+        "text": "Severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2) infections and the resulting disease, coronavirus disease 2019 (Covid-19), have spread to millions of persons worldwide. Multiple vaccine candidates are under development, but no vaccine is currently available. Interim safety and immunogenicity data about the vaccine candidate BNT162b1 in younger adults have been reported previously from trials in Germany and the United States."
+      }
+    ],
+    "explanation": "The Background explicitly says prior interim safety and immunogenicity data concerned BNT162b1, not BNT162b2. The Discussion likewise says previously reported data came from BNT162b1 vaccination. The Conclusions describe the current trial's BNT162b2 data as added to earlier BNT162b1 data. No supplied evidence states that the authors had previously reported phase 1 safety and immunogenicity results for BNT162b2 itself.",
+    "processing_status": "completed",
+    "traceability": {
+      "evidence_ids": [
+        "evidence:a1bd6abb2104fd22967c41393bbb13b3bbc01034babc234f7acb0c551edef6f6",
+        "evidence:d4e40ebececf211a27e42c522d282248136184ca93c550ee0f5e3cfc14783ebc",
+        "evidence:00d7e77fe824135ac984d228dc1ff6437494bf2c0fa12309ff7bf0f7916f5f8d",
+        "evidence:f35b16e3e253dbd10b88bb1faeee407357dfd0b52db8e7de21906332c8c2b440",
+        "evidence:66348886de70e659bd0e87105800ad7a367e478947e33fe4879eeee4aecfa6ba"
+      ],
+      "metadata": {
+        "legacy_provenance": {
+          "adjudicator": {
+            "agent": "adjudicator",
+            "analysis": "The claim attributes previously reported phase 1 safety and immunogenicity results to BNT162b2. The supplied evidence instead identifies BNT162b1 as the vaccine candidate for which interim safety and immunogenicity data were previously reported from trials in Germany and the United States. The current paper reports a U.S. phase 1 trial involving both BNT162b1 and BNT162b2, and its conclusions state that the present data are added to earlier interim data regarding BNT162b1. Therefore, the claim misattributes prior reporting from BNT162b1 to BNT162b2 and is contradicted by the evidence.",
+            "confidence": 0.98,
+            "contradicting_evidence": [
+              "evidence:66348886de70e659bd0e87105800ad7a367e478947e33fe4879eeee4aecfa6ba",
+              "evidence:00d7e77fe824135ac984d228dc1ff6437494bf2c0fa12309ff7bf0f7916f5f8d",
+              "evidence:f35b16e3e253dbd10b88bb1faeee407357dfd0b52db8e7de21906332c8c2b440"
+            ],
+            "reasoning": "The Background explicitly says prior interim safety and immunogenicity data concerned BNT162b1, not BNT162b2. The Discussion likewise says previously reported data came from BNT162b1 vaccination. The Conclusions describe the current trial's BNT162b2 data as added to earlier BNT162b1 data. No supplied evidence states that the authors had previously reported phase 1 safety and immunogenicity results for BNT162b2 itself.",
+            "suggested_correction": "Replace BNT162b2 with BNT162b1 for the previously reported phase 1 safety and immunogenicity results, or clarify that the current paper reports phase 1 data for BNT162b2 while earlier reports concerned BNT162b1.",
+            "supporting_evidence": [],
+            "verdict": "CONTRADICTS"
+          },
+          "agent_agreement": true,
+          "claim_traceability": {
+            "overall_coverage": 0.8004,
+            "segments": [
+              {
+                "coverage_score": 0.7903,
+                "evidence_ids": [
+                  "evidence:00d7e77fe824135ac984d228dc1ff6437494bf2c0fa12309ff7bf0f7916f5f8d",
+                  "evidence:66348886de70e659bd0e87105800ad7a367e478947e33fe4879eeee4aecfa6ba",
+                  "evidence:f35b16e3e253dbd10b88bb1faeee407357dfd0b52db8e7de21906332c8c2b440",
+                  "evidence:d4e40ebececf211a27e42c522d282248136184ca93c550ee0f5e3cfc14783ebc",
+                  "evidence:a1bd6abb2104fd22967c41393bbb13b3bbc01034babc234f7acb0c551edef6f6"
+                ],
+                "id": "segment_1",
+                "status": "CONTRADICTED",
+                "text": "The authors previously reported phase 1 safety"
+              },
+              {
+                "coverage_score": 0.8105,
+                "evidence_ids": [
+                  "evidence:00d7e77fe824135ac984d228dc1ff6437494bf2c0fa12309ff7bf0f7916f5f8d",
+                  "evidence:d4e40ebececf211a27e42c522d282248136184ca93c550ee0f5e3cfc14783ebc",
+                  "evidence:66348886de70e659bd0e87105800ad7a367e478947e33fe4879eeee4aecfa6ba",
+                  "evidence:f35b16e3e253dbd10b88bb1faeee407357dfd0b52db8e7de21906332c8c2b440",
+                  "evidence:a1bd6abb2104fd22967c41393bbb13b3bbc01034babc234f7acb0c551edef6f6"
+                ],
+                "id": "segment_2",
+                "status": "CONTRADICTED",
+                "text": "immunogenicity results from clinical trials of the vaccine candidate BNT162b2."
+              }
+            ],
+            "warnings": [
+              "A claim segment is linked to contradicting evidence."
+            ]
+          },
+          "defender": {
+            "agent": "defender",
+            "analysis": "The claim states that the authors previously reported phase 1 safety and immunogenicity results for BNT162b2. The supplied evidence does not support that specific attribution. The paper's background, discussion, and conclusions repeatedly state that previously reported interim safety and immunogenicity data concerned BNT162b1, not BNT162b2, from trials in Germany and the United States. The current paper reports a U.S. phase 1 trial that included BNT162b2, but the evidence distinguishes this from the earlier reports and identifies BNT162b1 as the candidate previously reported. Thus, while BNT162b2 phase 1 safety and immunogenicity data are presented in this paper, the claim that the authors previously reported such results for BNT162b2 is contradicted by the cited text.",
+            "confidence": 0.97,
+            "contradicting_evidence": [
+              "evidence:66348886de70e659bd0e87105800ad7a367e478947e33fe4879eeee4aecfa6ba",
+              "evidence:00d7e77fe824135ac984d228dc1ff6437494bf2c0fa12309ff7bf0f7916f5f8d",
+              "evidence:f35b16e3e253dbd10b88bb1faeee407357dfd0b52db8e7de21906332c8c2b440"
+            ],
+            "key_points": [
+              "The Background states that interim safety and immunogenicity data about BNT162b1 in younger adults were reported previously from trials in Germany and the United States.",
+              "The Discussion states that previously reported data from vaccination with BNT162b1 suggested it could be a promising Covid-19 vaccine candidate.",
+              "The Conclusions refer to earlier interim safety and immunogenicity data regarding BNT162b1, not BNT162b2.",
+              "The current paper reports a phase 1 trial including BNT162b2, but the evidence attributes the prior reports to BNT162b1."
+            ],
+            "stance": "contradicted",
+            "supporting_evidence": []
+          },
+          "detail": null,
+          "prosecutor": {
+            "agent": "prosecutor",
+            "analysis": "The claim appears to conflate BNT162b2 with BNT162b1. The supplied evidence repeatedly states that the previously reported interim safety and immunogenicity data concerned BNT162b1, not BNT162b2. The current trial reports phase 1 data for both BNT162b1 and BNT162b2, and the Conclusion says the current BNT162b2 data are added to earlier BNT162b1 data. No supplied chunk states that the authors had previously reported phase 1 safety and immunogenicity results for BNT162b2 itself.",
+            "confidence": 0.96,
+            "contradicting_evidence": [
+              "evidence:00d7e77fe824135ac984d228dc1ff6437494bf2c0fa12309ff7bf0f7916f5f8d",
+              "evidence:66348886de70e659bd0e87105800ad7a367e478947e33fe4879eeee4aecfa6ba",
+              "evidence:f35b16e3e253dbd10b88bb1faeee407357dfd0b52db8e7de21906332c8c2b440"
+            ],
+            "key_points": [
+              "The Background states that interim safety and immunogenicity data about BNT162b1 in younger adults were previously reported from trials in Germany and the United States.",
+              "The Discussion says previously reported data came from vaccination with 10 μg or 30 μg of BNT162b1, not BNT162b2.",
+              "The Conclusions describe the present trial as reporting safety and immunogenicity data for two vaccine candidates and refer to earlier interim data regarding BNT162b1.",
+              "The claim therefore misattributes prior reporting from BNT162b1 to BNT162b2."
+            ],
+            "stance": "challenge",
+            "supporting_evidence": []
+          },
+          "source_recovery": null,
+          "status": "success",
+          "suggested_correction": "Replace BNT162b2 with BNT162b1 for the previously reported phase 1 safety and immunogenicity results, or clarify that the current paper reports phase 1 data for BNT162b2 while earlier reports concerned BNT162b1.",
+          "validation_warnings": null,
+          "verdict": "CONTRADICTS"
+        }
+      },
+      "method": "paperqa2+prepared_verifier",
+      "warnings": []
+    },
+    "verdict": "CONTRADICTED"
+  },
+  "manuscript": {
+    "content_hash": "sha256:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0",
+    "content_locator": "submitted:client-structure",
+    "id": "manuscript:572d9b287e295ed61965ae8c3322d5692a4ba3eed8c0171c1de7d98fb81cc8c0",
+    "title": "Safety and Efficacy of the BNT162b2 mRNA Covid-19 Vaccine"
+  }
+}

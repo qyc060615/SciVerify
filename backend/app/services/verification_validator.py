@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import re
 from dataclasses import dataclass
 
 from app.schemas.evidence import EvidenceItem
@@ -82,7 +83,11 @@ def validate_verification_result(
     defender = sanitize_defender_analysis(defender, valid_ids)
     adjudicator = sanitize_adjudicator_analysis(adjudicator, valid_ids)
 
-    strength = _compute_evidence_strength(evidence)
+    # Calibrate against evidence the adjudicator actually used for this verdict.
+    cited = (adjudicator.supporting_evidence if adjudicator.verdict == Verdict.SUPPORTS
+             else adjudicator.contradicting_evidence if adjudicator.verdict in {Verdict.CONTRADICTS, Verdict.FABRICATED}
+             else adjudicator.supporting_evidence + adjudicator.contradicting_evidence)
+    strength = _compute_evidence_strength([item for item in evidence if item.chunk_id in cited])
     agent_agreement = _agents_agree(prosecutor, defender)
 
     verdict, verdict_warnings = _validate_verdict(
@@ -90,6 +95,7 @@ def validate_verification_result(
         prosecutor,
         defender,
         strength,
+        evidence,
     )
     warnings.extend(verdict_warnings)
 
@@ -153,7 +159,6 @@ def _compute_evidence_strength(evidence: list[EvidenceItem]) -> EvidenceStrength
         1
         for item in evidence
         if item.relevance_score >= STRONG_RELEVANCE_THRESHOLD
-        and item.claim_overlap >= STRONG_OVERLAP_THRESHOLD
     )
     weak_only = all(
         item.relevance_score < WEAK_RELEVANCE_THRESHOLD
@@ -247,16 +252,20 @@ def _invalid_reference_warnings(
     return []
 
 
-def _has_contradicting_references(
-    adjudicator: AdjudicatorAnalysis,
-    prosecutor: ProsecutorAnalysis,
-    defender: DefenderAnalysis,
+def _has_grounded_counterevidence(
+    adjudicator: AdjudicatorAnalysis, evidence: list[EvidenceItem],
 ) -> bool:
-    return bool(
-        adjudicator.contradicting_evidence
-        or prosecutor.contradicting_evidence
-        or defender.contradicting_evidence
-    )
+    """Check attribution of a quoted basis, not the scientific truth of a quote.
+
+    Relation/time-frame reasoning remains the agents' responsibility. Merely
+    labelling a valid ID as contradicting is no longer sufficient.
+    """
+    normalize = lambda text: " ".join(text.split())
+    quotes = re.findall(r'"([^"\n]+)"|“([^”\n]+)”', adjudicator.reasoning)
+    cited = [normalize(item.text) for item in evidence
+             if item.chunk_id in adjudicator.contradicting_evidence]
+    return any(len(normalize(quote)) >= 12 and normalize(quote) in text
+               for pair in quotes for quote in pair if quote for text in cited)
 
 
 def _validate_verdict(
@@ -264,6 +273,7 @@ def _validate_verdict(
     prosecutor: ProsecutorAnalysis,
     defender: DefenderAnalysis,
     strength: EvidenceStrength,
+    evidence: list[EvidenceItem],
 ) -> tuple[Verdict, list[str]]:
     verdict = adjudicator.verdict
     warnings: list[str] = []
@@ -271,37 +281,21 @@ def _validate_verdict(
     if verdict == Verdict.SUPPORTS:
         if not adjudicator.supporting_evidence:
             warnings.append("Adjudicator returned SUPPORTS without supporting evidence IDs.")
-        if strength.weak_only or strength.strong_count == 0:
+        if not adjudicator.supporting_evidence or strength.weak_only or strength.strong_count == 0:
             verdict = Verdict.INSUFFICIENT
             warnings.append(
                 "Verdict adjusted from SUPPORTS to INSUFFICIENT because evidence quality is too weak."
             )
 
-    elif verdict == Verdict.CONTRADICTS:
-        if not _has_contradicting_references(adjudicator, prosecutor, defender):
-            warnings.append("Adjudicator returned CONTRADICTS without contradicting evidence.")
-            if strength.strong_count > 0 and not strength.weak_only:
-                verdict = Verdict.OVERSTATED
-                warnings.append(
-                    "Verdict adjusted from CONTRADICTS to OVERSTATED because evidence appears supportive."
-                )
-            elif strength.weak_only:
-                verdict = Verdict.INSUFFICIENT
-                warnings.append(
-                    "Verdict adjusted from CONTRADICTS to INSUFFICIENT because evidence is too weak."
-                )
-
-    elif verdict == Verdict.FABRICATED:
-        if strength.strong_count > 0 or (strength.count > 0 and not strength.weak_only):
-            verdict = Verdict.INSUFFICIENT
+    elif verdict in {Verdict.CONTRADICTS, Verdict.FABRICATED}:
+        if (not _has_grounded_counterevidence(adjudicator, evidence)
+                or strength.weak_only or strength.strong_count == 0):
             warnings.append(
-                "Verdict adjusted from FABRICATED to INSUFFICIENT because retrieved evidence relates to the claim."
+                f"Verdict adjusted from {verdict.value} to INSUFFICIENT: "
+                "negative judgment requires relevant adjudicator-cited counterevidence "
+                "and a verbatim source excerpt in reasoning; agent stance/IDs alone are insufficient."
             )
-        elif strength.count == 0:
             verdict = Verdict.INSUFFICIENT
-            warnings.append(
-                "Verdict adjusted from FABRICATED to INSUFFICIENT because no usable evidence was retrieved."
-            )
 
     elif verdict == Verdict.INSUFFICIENT:
         if strength.strong_count >= 2 and adjudicator.supporting_evidence:
@@ -375,7 +369,8 @@ def _calibrate_confidence(
         confidence *= max(0.7, 0.95 ** len(warnings))
 
     if verdict_changed:
-        confidence *= 0.85
+        # A withdrawn categorical judgment does not establish a confident new one.
+        confidence = min(confidence * 0.85, 0.5)
 
     return max(0.0, min(1.0, confidence))
 

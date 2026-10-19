@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from app.services.agents.scientific_policy import SCIENTIFIC_VERDICT_POLICY
 from app.schemas.evidence import EvidenceItem
 from app.schemas.verification import DefenderAnalysis
 from app.services.evidence_validation import (
@@ -13,7 +14,7 @@ Your job is to build the strongest evidence-based case that the claim is support
 Use ONLY the supplied evidence chunks.
 Do not invent papers, quotes, numbers, citations, or experimental results.
 Reference evidence only by chunk_id from the supplied list.
-Return JSON matching the requested schema exactly."""
+Return JSON matching the requested schema exactly.""" + "\n\n" + SCIENTIFIC_VERDICT_POLICY
 
 
 def run_defender(
@@ -27,7 +28,7 @@ def run_defender(
         evidence=evidence,
         instructions=(
             "Build the strongest evidence-based case that the claim is supported. Focus on direct "
-            "supporting statements, matching numerical values, relevant Results/Methods evidence, "
+            "supporting meaning, reasonable numerical rounding, relevant Results/Methods evidence, "
             "experimental findings, and appropriate context."
         ),
     )

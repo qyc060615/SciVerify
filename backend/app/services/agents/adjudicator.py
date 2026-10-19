@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from app.services.agents.scientific_policy import SCIENTIFIC_VERDICT_POLICY
 from app.schemas.evidence import EvidenceItem
 from app.schemas.verification import (
     AdjudicatorAnalysis,
@@ -20,7 +21,7 @@ Do not invent papers, quotes, numbers, citations, or experimental results.
 Reference evidence only by chunk_id from the supplied list.
 Choose exactly one verdict from: SUPPORTS, OVERSTATED, CONTRADICTS, INSUFFICIENT, FABRICATED.
 Do not use FABRICATED simply because evidence retrieval failed.
-Return JSON matching the requested schema exactly."""
+Return JSON matching the requested schema exactly.""" + "\n\n" + SCIENTIFIC_VERDICT_POLICY
 
 
 def run_adjudicator(

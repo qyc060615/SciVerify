@@ -56,7 +56,7 @@ def analyze_verification(
     return _verify_evidence(processed_claim.original, evidence_response, llm=llm)
 
 
-def _verify_evidence(claim: str, evidence_response: EvidenceRetrievalResponse, *, llm: LLMProvider | None = None) -> VerificationResponse:
+def _verify_evidence(claim: str, evidence_response: EvidenceRetrievalResponse, *, llm: LLMProvider | None = None, verification_context: str | None = None) -> VerificationResponse:
     processed_claim = preprocess_claim(claim)
     paper = evidence_response.paper
 
@@ -106,14 +106,17 @@ def _verify_evidence(claim: str, evidence_response: EvidenceRetrievalResponse, *
 
     logger.info("evidence_retrieved chunks=%s", len(evidence_response.evidence))
 
+    agent_claim = processed_claim.original
+    if verification_context:
+        agent_claim += "\n\nManuscript context (for attribution/time reference only; not source evidence):\n" + verification_context
     provider = llm or get_llm_provider()
     try:
-        prosecutor = run_prosecutor(processed_claim.original, evidence_response.evidence, provider)
+        prosecutor = run_prosecutor(agent_claim, evidence_response.evidence, provider)
         logger.info("prosecutor_completed")
-        defender = run_defender(processed_claim.original, evidence_response.evidence, provider)
+        defender = run_defender(agent_claim, evidence_response.evidence, provider)
         logger.info("defender_completed")
         adjudicator = run_adjudicator(
-            processed_claim.original,
+            agent_claim,
             evidence_response.evidence,
             prosecutor,
             defender,
@@ -163,13 +166,19 @@ def _verify_evidence(claim: str, evidence_response: EvidenceRetrievalResponse, *
         adjudicator.verdict.value,
         validated.verdict.value,
     )
+    summary, reasoning = adjudicator.analysis, adjudicator.reasoning
+    if validated.verdict != adjudicator.verdict:
+        summary = f"Evidence validation changed {adjudicator.verdict.value} to {validated.verdict.value}."
+        reasoning = " ".join(validated.validation_warnings) + (
+            "\nOriginal adjudicator reasoning (not accepted as the final judgment): " + adjudicator.reasoning
+        )
     return VerificationResponse(
         status=VerificationStatus.SUCCESS,
         claim=processed_claim.original,
         verdict=validated.verdict,
         confidence=validated.confidence,
-        summary=adjudicator.analysis,
-        reasoning=adjudicator.reasoning,
+        summary=summary,
+        reasoning=reasoning,
         paper=paper,
         evidence=evidence_response.evidence,
         prosecutor=prosecutor,
@@ -196,6 +205,7 @@ async def analyze_verification_async(
 
 async def verify_prepared_evidence(
     claim: str, evidence_response: EvidenceRetrievalResponse, *, llm: LLMProvider | None = None,
+    verification_context: str | None = None,
 ) -> VerificationResponse:
     """Verify accepted, already selected evidence without performing retrieval.
 
@@ -213,7 +223,8 @@ async def verify_prepared_evidence(
         raise ValueError("Prepared evidence requires a successful source query")
     if bool(evidence_response.evidence) != (evidence_response.status == EvidenceRetrievalStatus.SUCCESS):
         raise ValueError("Prepared evidence status disagrees with selected chunks")
-    return await to_thread.run_sync(partial(_verify_evidence, claim, evidence_response, llm=llm))
+    return await to_thread.run_sync(partial(_verify_evidence, claim, evidence_response, llm=llm,
+                                                  verification_context=verification_context))
 
 
 __all__ = [
