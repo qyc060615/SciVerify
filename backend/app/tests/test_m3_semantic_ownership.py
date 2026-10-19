@@ -32,7 +32,10 @@ def real_replay(overlay=False):
 def test_real_recorded_outputs_remain_seventeen_pairs_not_claimed_as_prompt_improvement():
     parsed, result = real_replay()
     saved = ClaimExtractionResult.model_validate_json((LIVE / "extraction-response.json").read_text(encoding="utf-8"))
-    assert result.claims == saved.claims
+    # Policy version is part of newly extracted claim IDs; historical IDs are
+    # not rewritten. Compare all semantic/provenance fields independently.
+    assert [c.model_dump(exclude={"id"}) for c in result.claims] == [c.model_dump(exclude={"id"}) for c in saved.claims]
+    assert result.metadata.attribution_policy_version != saved.metadata.attribution_policy_version
     plan, blocked = plan_manuscript_pairs(parsed, result)
     assert len(plan) == 17 and len(blocked) == 1
     assert result.metadata.prompt_version == PROMPT_VERSION
@@ -86,17 +89,23 @@ def test_abstract_source_roles_route_intents_without_semantic_validator(text, pr
 
 
 @pytest.mark.parametrize("marker", ["[3][4]", "[3,4]"])
-def test_heterogeneous_group_subset_cannot_bypass_integrity(marker):
+def test_heterogeneous_group_subset_needs_an_addressable_occurrence(marker):
     text = "We used observations from the original report and an analysis method " + marker + "."
     proposal = candidate("Observations came from the original report.", text, "cited", ["3"])
     result = run(manuscript(text), provider=FakeProvider(lambda _: {"claims":[proposal]}))
-    assert result.claims[0].attribution_status == "ambiguous"
-    assert not result.claims[0].reference_ids
+    if marker == "[3][4]":
+        assert result.claims[0].attribution_status == "resolved"
+        assert result.claims[0].reference_ids == ("r3",)
+    else:
+        # This fixture has one occurrence with an opaque two-target set, not
+        # the real paper's separately addressable parser fragments.
+        assert result.claims[0].attribution_status == "ambiguous"
+        assert not result.claims[0].reference_ids
 
 
 def test_prompt_distinguishes_group_identity_semantics_and_preserves_existing_contract():
     for phrase in ["independent verification pair with EACH", "collective support", "dataset contents",
-                   "current-study figure", "Never select a subset", "Do not invent a one-to-one mapping",
+                   "current-study figure", "A group subset is legitimate", "Do not invent a one-to-one mapping",
                    "Do not invent a generic method claim", "Ordinary single citations"]:
         assert phrase in SYSTEM_PROMPT
-    assert PROMPT_VERSION == "focal-atomic-semantic-ownership-v6"
+    assert PROMPT_VERSION == "focal-atomic-semantic-ownership-v7"

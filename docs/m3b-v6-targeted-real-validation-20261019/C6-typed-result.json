@@ -1,0 +1,42 @@
+{
+  "case": "C6",
+  "context_id": "context:fb486bac7ee255cc5579c142ef540aa78c9d84b025f84012e6907b397a79731f",
+  "focal_text": "2B & C) represent the mean times, up to day 28, that patients spent in hospital receiving attentive care [7][8][9][10].",
+  "historical_typed_proposal": {
+    "claims": [
+      {
+        "text": "The mean times, up to day 28, that patients spent in hospital receiving attentive care are shown in panels 2B and C.",
+        "evidence_quote": "2B & C) represent the mean times, up to day 28, that patients spent in hospital receiving attentive care [7][8][9][10].",
+        "attribution_intent": "cited",
+        "citation_labels": [
+          "7",
+          "8",
+          "9",
+          "10"
+        ]
+      }
+    ]
+  },
+  "typed_proposal": {
+    "claims": [
+      {
+        "text": "The mean times up to day 28 that patients spent in hospital receiving attentive care are represented in Figures 2B and C.",
+        "evidence_quote": "2B & C) represent the mean times, up to day 28, that patients spent in hospital receiving attentive care",
+        "attribution_intent": "none",
+        "citation_labels": []
+      }
+    ]
+  },
+  "safe_error": null,
+  "deterministic_routing": [
+    {
+      "text": "The mean times up to day 28 that patients spent in hospital receiving attentive care are represented in Figures 2B and C.",
+      "intent": "none",
+      "labels": [],
+      "exact_focal_grounding": true,
+      "excluded_as_manuscript_owned": true,
+      "references": []
+    }
+  ],
+  "elapsed_seconds": 19.25
+}

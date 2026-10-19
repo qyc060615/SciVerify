@@ -12,7 +12,7 @@ from app.services.llm.provider import (
     OpenAICompatibleLLMProvider,
 )
 
-PROMPT_VERSION = "focal-atomic-semantic-ownership-v6"
+PROMPT_VERSION = "focal-atomic-semantic-ownership-v7"
 SYSTEM_PROMPT = """You receive a located, reliable citation sentence (focal_text).
 Identify 0..N atomic factual propositions and determine whether the manuscript author
 actually attributes each proposition to the external citations in the focal sentence.
@@ -39,8 +39,10 @@ Resolve semantic ownership for EACH atomic proposition, not for the sentence as 
 whole. A typographic citation group identifies labels printed together; it does
 not assert that every source independently supports every fact in the sentence.
 Selecting multiple labels creates an independent verification pair with EACH
-selected reference for the ENTIRE proposition. Select a full group as cited only
-when the author attributes that same proposition to each source independently.
+selected reference for the ENTIRE proposition. Select only the local labels to
+which the author attributes that proposition. A claim may select a subset of a
+typographic group; select the full group only when each source independently
+carries that proposition.
 Ordinary single citations and groups of independent reports about the same fact
 remain cited. Do not broadly abstain merely because there are multiple labels.
 
@@ -48,8 +50,9 @@ A sentence can combine an external dataset or original report with an algorithm
 or analysis-method citation. Do not transfer dataset contents, original figure
 locations or numerical findings to a method source. If the group mixes roles and
 the focal wording cannot reliably establish per-reference ownership, use uncertain
-with no labels for that proposition. Never select a subset of an adjacent group
-to bypass group integrity, and never select the whole group merely to satisfy it.
+with no labels for that proposition. A group subset is legitimate when it matches
+the proposition's semantic ownership; do not include labels merely because they
+are adjacent.
 Do not guess source roles from citation order, distance or a plausible title.
 
 Distinguish a current-study figure, table, computation or result from an externally
@@ -127,9 +130,10 @@ Evidence establishes provenance; it need not be token-identical to normalized cl
 Use visible citation labels from the paper, only labels present in focal context
 callouts, respecting clause-local ownership. Do not invent labels or select neighbor
 citations. Example: a focal callout with text '[8]' and labels ['8'] is selected as
-"citation_labels": ["8"]. For grouped '[4,8]', use ["4", "8"]. Never use synthetic
+"citation_labels": ["8"]. For grouped '[4,8]', select ["4"], ["8"] or both according
+to the proposition's semantic ownership. Never use synthetic
 c1/c2 aliases, internal callout IDs or reference IDs. Use the provided labels exactly.
-Select a complete adjacent citation group when appropriate; never assign every focal
+Select the proposition's actual local labels, including a group subset; never assign every focal
 citation to every claim. For unclear ownership, use attribution_intent="uncertain" and
 an empty citation_labels list; the system will preserve ambiguous attribution.
 For clearly manuscript-own propositions, use attribution_intent="none" and an empty

@@ -50,12 +50,13 @@ def test_wrong_but_local_encoding_selection_is_not_silently_corrected():
 
 
 @pytest.mark.parametrize("marker", ["[4,8]", "[4][8]"])
-@pytest.mark.parametrize("labels,resolved", [(("4", "8"), True), (("4",), False), (("8",), False)])
-def test_group_completeness_inside_multi_group_envelope(marker, labels, resolved):
+@pytest.mark.parametrize("labels", [("4", "8"), ("4",), ("8",)])
+def test_addressable_group_subsets_inside_multi_group_envelope(marker, labels):
     parsed = manuscript(f"Earlier safety results {marker} informed formulation [5].")
     claim = check(parsed, "Earlier safety results", labels)
+    resolved = marker == "[4][8]" or len(labels) == 2
     assert claim.attribution_status == ("resolved" if resolved else "ambiguous")
-    assert claim.reference_ids == (("r4", "r8") if resolved else ())
+    assert claim.reference_ids == (tuple("r"+label for label in labels) if resolved else ())
     if not resolved:
         assert not claim.citation_callout_ids
 

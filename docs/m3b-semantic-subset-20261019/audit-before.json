@@ -1,0 +1,26 @@
+{
+  "head": "071f22cb9bc967e5055ef05e72868031fee2d414",
+  "initial_tracked_diff": "empty",
+  "production_files_planned": [
+    "backend/app/services/claim_attribution.py",
+    "backend/app/researchguard/adapters/claim_llm.py"
+  ],
+  "group_veto": "incomplete_group rejects partial selection across adjacent callout occurrences. Another guard prevents partially selecting labels within a multi-label occurrence with opaque target set.",
+  "prompt_veto": "v6 explicitly forbids selecting a subset and instructs complete adjacent groups.",
+  "semantic_policy_tests_to_update": [
+    "test_abstention_and_group_subset_remove_all_links",
+    "test_partial_fragmented_group_does_not_expand_or_resolve",
+    "test_heterogeneous_group_subset_cannot_bypass_integrity (separate occurrence case)"
+  ],
+  "hard_tests_to_preserve": [
+    "test_group_subset_cannot_silently_expand_selected_references (single opaque occurrence)",
+    "duplicate canonical label",
+    "unknown label",
+    "neighbor label",
+    "wrong local scope",
+    "missing/ambiguous/marker-only quote",
+    "unresolved targets",
+    "backend-only reference derivation"
+  ],
+  "real_llm_calls": 0
+}

@@ -77,10 +77,12 @@ def test_full_fragmented_group_preserves_identity_raw_offsets_and_references(sur
 
 
 @pytest.mark.parametrize("selected", [("1",), ("2",)])
-def test_partial_fragmented_group_does_not_expand_or_resolve(selected):
+def test_partial_fragmented_group_resolves_only_selected_occurrence(selected):
     claim = check(fragmented(("(1,", "2)")), proposal("A improves accuracy", ids=selected))
-    assert claim.attribution_status == "ambiguous"
-    assert not claim.reference_ids and not claim.citation_callout_ids
+    index = int(selected[0]) - 1
+    assert claim.attribution_status == "resolved"
+    assert claim.reference_ids == (f"opaque-reference:{index}",)
+    assert claim.citation_callout_ids == (f"callout:{index}",)
 
 
 def test_duplicate_canonical_label_keeps_all_occurrences_and_rejects_ambiguity():
@@ -110,7 +112,7 @@ def test_payload_and_allowlist_share_canonical_labels_while_raw_text_remains():
     assert [c["text"] for c in callouts] == ["(1,", "2)"]
     assert set(local_label_index(parsed.citation_callouts)) == {"1", "2"}
     assert provider.systems == [SYSTEM_PROMPT]
-    assert PROMPT_VERSION == "focal-atomic-semantic-ownership-v6"
+    assert PROMPT_VERSION == "focal-atomic-semantic-ownership-v7"
 
 
 def test_fragmented_group_pair_plan_uses_only_backend_occurrence_targets():

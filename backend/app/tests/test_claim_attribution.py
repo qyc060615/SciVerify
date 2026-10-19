@@ -121,11 +121,12 @@ def test_no_case_whitespace_unicode_repair(quote):
     assert e.value.code == "QUOTE_NOT_FOUND"
 
 
-def test_abstention_and_group_subset_remove_all_links():
+def test_abstention_keeps_no_links_but_local_occurrence_subset_resolves():
     p = manuscript("A improves accuracy [3][4].")
-    for q in [proposal("A improves accuracy"), proposal("A improves accuracy", ids=())]:
-        c = check(p, q)
-        assert c.attribution_status == "ambiguous" and not c.reference_ids and not c.citation_callout_ids
+    subset = check(p, proposal("A improves accuracy"))
+    assert subset.attribution_status == "resolved" and subset.reference_ids == ("r3",)
+    c = check(p, proposal("A improves accuracy", ids=()))
+    assert c.attribution_status == "ambiguous" and not c.reference_ids and not c.citation_callout_ids
 
 
 def test_mixed_partial_cannot_be_resolved():

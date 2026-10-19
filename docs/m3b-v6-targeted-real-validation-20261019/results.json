@@ -1,0 +1,149 @@
+[
+  {
+    "case": "C1",
+    "context_id": "context:6541b560fbf347a4ccdca5faeebd8aa66aab68905580c017fe917924460678dc",
+    "focal_text": "Examples include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay [1][2][3][4].",
+    "historical_typed_proposal": {
+      "claims": [
+        {
+          "text": "Examples of key secondary endpoints include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay.",
+          "evidence_quote": "Examples include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay [1][2][3][4].",
+          "attribution_intent": "cited",
+          "citation_labels": [
+            "1",
+            "2",
+            "3",
+            "4"
+          ]
+        }
+      ]
+    },
+    "typed_proposal": {
+      "claims": [
+        {
+          "text": "Examples include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay.",
+          "evidence_quote": "Examples include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay",
+          "attribution_intent": "uncertain",
+          "citation_labels": []
+        }
+      ]
+    },
+    "safe_error": null,
+    "deterministic_routing": [
+      {
+        "text": "Examples include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay.",
+        "intent": "uncertain",
+        "labels": [],
+        "exact_focal_grounding": true,
+        "attribution_status": "ambiguous",
+        "references": []
+      }
+    ],
+    "elapsed_seconds": 11.234
+  },
+  {
+    "case": "C4-C5",
+    "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+    "focal_text": "To this end, we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper [1,6].",
+    "historical_typed_proposal": {
+      "claims": [
+        {
+          "text": "The cumulative recovery rate curves are in Fig. 2A of the original paper.",
+          "evidence_quote": "To this end, we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper [1,6].",
+          "attribution_intent": "cited",
+          "citation_labels": [
+            "1",
+            "6"
+          ]
+        },
+        {
+          "text": "The survival curves are in Supplementary Fig. S3 of the original paper.",
+          "evidence_quote": "To this end, we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper [1,6].",
+          "attribution_intent": "cited",
+          "citation_labels": [
+            "1",
+            "6"
+          ]
+        }
+      ]
+    },
+    "typed_proposal": {
+      "claims": [
+        {
+          "text": "We scanned the cumulative recovery rate curves in Fig. 2A.",
+          "evidence_quote": "we scanned the cumulative recovery rate curves in Fig. 2A",
+          "attribution_intent": "none",
+          "citation_labels": []
+        },
+        {
+          "text": "We scanned the survival curves in Supplementary Fig. S3 of the original paper.",
+          "evidence_quote": "we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper",
+          "attribution_intent": "none",
+          "citation_labels": []
+        }
+      ]
+    },
+    "safe_error": null,
+    "deterministic_routing": [
+      {
+        "text": "We scanned the cumulative recovery rate curves in Fig. 2A.",
+        "intent": "none",
+        "labels": [],
+        "exact_focal_grounding": true,
+        "excluded_as_manuscript_owned": true,
+        "references": []
+      },
+      {
+        "text": "We scanned the survival curves in Supplementary Fig. S3 of the original paper.",
+        "intent": "none",
+        "labels": [],
+        "exact_focal_grounding": true,
+        "excluded_as_manuscript_owned": true,
+        "references": []
+      }
+    ],
+    "elapsed_seconds": 50.5
+  },
+  {
+    "case": "C6",
+    "context_id": "context:fb486bac7ee255cc5579c142ef540aa78c9d84b025f84012e6907b397a79731f",
+    "focal_text": "2B & C) represent the mean times, up to day 28, that patients spent in hospital receiving attentive care [7][8][9][10].",
+    "historical_typed_proposal": {
+      "claims": [
+        {
+          "text": "The mean times, up to day 28, that patients spent in hospital receiving attentive care are shown in panels 2B and C.",
+          "evidence_quote": "2B & C) represent the mean times, up to day 28, that patients spent in hospital receiving attentive care [7][8][9][10].",
+          "attribution_intent": "cited",
+          "citation_labels": [
+            "7",
+            "8",
+            "9",
+            "10"
+          ]
+        }
+      ]
+    },
+    "typed_proposal": {
+      "claims": [
+        {
+          "text": "The mean times up to day 28 that patients spent in hospital receiving attentive care are represented in Figures 2B and C.",
+          "evidence_quote": "2B & C) represent the mean times, up to day 28, that patients spent in hospital receiving attentive care",
+          "attribution_intent": "none",
+          "citation_labels": []
+        }
+      ]
+    },
+    "safe_error": null,
+    "deterministic_routing": [
+      {
+        "text": "The mean times up to day 28 that patients spent in hospital receiving attentive care are represented in Figures 2B and C.",
+        "intent": "none",
+        "labels": [],
+        "exact_focal_grounding": true,
+        "excluded_as_manuscript_owned": true,
+        "references": []
+      }
+    ],
+    "elapsed_seconds": 19.25
+  }
+]

@@ -8,7 +8,7 @@ from app.researchguard.domain import AtomicClaim, AttributionStatus, CitationRes
 from app.services.citation_context import diagnostic, groups
 from app.services.citation_labels import local_label_index, visible_labels
 
-ATTRIBUTION_POLICY_VERSION = "exact-evidence-explicit-local-labels-v5"
+ATTRIBUTION_POLICY_VERSION = "exact-evidence-explicit-local-labels-v6-subsets"
 _STRONG = re.compile(r";|\b(?:while|whereas|but)\b", re.IGNORECASE)
 
 
@@ -106,12 +106,11 @@ def validate_proposal(parsed, context, proposal) -> ValidatedClaim:
     candidate_ids = {c.id for group in candidates for c in group}
     if candidates and any(c.id not in candidate_ids for c in selected):
         raise ProposalRejected("WRONG_CITATION_SCOPE")
-    # Other groups in a broad envelope do not veto explicit local selection.
-    # A touched adjacent group must still be selected in its entirety.
-    incomplete_group = any(selected_ids.intersection(c.id for c in group)
-                           and any(c.id not in selected_ids for c in group)
-                           for group in local_groups)
-    if (not scope or not candidates or not selected or incomplete_group
+    # Adjacent occurrences are formatting, not a shared semantic ownership unit.
+    # A subset of occurrences is allowed. Within ONE multi-label occurrence,
+    # however, only an aggregate target set exists: never guess a per-label
+    # target mapping or silently expand a selected label to unrelated targets.
+    if (not scope or not candidates or not selected
             or any(not set(visible_labels(c.text)) <= set(proposal.citation_labels) for c in selected)):
         code, status = "AMBIGUOUS_CITATION_SCOPE", AttributionStatus.AMBIGUOUS
         selected = []
