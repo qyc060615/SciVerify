@@ -142,7 +142,7 @@ def test_prompt_and_schema_explain_attribution_not_just_fact_verifiability():
                    '"attribution_intent": "cited", "citation_labels": ["12"]']:
         assert phrase in system
     assert "rate/incidence of severe fatigue" in system and "do not turn preliminary evidence into proof" in system
-    assert PROMPT_VERSION == "focal-atomic-attribution-intent-v5"
+    assert PROMPT_VERSION == "focal-atomic-semantic-ownership-v6"
 
 
 def test_fatigue_intents_are_routed_without_downstream_domain_changes():

@@ -1,0 +1,272 @@
+{
+  "provenance": "Recorded extraction requests/responses from committed real run; manual_contract_proposal is a human-authored routing oracle, not model output.",
+  "source_commit": "8bd993658d0a33e05d2789614727de8f3378098b",
+  "contexts": [
+    {
+      "context_id": "context:6541b560fbf347a4ccdca5faeebd8aa66aab68905580c017fe917924460678dc",
+      "focal_text": "Examples include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay [1][2][3][4].",
+      "request_key": [
+        "2026-10-19T05:27:26.951340+00:00",
+        6
+      ],
+      "recorded_proposal": {
+        "claims": [
+          {
+            "text": "Examples of key secondary endpoints include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay.",
+            "evidence_quote": "Examples include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay [1][2][3][4].",
+            "attribution_intent": "cited",
+            "citation_labels": [
+              "1",
+              "2",
+              "3",
+              "4"
+            ]
+          }
+        ]
+      },
+      "contract_role": "collective_examples",
+      "manual_contract_proposal": {
+        "claims": [
+          {
+            "text": "Examples of key secondary endpoints include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay.",
+            "evidence_quote": "Examples include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay [1][2][3][4].",
+            "attribution_intent": "uncertain",
+            "citation_labels": []
+          }
+        ]
+      }
+    },
+    {
+      "context_id": "context:888e466f8e3f6257b5f900e57907f4fa43b6ef1c809764c7b01ba03688c9e319",
+      "focal_text": "We now use a recent large clinical trial, ACTT-1 [1], to illustrate the advantages of using the event-free survival time for assessing treatment efficacy.",
+      "request_key": [
+        "2026-10-19T05:27:26.952344+00:00",
+        7
+      ],
+      "recorded_proposal": {
+        "claims": [
+          {
+            "text": "ACTT-1 is a recent large clinical trial.",
+            "evidence_quote": "a recent large clinical trial, ACTT-1 [1]",
+            "attribution_intent": "cited",
+            "citation_labels": [
+              "1"
+            ]
+          },
+          {
+            "text": "The authors use ACTT-1 to illustrate the advantages of using event-free survival time for assessing treatment efficacy.",
+            "evidence_quote": "We now use a recent large clinical trial, ACTT-1 [1], to illustrate the advantages of using the event-free survival time for assessing treatment efficacy.",
+            "attribution_intent": "none",
+            "citation_labels": []
+          },
+          {
+            "text": "Using event-free survival time for assessing treatment efficacy has advantages.",
+            "evidence_quote": "illustrate the advantages of using the event-free survival time for assessing treatment efficacy",
+            "attribution_intent": "none",
+            "citation_labels": []
+          }
+        ]
+      }
+    },
+    {
+      "context_id": "context:2d8dcb477db5e8788fd6afbbe1fa855234eb2e6b211df427534888e4ff3408d4",
+      "focal_text": "Although not yet reported, key secondary endpoints discussed in the trial protocol included the durations of hospitalization, supplemental oxygen, and mechanical ventilation [5].",
+      "request_key": [
+        "2026-10-19T05:27:38.739889+00:00",
+        8
+      ],
+      "recorded_proposal": {
+        "claims": [
+          {
+            "text": "Key secondary endpoints discussed in the trial protocol included the durations of hospitalization, supplemental oxygen, and mechanical ventilation.",
+            "evidence_quote": "key secondary endpoints discussed in the trial protocol included the durations of hospitalization, supplemental oxygen, and mechanical ventilation",
+            "attribution_intent": "cited",
+            "citation_labels": [
+              "5"
+            ]
+          },
+          {
+            "text": "Key secondary endpoints discussed in the trial protocol had not yet been reported.",
+            "evidence_quote": "Although not yet reported, key secondary endpoints discussed in the trial protocol",
+            "attribution_intent": "none",
+            "citation_labels": []
+          }
+        ]
+      }
+    },
+    {
+      "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+      "focal_text": "To this end, we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper [1,6].",
+      "request_key": [
+        "2026-10-19T05:27:40.524409+00:00",
+        9
+      ],
+      "recorded_proposal": {
+        "claims": [
+          {
+            "text": "The cumulative recovery rate curves are in Fig. 2A of the original paper.",
+            "evidence_quote": "To this end, we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper [1,6].",
+            "attribution_intent": "cited",
+            "citation_labels": [
+              "1",
+              "6"
+            ]
+          },
+          {
+            "text": "The survival curves are in Supplementary Fig. S3 of the original paper.",
+            "evidence_quote": "To this end, we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper [1,6].",
+            "attribution_intent": "cited",
+            "citation_labels": [
+              "1",
+              "6"
+            ]
+          }
+        ]
+      },
+      "contract_role": "data_and_method_group",
+      "manual_contract_proposal": {
+        "claims": [
+          {
+            "text": "The cumulative recovery rate curves are in Fig. 2A of the original paper.",
+            "evidence_quote": "To this end, we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper [1,6].",
+            "attribution_intent": "uncertain",
+            "citation_labels": []
+          },
+          {
+            "text": "The survival curves are in Supplementary Fig. S3 of the original paper.",
+            "evidence_quote": "To this end, we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper [1,6].",
+            "attribution_intent": "uncertain",
+            "citation_labels": []
+          }
+        ]
+      }
+    },
+    {
+      "context_id": "context:fb486bac7ee255cc5579c142ef540aa78c9d84b025f84012e6907b397a79731f",
+      "focal_text": "2B & C) represent the mean times, up to day 28, that patients spent in hospital receiving attentive care [7][8][9][10].",
+      "request_key": [
+        "2026-10-19T05:27:47.557716+00:00",
+        10
+      ],
+      "recorded_proposal": {
+        "claims": [
+          {
+            "text": "The mean times, up to day 28, that patients spent in hospital receiving attentive care are shown in panels 2B and C.",
+            "evidence_quote": "2B & C) represent the mean times, up to day 28, that patients spent in hospital receiving attentive care [7][8][9][10].",
+            "attribution_intent": "cited",
+            "citation_labels": [
+              "7",
+              "8",
+              "9",
+              "10"
+            ]
+          }
+        ]
+      },
+      "contract_role": "current_manuscript_panels",
+      "manual_contract_proposal": {
+        "claims": [
+          {
+            "text": "The mean times, up to day 28, that patients spent in hospital receiving attentive care are shown in panels 2B and C.",
+            "evidence_quote": "2B & C) represent the mean times, up to day 28, that patients spent in hospital receiving attentive care [7][8][9][10].",
+            "attribution_intent": "none",
+            "citation_labels": []
+          }
+        ]
+      }
+    },
+    {
+      "context_id": "context:40791ae60ac96f0e46b8de44fc2cfff20d0bd900e2248bb9ecf56756593e1e6d",
+      "focal_text": "In contrast to Fig. 2A, these curves are constructed while treating death as a competing risk [11][12][13].",
+      "request_key": [
+        "2026-10-19T05:27:56.501240+00:00",
+        11
+      ],
+      "recorded_proposal": {
+        "claims": [
+          {
+            "text": "The curves are constructed while treating death as a competing risk.",
+            "evidence_quote": "these curves are constructed while treating death as a competing risk [11][12][13].",
+            "attribution_intent": "cited",
+            "citation_labels": [
+              "11",
+              "12",
+              "13"
+            ]
+          }
+        ]
+      },
+      "contract_role": "unclear_current_curves_method_scope",
+      "manual_contract_proposal": {
+        "claims": [
+          {
+            "text": "The curves are constructed while treating death as a competing risk.",
+            "evidence_quote": "these curves are constructed while treating death as a competing risk [11][12][13].",
+            "attribution_intent": "uncertain",
+            "citation_labels": []
+          }
+        ]
+      }
+    },
+    {
+      "context_id": "context:5c040a01304d795700a6ec0bead524ab3d81c2884f8fddcb0889267767ba426a",
+      "focal_text": "3B & C) represent the mean event-free survival times up to day 28 [14].",
+      "request_key": [
+        "2026-10-19T05:28:13.026968+00:00",
+        12
+      ],
+      "recorded_proposal": {
+        "claims": [
+          {
+            "text": "The areas below the cumulative incidence curves in Figures 3B and 3C represent the mean event-free survival times up to day 28.",
+            "evidence_quote": "3B & C) represent the mean event-free survival times up to day 28 [14].",
+            "attribution_intent": "cited",
+            "citation_labels": [
+              "14"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "context_id": "context:e0c954837ace2e53a44f76fe67092e7974cca9f149e9eba1a98ad21d6eddd189",
+      "focal_text": "This may reflect the fact that remdesivir numerically prolonged patients' survival [14].",
+      "request_key": [
+        "2026-10-19T05:28:13.908704+00:00",
+        13
+      ],
+      "recorded_proposal": {
+        "claims": [
+          {
+            "text": "Remdesivir numerically prolonged patients' survival.",
+            "evidence_quote": "remdesivir numerically prolonged patients' survival [14]",
+            "attribution_intent": "cited",
+            "citation_labels": [
+              "14"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "context_id": "context:81c144218096b5eeb20cf81ae358759d51b0e69e34adf2cae2fc8ebacabc619d",
+      "focal_text": "This complexity extends to other cases where initiation of the event of interest does not necessarily start when the patient enters the study [15].",
+      "request_key": [
+        "2026-10-19T05:28:19.736767+00:00",
+        14
+      ],
+      "recorded_proposal": {
+        "claims": [
+          {
+            "text": "The complexity extends to other cases in which initiation of the event of interest does not necessarily start when the patient enters the study.",
+            "evidence_quote": "This complexity extends to other cases where initiation of the event of interest does not necessarily start when the patient enters the study [15].",
+            "attribution_intent": "cited",
+            "citation_labels": [
+              "15"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

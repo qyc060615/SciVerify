@@ -1,0 +1,29 @@
+{
+  "git_diff_check": "PASS",
+  "new_file_whitespace": "PASS",
+  "protected_preexisting_files_checked": 160,
+  "protected_preexisting_files_changed": [],
+  "official_job_sha256_unchanged": true,
+  "tracked_modified_files": [
+    "backend/app/researchguard/adapters/claim_llm.py",
+    "backend/app/researchguard/adapters/grobid_tei.py",
+    "backend/app/tests/test_attribution_intent.py",
+    "backend/app/tests/test_citation_label_canonicalization.py"
+  ],
+  "targeted_tests": {
+    "passed": 406,
+    "failed": 0,
+    "warnings": 1
+  },
+  "full_backend": {
+    "passed": 1495,
+    "failed": 0,
+    "skipped": 1,
+    "warnings": 1,
+    "seconds": 32.71
+  },
+  "real_llm_calls": 0,
+  "new_paid_api_calls": 0,
+  "commit_push": "NOT PERFORMED",
+  "final_decision": "PARTIAL"
+}

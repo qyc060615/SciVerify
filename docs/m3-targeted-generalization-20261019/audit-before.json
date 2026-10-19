@@ -1,0 +1,24 @@
+{
+  "head": "8bd993658d0a33e05d2789614727de8f3378098b",
+  "initial_tracked_diff": "empty",
+  "initial_untracked_preserved": [
+    "M3B_PRE_DEVELOPMENT_AUDIT.md",
+    "M3_PRE_DEVELOPMENT_AUDIT.md",
+    "backend/data/"
+  ],
+  "asset_sha256": {
+    "grobid-original.tei.xml": "c8c7143ec09479cb8498e2b33d51196ad003b382c769302dde104b5c718a790b",
+    "parse-response.json": "764a6c56d6951369709647fed59eb8502c697f8289198a1f65569ad478a756bf",
+    "resolved-response.json": "227d3762196c85be29954e99b2f8a0808f3e7428683506928ba4e1754c0117c4",
+    "extraction-response.json": "a3de5f26c4a6a04a4c2937a561b78484d5f24adf27b771af9c76f72decf80c09",
+    "context-plan.json": "7363799ac6aabcc062ce42ad1e906685b621c21b00863c53443b23001066a097",
+    "model-inputs.jsonl": "83252e28ecef39f892b05aaa6c65534471173a08e1a929a9a123b65cd8b5e593",
+    "model-outputs.jsonl": "395792a2574fcf1842dfbb850098555d988d2df9b82764ecc295e2751290d410"
+  },
+  "real_llm_calls": 0,
+  "audit_findings": {
+    "title": "titleStmt and sourceDesc/analytic repeat candidate; monogr has imprint only, no container title. PDF Info only Producer; XMP absent. Cannot prove container collision from this TEI alone.",
+    "doi": "Bare DOI idno equals trailing nested path of a separate publisher file resource URL.",
+    "ownership": "Recorded LLM selects full heterogeneous/collective groups. Validator preserves typographic completeness, not semantics. C7 already abstains due local scope."
+  }
+}

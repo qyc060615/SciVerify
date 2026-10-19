@@ -1,0 +1,376 @@
+{
+  "real_llm_calls": 0,
+  "public_api_calls": 0,
+  "recorded_output_replay": {
+    "pair_count": 17,
+    "blocked_claim_count": 1,
+    "pairs": [
+      {
+        "text": "Examples of key secondary endpoints include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay.",
+        "context_id": "context:6541b560fbf347a4ccdca5faeebd8aa66aab68905580c017fe917924460678dc",
+        "reference_number": 1
+      },
+      {
+        "text": "Examples of key secondary endpoints include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay.",
+        "context_id": "context:6541b560fbf347a4ccdca5faeebd8aa66aab68905580c017fe917924460678dc",
+        "reference_number": 2
+      },
+      {
+        "text": "Examples of key secondary endpoints include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay.",
+        "context_id": "context:6541b560fbf347a4ccdca5faeebd8aa66aab68905580c017fe917924460678dc",
+        "reference_number": 3
+      },
+      {
+        "text": "Examples of key secondary endpoints include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay.",
+        "context_id": "context:6541b560fbf347a4ccdca5faeebd8aa66aab68905580c017fe917924460678dc",
+        "reference_number": 4
+      },
+      {
+        "text": "ACTT-1 is a recent large clinical trial.",
+        "context_id": "context:888e466f8e3f6257b5f900e57907f4fa43b6ef1c809764c7b01ba03688c9e319",
+        "reference_number": 1
+      },
+      {
+        "text": "Key secondary endpoints discussed in the trial protocol included the durations of hospitalization, supplemental oxygen, and mechanical ventilation.",
+        "context_id": "context:2d8dcb477db5e8788fd6afbbe1fa855234eb2e6b211df427534888e4ff3408d4",
+        "reference_number": 5
+      },
+      {
+        "text": "The cumulative recovery rate curves are in Fig. 2A of the original paper.",
+        "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+        "reference_number": 1
+      },
+      {
+        "text": "The cumulative recovery rate curves are in Fig. 2A of the original paper.",
+        "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+        "reference_number": 6
+      },
+      {
+        "text": "The survival curves are in Supplementary Fig. S3 of the original paper.",
+        "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+        "reference_number": 1
+      },
+      {
+        "text": "The survival curves are in Supplementary Fig. S3 of the original paper.",
+        "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+        "reference_number": 6
+      },
+      {
+        "text": "The mean times, up to day 28, that patients spent in hospital receiving attentive care are shown in panels 2B and C.",
+        "context_id": "context:fb486bac7ee255cc5579c142ef540aa78c9d84b025f84012e6907b397a79731f",
+        "reference_number": 7
+      },
+      {
+        "text": "The mean times, up to day 28, that patients spent in hospital receiving attentive care are shown in panels 2B and C.",
+        "context_id": "context:fb486bac7ee255cc5579c142ef540aa78c9d84b025f84012e6907b397a79731f",
+        "reference_number": 8
+      },
+      {
+        "text": "The mean times, up to day 28, that patients spent in hospital receiving attentive care are shown in panels 2B and C.",
+        "context_id": "context:fb486bac7ee255cc5579c142ef540aa78c9d84b025f84012e6907b397a79731f",
+        "reference_number": 9
+      },
+      {
+        "text": "The mean times, up to day 28, that patients spent in hospital receiving attentive care are shown in panels 2B and C.",
+        "context_id": "context:fb486bac7ee255cc5579c142ef540aa78c9d84b025f84012e6907b397a79731f",
+        "reference_number": 10
+      },
+      {
+        "text": "The areas below the cumulative incidence curves in Figures 3B and 3C represent the mean event-free survival times up to day 28.",
+        "context_id": "context:5c040a01304d795700a6ec0bead524ab3d81c2884f8fddcb0889267767ba426a",
+        "reference_number": 14
+      },
+      {
+        "text": "Remdesivir numerically prolonged patients' survival.",
+        "context_id": "context:e0c954837ace2e53a44f76fe67092e7974cca9f149e9eba1a98ad21d6eddd189",
+        "reference_number": 14
+      },
+      {
+        "text": "The complexity extends to other cases in which initiation of the event of interest does not necessarily start when the patient enters the study.",
+        "context_id": "context:81c144218096b5eeb20cf81ae358759d51b0e69e34adf2cae2fc8ebacabc619d",
+        "reference_number": 15
+      }
+    ],
+    "claims": [
+      {
+        "text": "Examples of key secondary endpoints include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay.",
+        "context_id": "context:6541b560fbf347a4ccdca5faeebd8aa66aab68905580c017fe917924460678dc",
+        "attribution_status": "resolved",
+        "references": [
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      {
+        "text": "ACTT-1 is a recent large clinical trial.",
+        "context_id": "context:888e466f8e3f6257b5f900e57907f4fa43b6ef1c809764c7b01ba03688c9e319",
+        "attribution_status": "resolved",
+        "references": [
+          1
+        ]
+      },
+      {
+        "text": "Key secondary endpoints discussed in the trial protocol included the durations of hospitalization, supplemental oxygen, and mechanical ventilation.",
+        "context_id": "context:2d8dcb477db5e8788fd6afbbe1fa855234eb2e6b211df427534888e4ff3408d4",
+        "attribution_status": "resolved",
+        "references": [
+          5
+        ]
+      },
+      {
+        "text": "The cumulative recovery rate curves are in Fig. 2A of the original paper.",
+        "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+        "attribution_status": "resolved",
+        "references": [
+          1,
+          6
+        ]
+      },
+      {
+        "text": "The survival curves are in Supplementary Fig. S3 of the original paper.",
+        "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+        "attribution_status": "resolved",
+        "references": [
+          1,
+          6
+        ]
+      },
+      {
+        "text": "The mean times, up to day 28, that patients spent in hospital receiving attentive care are shown in panels 2B and C.",
+        "context_id": "context:fb486bac7ee255cc5579c142ef540aa78c9d84b025f84012e6907b397a79731f",
+        "attribution_status": "resolved",
+        "references": [
+          7,
+          8,
+          9,
+          10
+        ]
+      },
+      {
+        "text": "The curves are constructed while treating death as a competing risk.",
+        "context_id": "context:40791ae60ac96f0e46b8de44fc2cfff20d0bd900e2248bb9ecf56756593e1e6d",
+        "attribution_status": "ambiguous",
+        "references": []
+      },
+      {
+        "text": "The areas below the cumulative incidence curves in Figures 3B and 3C represent the mean event-free survival times up to day 28.",
+        "context_id": "context:5c040a01304d795700a6ec0bead524ab3d81c2884f8fddcb0889267767ba426a",
+        "attribution_status": "resolved",
+        "references": [
+          14
+        ]
+      },
+      {
+        "text": "Remdesivir numerically prolonged patients' survival.",
+        "context_id": "context:e0c954837ace2e53a44f76fe67092e7974cca9f149e9eba1a98ad21d6eddd189",
+        "attribution_status": "resolved",
+        "references": [
+          14
+        ]
+      },
+      {
+        "text": "The complexity extends to other cases in which initiation of the event of interest does not necessarily start when the patient enters the study.",
+        "context_id": "context:81c144218096b5eeb20cf81ae358759d51b0e69e34adf2cae2fc8ebacabc619d",
+        "attribution_status": "resolved",
+        "references": [
+          15
+        ]
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "NO_EXTERNAL_ATTRIBUTION",
+        "severity": "info",
+        "entity_id": "context:888e466f8e3f6257b5f900e57907f4fa43b6ef1c809764c7b01ba03688c9e319",
+        "safe_message": "Proposition 2 has no external citation attribution and was excluded."
+      },
+      {
+        "code": "NO_EXTERNAL_ATTRIBUTION",
+        "severity": "info",
+        "entity_id": "context:888e466f8e3f6257b5f900e57907f4fa43b6ef1c809764c7b01ba03688c9e319",
+        "safe_message": "Proposition 3 has no external citation attribution and was excluded."
+      },
+      {
+        "code": "NO_EXTERNAL_ATTRIBUTION",
+        "severity": "info",
+        "entity_id": "context:2d8dcb477db5e8788fd6afbbe1fa855234eb2e6b211df427534888e4ff3408d4",
+        "safe_message": "Proposition 2 has no external citation attribution and was excluded."
+      },
+      {
+        "code": "AMBIGUOUS_CITATION_SCOPE",
+        "severity": "warning",
+        "entity_id": "claim:d740e6c5ec61beef4da82a6f18c2a916b308c3e047f598e857543c9ec97b9996",
+        "safe_message": "The extraction policy requires review of this structure."
+      }
+    ]
+  },
+  "human_authored_contract_overlay_NOT_model_improvement": {
+    "pair_count": 5,
+    "blocked_claim_count": 4,
+    "pairs": [
+      {
+        "text": "ACTT-1 is a recent large clinical trial.",
+        "context_id": "context:888e466f8e3f6257b5f900e57907f4fa43b6ef1c809764c7b01ba03688c9e319",
+        "reference_number": 1
+      },
+      {
+        "text": "Key secondary endpoints discussed in the trial protocol included the durations of hospitalization, supplemental oxygen, and mechanical ventilation.",
+        "context_id": "context:2d8dcb477db5e8788fd6afbbe1fa855234eb2e6b211df427534888e4ff3408d4",
+        "reference_number": 5
+      },
+      {
+        "text": "The areas below the cumulative incidence curves in Figures 3B and 3C represent the mean event-free survival times up to day 28.",
+        "context_id": "context:5c040a01304d795700a6ec0bead524ab3d81c2884f8fddcb0889267767ba426a",
+        "reference_number": 14
+      },
+      {
+        "text": "Remdesivir numerically prolonged patients' survival.",
+        "context_id": "context:e0c954837ace2e53a44f76fe67092e7974cca9f149e9eba1a98ad21d6eddd189",
+        "reference_number": 14
+      },
+      {
+        "text": "The complexity extends to other cases in which initiation of the event of interest does not necessarily start when the patient enters the study.",
+        "context_id": "context:81c144218096b5eeb20cf81ae358759d51b0e69e34adf2cae2fc8ebacabc619d",
+        "reference_number": 15
+      }
+    ],
+    "claims": [
+      {
+        "text": "Examples of key secondary endpoints include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay.",
+        "context_id": "context:6541b560fbf347a4ccdca5faeebd8aa66aab68905580c017fe917924460678dc",
+        "attribution_status": "ambiguous",
+        "references": []
+      },
+      {
+        "text": "ACTT-1 is a recent large clinical trial.",
+        "context_id": "context:888e466f8e3f6257b5f900e57907f4fa43b6ef1c809764c7b01ba03688c9e319",
+        "attribution_status": "resolved",
+        "references": [
+          1
+        ]
+      },
+      {
+        "text": "Key secondary endpoints discussed in the trial protocol included the durations of hospitalization, supplemental oxygen, and mechanical ventilation.",
+        "context_id": "context:2d8dcb477db5e8788fd6afbbe1fa855234eb2e6b211df427534888e4ff3408d4",
+        "attribution_status": "resolved",
+        "references": [
+          5
+        ]
+      },
+      {
+        "text": "The cumulative recovery rate curves are in Fig. 2A of the original paper.",
+        "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+        "attribution_status": "ambiguous",
+        "references": []
+      },
+      {
+        "text": "The survival curves are in Supplementary Fig. S3 of the original paper.",
+        "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+        "attribution_status": "ambiguous",
+        "references": []
+      },
+      {
+        "text": "The curves are constructed while treating death as a competing risk.",
+        "context_id": "context:40791ae60ac96f0e46b8de44fc2cfff20d0bd900e2248bb9ecf56756593e1e6d",
+        "attribution_status": "ambiguous",
+        "references": []
+      },
+      {
+        "text": "The areas below the cumulative incidence curves in Figures 3B and 3C represent the mean event-free survival times up to day 28.",
+        "context_id": "context:5c040a01304d795700a6ec0bead524ab3d81c2884f8fddcb0889267767ba426a",
+        "attribution_status": "resolved",
+        "references": [
+          14
+        ]
+      },
+      {
+        "text": "Remdesivir numerically prolonged patients' survival.",
+        "context_id": "context:e0c954837ace2e53a44f76fe67092e7974cca9f149e9eba1a98ad21d6eddd189",
+        "attribution_status": "resolved",
+        "references": [
+          14
+        ]
+      },
+      {
+        "text": "The complexity extends to other cases in which initiation of the event of interest does not necessarily start when the patient enters the study.",
+        "context_id": "context:81c144218096b5eeb20cf81ae358759d51b0e69e34adf2cae2fc8ebacabc619d",
+        "attribution_status": "resolved",
+        "references": [
+          15
+        ]
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "AMBIGUOUS_CITATION_SCOPE",
+        "severity": "warning",
+        "entity_id": "claim:9243346a6c50b46dc135f9bea1e9dc24235fc30bc978fb83b400dd1688963e8a",
+        "safe_message": "The extraction policy requires review of this structure."
+      },
+      {
+        "code": "NO_EXTERNAL_ATTRIBUTION",
+        "severity": "info",
+        "entity_id": "context:888e466f8e3f6257b5f900e57907f4fa43b6ef1c809764c7b01ba03688c9e319",
+        "safe_message": "Proposition 2 has no external citation attribution and was excluded."
+      },
+      {
+        "code": "NO_EXTERNAL_ATTRIBUTION",
+        "severity": "info",
+        "entity_id": "context:888e466f8e3f6257b5f900e57907f4fa43b6ef1c809764c7b01ba03688c9e319",
+        "safe_message": "Proposition 3 has no external citation attribution and was excluded."
+      },
+      {
+        "code": "NO_EXTERNAL_ATTRIBUTION",
+        "severity": "info",
+        "entity_id": "context:2d8dcb477db5e8788fd6afbbe1fa855234eb2e6b211df427534888e4ff3408d4",
+        "safe_message": "Proposition 2 has no external citation attribution and was excluded."
+      },
+      {
+        "code": "AMBIGUOUS_CITATION_SCOPE",
+        "severity": "warning",
+        "entity_id": "claim:ae46bae0c0aba25b115db02939193d724e35f6836eeccda056dd471fdda3f7d1",
+        "safe_message": "The extraction policy requires review of this structure."
+      },
+      {
+        "code": "AMBIGUOUS_CITATION_SCOPE",
+        "severity": "warning",
+        "entity_id": "claim:558e3e7e8ef20e3cb91d2f457fc634d52958fc8cc0f333b2b382a78f0a353216",
+        "safe_message": "The extraction policy requires review of this structure."
+      },
+      {
+        "code": "NO_EXTERNAL_ATTRIBUTION",
+        "severity": "info",
+        "entity_id": "context:fb486bac7ee255cc5579c142ef540aa78c9d84b025f84012e6907b397a79731f",
+        "safe_message": "Proposition 1 has no external citation attribution and was excluded."
+      },
+      {
+        "code": "AMBIGUOUS_CITATION_SCOPE",
+        "severity": "warning",
+        "entity_id": "claim:d740e6c5ec61beef4da82a6f18c2a916b308c3e047f598e857543c9ec97b9996",
+        "safe_message": "The extraction policy requires review of this structure."
+      }
+    ]
+  },
+  "metadata": {
+    "title_before": "Contemporary Clinical Trials",
+    "title_after": "Contemporary Clinical Trials",
+    "new_title_diagnostics": [
+      {
+        "code": "MANUSCRIPT_TITLE_UNVERIFIED",
+        "severity": "warning",
+        "entity_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "safe_message": "Container title metadata is absent; the extracted article title cannot be checked for container misidentification."
+      }
+    ],
+    "resource_doi_before": "10.1056/nejmoa2007764/suppl_file/nejmoa2007764_protocol.pdf",
+    "resource_doi_after": null,
+    "resource_url_after": "https://www.nejm.org/doi/suppl/10.1056/NEJMoa2007764/suppl_file/nejmoa2007764_protocol.pdf",
+    "paragraphs_unchanged": true,
+    "callouts_unchanged": true,
+    "references": 15,
+    "callouts": 18
+  },
+  "committed_audit_assets_unchanged": true
+}

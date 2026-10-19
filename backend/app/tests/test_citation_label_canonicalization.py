@@ -110,7 +110,7 @@ def test_payload_and_allowlist_share_canonical_labels_while_raw_text_remains():
     assert [c["text"] for c in callouts] == ["(1,", "2)"]
     assert set(local_label_index(parsed.citation_callouts)) == {"1", "2"}
     assert provider.systems == [SYSTEM_PROMPT]
-    assert PROMPT_VERSION == "focal-atomic-attribution-intent-v5"
+    assert PROMPT_VERSION == "focal-atomic-semantic-ownership-v6"
 
 
 def test_fragmented_group_pair_plan_uses_only_backend_occurrence_targets():

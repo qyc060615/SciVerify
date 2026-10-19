@@ -12,7 +12,7 @@ from app.services.llm.provider import (
     OpenAICompatibleLLMProvider,
 )
 
-PROMPT_VERSION = "focal-atomic-attribution-intent-v5"
+PROMPT_VERSION = "focal-atomic-semantic-ownership-v6"
 SYSTEM_PROMPT = """You receive a located, reliable citation sentence (focal_text).
 Identify 0..N atomic factual propositions and determine whether the manuscript author
 actually attributes each proposition to the external citations in the focal sentence.
@@ -34,6 +34,39 @@ citation_labels must be []. Do not use uncertain merely because a proposition ha
 external citation. Do not use none when you are unsure. Do not invent a label to avoid
 an empty list. Manuscript-own propositions may be identified, but the production
 citation-backed claim set excludes none propositions.
+
+Resolve semantic ownership for EACH atomic proposition, not for the sentence as a
+whole. A typographic citation group identifies labels printed together; it does
+not assert that every source independently supports every fact in the sentence.
+Selecting multiple labels creates an independent verification pair with EACH
+selected reference for the ENTIRE proposition. Select a full group as cited only
+when the author attributes that same proposition to each source independently.
+Ordinary single citations and groups of independent reports about the same fact
+remain cited. Do not broadly abstain merely because there are multiple labels.
+
+A sentence can combine an external dataset or original report with an algorithm
+or analysis-method citation. Do not transfer dataset contents, original figure
+locations or numerical findings to a method source. If the group mixes roles and
+the focal wording cannot reliably establish per-reference ownership, use uncertain
+with no labels for that proposition. Never select a subset of an adjacent group
+to bypass group integrity, and never select the whole group merely to satisfy it.
+Do not guess source roles from citation order, distance or a plausible title.
+
+Distinguish a current-study figure, table, computation or result from an externally
+attributed method or definition. The fact that the current figure displays a
+quantity is manuscript-owned (none) when that ownership is clear; citing a method
+does not attribute the figure's contents to the method paper. A separate method
+or definition proposition can remain cited if it is explicitly expressed and
+attributed in focal_text. Do not invent a generic method claim to replace an own
+result, or import a missing mathematical assertion from a neighbor. If ownership
+or figure identity is unclear, use uncertain rather than guessing none or cited.
+
+A list of examples followed by multiple citations can have collective support:
+the sources may contribute different examples. Do not assign the entire list to
+each source unless the focal wording establishes that independent attribution.
+Do not invent a one-to-one mapping from list order to citation order. If the
+collective statement has no reliable per-reference ownership, retain the factual
+proposition as uncertain with no labels instead of manufacturing individual pairs.
 
 Each text must be standalone, factual and semantically faithful. Split genuinely
 independent coordinated propositions without importing details from sibling propositions.

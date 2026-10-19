@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import re
 from collections import defaultdict
+from urllib.parse import unquote, urlsplit
 from xml.etree.ElementTree import ParseError
 
 from defusedxml.ElementTree import fromstring
@@ -28,6 +29,75 @@ def _text(node) -> str:
 
 def _diag(code, message, entity_id=None, severity="warning"):
     return ManuscriptDiagnostic(code=code, severity=severity, entity_id=entity_id, safe_message=message)
+
+
+def _manuscript_title(root, manuscript, diagnostics):
+    """Use structural title roles; missing metadata is not proof of a bad title.
+
+    Header copies are not independent corroboration. In particular, without any
+    container metadata we cannot detect a container mislabelled as an article.
+    Keep that candidate with an explicit warning rather than guess from prose.
+    """
+    header = root.find(f"{TEI}teiHeader/{TEI}fileDesc")
+    if header is None:
+        return manuscript.title
+    containers = {_text(n).casefold() for n in header.findall(f".//{TEI}monogr/{TEI}title") if _text(n)}
+    candidates = [n for n in (header.findall(f"{TEI}titleStmt/{TEI}title")
+                  + header.findall(f"{TEI}sourceDesc/{TEI}biblStruct/{TEI}analytic/{TEI}title"))
+                  if n.get("type") in {None, "main"}]
+    rejected, usable = set(), []
+    for node in candidates:
+        text = _text(node)
+        if not text:
+            continue
+        if node.get("level") in {"j", "s"} or text.casefold() in containers:
+            rejected.add(text.casefold())
+        elif text.casefold() not in {t.casefold() for t in usable}:
+            usable.append(text)
+    if rejected:
+        diagnostics.append(_diag("MANUSCRIPT_TITLE_CONTAINER_CONFLICT",
+            "A manuscript title candidate has a container role or duplicates container metadata.", manuscript.id))
+    if len(usable) > 1:
+        diagnostics.append(_diag("MANUSCRIPT_TITLE_CONFLICT",
+            "Structured article title candidates disagree; no title was selected.", manuscript.id))
+        return None
+    if usable:
+        if not containers:
+            diagnostics.append(_diag("MANUSCRIPT_TITLE_UNVERIFIED",
+                "Container title metadata is absent; the extracted article title cannot be checked for container misidentification.", manuscript.id))
+        return usable[0]
+    # An explicitly supplied title is separate from the parser's rejected fields.
+    if manuscript.title and manuscript.title.casefold() not in containers | rejected:
+        return manuscript.title
+    return None
+
+
+def _resource_path_identifier(value, doi, urls):
+    """Abstain when a bare parser identifier copies a download resource path.
+
+    DOI suffix syntax alone cannot distinguish an identifier from appended URL
+    path segments. Require a corroborating non-resolver URL and a descendant file
+    resource, and never trim it to a presumed parent DOI. Bare complex DOIs and
+    explicit DOI resolver identifiers remain valid.
+    """
+    if value.lower().startswith(("http://doi.org/", "https://doi.org/",
+                                 "http://dx.doi.org/", "https://dx.doi.org/")):
+        return False
+    if len(doi.split("/")) < 3:
+        return False
+    for url in urls:
+        try:
+            parts = urlsplit(url)
+        except ValueError:
+            continue
+        if parts.scheme.lower() not in {"http", "https"} or not parts.hostname:
+            continue
+        if parts.hostname.lower() in {"doi.org", "dx.doi.org"}:
+            continue
+        path = unquote(parts.path).lower()
+        if (path.endswith("/" + doi) and re.search(r"\.(?:pdf|zip|docx?|xlsx?|pptx?|csv|gz)$", path)):
+            return True
+    return False
 
 
 class _ParagraphText:
@@ -121,11 +191,29 @@ def parse_tei(xml: bytes, manuscript: Manuscript) -> ParsedManuscript:
         date = entry.find(f".//{TEI}imprint/{TEI}date")
         match = re.search(r"\b(\d{4})\b", (date.get("when", "") or _text(date)) if date is not None else "")
         year = int(match.group(1)) if match else None
+        # Preserve resource URLs independently of DOI identity, including a URL
+        # that the parser placed in an idno with the wrong type.
+        urls = [n.get("target") for n in entry.iter()
+                if n.tag in {TEI + "ref", TEI + "ptr"}
+                and (n.get("target") or "").lower().startswith(("http://", "https://"))]
+        urls += [_text(n) for n in entry.findall(f".//{TEI}idno")
+                 if n.get("type", "").lower() in {"url", "uri"} and _text(n)]
+        # Only non-resolver URLs in mislabelled DOI fields are resource locators.
+        urls += [_text(n) for n in entry.findall(f".//{TEI}idno")
+                 if n.get("type", "").lower() == "doi"
+                 and _text(n).lower().startswith(("http://", "https://"))
+                 and not re.match(r"https?://(?:dx\.)?doi\.org/", _text(n), re.IGNORECASE)]
+        url = next((u for u in urls if len(u) <= 4000), None)
         doi = None
         for identifier in entry.findall(f".//{TEI}idno"):
             if identifier.get("type", "").lower() == "doi":
                 try:
-                    doi = normalize_doi(_text(identifier))
+                    value = _text(identifier)
+                    doi = normalize_doi(value)
+                    if _resource_path_identifier(value, doi, urls):
+                        doi = None
+                        diagnostics.append(_diag("REFERENCE_DOI_RESOURCE_PATH",
+                            "The DOI candidate duplicates a descendant download URL path; URL retained without inferring a parent DOI.", reference_id))
                 except InvalidDOIError:
                     diagnostics.append(_diag("MISSING_REFERENCE_METADATA", "A reference DOI could not be normalized.", reference_id))
                 break
@@ -143,15 +231,6 @@ def parse_tei(xml: bytes, manuscript: Manuscript) -> ParsedManuscript:
             continue
         if reconstructed:
             diagnostics.append(_diag("RECONSTRUCTED_REFERENCE_TEXT", "Reference text was reconstructed from structured fields, not extracted verbatim.", reference_id))
-        # Preserve explicit bibliographic URL attributes without fetching them.
-        url = next((n.get("target") for n in entry.iter()
-                    if n.tag in {TEI + "ref", TEI + "ptr"}
-                    and (n.get("target") or "").lower().startswith(("http://", "https://"))), None)
-        if url is None:
-            url = next((_text(n) for n in entry.findall(f".//{TEI}idno")
-                        if n.get("type", "").lower() in {"url", "uri"} and _text(n)), None)
-        if url and len(url) > 4000:
-            url = None
         references.append(Reference(id=reference_id, manuscript_id=manuscript.id, raw_text=raw,
                                     title=title, authors=authors, year=year, journal=journal, doi=doi, url=url))
         if not title or not authors or year is None:
@@ -230,7 +309,7 @@ def parse_tei(xml: bytes, manuscript: Manuscript) -> ParsedManuscript:
         diagnostics.append(_diag("NO_REFERENCES", "No bibliography entries were extracted.", severity="info"))
     if not callouts:
         diagnostics.append(_diag("NO_CITATION_CALLOUTS", "No bibliographic citation markers were extracted from body prose.", severity="info"))
-    title = _text(root.find(f"{TEI}teiHeader/{TEI}fileDesc/{TEI}titleStmt/{TEI}title")) or manuscript.title
+    title = _manuscript_title(root, manuscript, diagnostics)
     return ParsedManuscript(manuscript=manuscript.model_copy(update={"title": title}),
         paragraphs=tuple(paragraphs), references=tuple(references), citation_callouts=tuple(callouts),
         diagnostics=tuple(diagnostics))
