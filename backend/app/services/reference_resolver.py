@@ -108,7 +108,7 @@ def match_candidate(reference: Reference, candidate: ReferenceCandidate) -> Refe
     reason = None
     if not a or similarity < .985 or (len(a) < 40 and a != b):
         reason = "TITLE_MISMATCH"
-    # A changed vaccine/dose/year identifier must not disappear in a fuzzy score.
+    # A changed model or numeric identifier must not disappear in a fuzzy score.
     if re.findall(r"\d+", a) != re.findall(r"\d+", b):
         reason = reason or "TITLE_IDENTIFIER_CONFLICT"
     authors_known = bool(reference.authors and candidate.authors)
@@ -298,9 +298,9 @@ async def _resolve(reference, client, limited):
     # A merged M3A bibliography entry can contain the following web reference.
     # Structured article authors+journal take precedence over trailing URLs.
     article = bool(reference.authors and reference.journal)
-    if official and not article or url and not reference.authors and not reference.journal:
+    if (official or url) and not article:
         return ReferenceResolution(reference_id=reference.id, status="non_doi_source", source_type="url", source_url=url,
-            match_reason="URL_ONLY_RETRIEVAL_NOT_SUPPORTED", diagnostics=tuple(diagnostics + ["DISCOVERED_ONLY"] + ([] if url else ["URL_MISSING"])))
+            match_reason="URL_DISCOVERED" if url else "SOURCE_URL_MISSING", diagnostics=tuple(diagnostics + ["DISCOVERED_ONLY", "SOURCE_NOT_YET_ACQUIRED"] + ([] if url else ["URL_MISSING"])))
     if not reference.title or len(_compact(reference.title)) < 12:
         return ReferenceResolution(reference_id=reference.id, status="metadata_insufficient", source_url=url,
             match_reason="TITLE_MISSING_OR_TOO_SHORT", diagnostics=tuple(diagnostics))
@@ -317,7 +317,12 @@ async def _resolve(reference, client, limited):
         selection = _select(reference, candidates, diagnostics, successful)
         if selection.status == "resolved":
             return selection
-    return _select(reference, candidates, diagnostics, successful)
+    selection = _select(reference, candidates, diagnostics, successful)
+    if url:
+        # A failed DOI search does not discard an explicitly cited public URL.
+        selection = selection.model_copy(update={'source_type': 'url', 'source_url': url,
+            'diagnostics': (*selection.diagnostics, 'URL_DISCOVERED', 'SOURCE_NOT_YET_ACQUIRED')})
+    return selection
 
 
 async def resolve_reference(reference: Reference, *, client: httpx.AsyncClient | None = None) -> ReferenceResolution:

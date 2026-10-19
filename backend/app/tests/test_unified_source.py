@@ -113,14 +113,16 @@ def test_url_rejects_landing_abstract_wrong_identity_and_no_body(tmp_path, body,
     assert LocalSourceStore(tmp_path).get_locator(reference_locator(ref())) is None
 
 
-def test_public_body_on_nonofficial_redirect_not_accepted(tmp_path):
+def test_public_body_on_nonofficial_redirect_keeps_uncertainty(tmp_path):
     def handler(request):
         if request.url.host == 'www.fda.gov':
             return httpx.Response(302, headers={'location': 'https://unrelated.example/document'})
         return httpx.Response(200, headers={'content-type': 'text/html'}, content=HTML)
     with httpx.Client(transport=httpx.MockTransport(handler)) as client:
         result = retrieve_url_source(ref(), client=client, store=LocalSourceStore(tmp_path))
-    assert result.status != 'success' and not result.chunks
+    assert result.status == 'success' and result.chunks
+    assert result.source.provenance.identity == 'IDENTITY_UNCERTAIN'
+    assert 'UNRECOGNIZED_INSTITUTION' in result.source.provenance.warnings
 
 
 def test_url_content_change_creates_new_version_preserves_old_bytes(tmp_path):
@@ -294,7 +296,7 @@ def test_preprint_requires_confirmed_full_text_and_preserves_uncertainty():
     assert review['identity'] == 'PROBABLE_SAME_WORK'
     assert 'VERSION_RELATIONSHIP_UNCONFIRMED' in review['warnings']
     response.source.identity_status = 'uncertain'
-    assert review_version(r, response) is None
+    assert review_version(r, response)['identity'] == 'IDENTITY_UNCERTAIN'
     response.source.identity_status = 'confirmed'; response.sections = []
     assert review_version(r, response) is None
 
