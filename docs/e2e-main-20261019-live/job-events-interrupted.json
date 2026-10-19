@@ -1,0 +1,55 @@
+{
+  "job_id": "job_9fcae7ea95174d2b9d4a08755ad8b0a8",
+  "events": [
+    {
+      "job_id": "job_9fcae7ea95174d2b9d4a08755ad8b0a8",
+      "sequence": 1,
+      "event_type": "job_created",
+      "task_key": null,
+      "claim_id": null,
+      "reference_id": null,
+      "status": "pending",
+      "timestamp": "2026-10-19T06:59:25.763783+00:00",
+      "reason_code": null,
+      "attempt": null
+    },
+    {
+      "job_id": "job_9fcae7ea95174d2b9d4a08755ad8b0a8",
+      "sequence": 2,
+      "event_type": "job_started",
+      "task_key": null,
+      "claim_id": null,
+      "reference_id": null,
+      "status": "running",
+      "timestamp": "2026-10-19T06:59:25.799435+00:00",
+      "reason_code": null,
+      "attempt": null
+    },
+    {
+      "job_id": "job_9fcae7ea95174d2b9d4a08755ad8b0a8",
+      "sequence": 3,
+      "event_type": "pair_started",
+      "task_key": "task_9f8438a5058e2d7a051b91468abdaf9b75d1fc9bab5d386ca4bc9bb6d4b5b711",
+      "claim_id": "claim:79adf1fa6aad6a5f87f54e8bfd407b2a7e1a64cc1d46bff70f2686e53156cffe",
+      "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:0",
+      "status": "running",
+      "timestamp": "2026-10-19T06:59:25.852655+00:00",
+      "reason_code": null,
+      "attempt": 1
+    },
+    {
+      "job_id": "job_9fcae7ea95174d2b9d4a08755ad8b0a8",
+      "sequence": 4,
+      "event_type": "job_interrupted",
+      "task_key": null,
+      "claim_id": null,
+      "reference_id": null,
+      "status": "interrupted",
+      "timestamp": "2026-10-19T07:00:21.427101+00:00",
+      "reason_code": "PROCESS_INTERRUPTED",
+      "attempt": null
+    }
+  ],
+  "next_sequence": 5,
+  "runtime_error_code": null
+}

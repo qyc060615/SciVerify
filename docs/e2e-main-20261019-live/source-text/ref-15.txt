@@ -1,0 +1,391 @@
+Lee-Jen Wei , PhD
+Author information
+
+Article notes
+
+Copyright and License information
+
+Corresponding Author
+Lee-Jen Wei, PhD, Department of Biostatistics, Harvard University, Boston, MA, USA, 655 Huntington Avenue, Boston, MA 02115,
+wei@hsph.harvard.edu
+
+Bo Huang and Lu Tian contributed equally to the work
+
+Bo Huang, PhD
+
+445 Eastern Point Rd, Pfizer Inc., Groton, CT 11766, USA
+
+Lu Tian, ScD
+
+1265 Welch Road, MSOB X347, Department of Biomedical Data Science, Stanford University, Stanford, CA 94305, USA
+
+Zachary R. McCaw, PhD
+
+677 Huntington Ave, Department of Biostatistics, Harvard T.H. Chan School of Public Health, Boston, MA 02115, USA
+
+Xiaodong Luo, PhD
+
+55 Corporate Drive, Bridgewater, NJ 08807, USA
+
+Enayet Talukder, PhD
+
+445 Eastern Point Rd, Pfizer Inc., Groton, CT 11766, USA
+
+Mace Rothenberg, MD
+
+235 E 42nd St, Pfizer Inc., New York, NY 10017, USA
+
+Wanling Xie, MS
+
+450 Brookline Avenue, Department of Data Sciences, Dana Farber Cancer Institute, Boston, MA 02215, USA
+
+Toni K. Choueiri, MD
+
+450 Brookline Avenue, Department of Medical Oncology, Dana-Farber Cancer Institute, Boston, MA 02215, USA
+
+Dae Hyun Kim, MD, ScD
+
+1200 Centre Street, Hinda and Arthur Marcus Institute for Aging Research, Hebrew SeniorLife, Harvard Medical School, Boston, MA 02131, USA
+
+Lee-Jen Wei, PhD
+
+677 Huntington Ave, Department of Biostatistics, Harvard University, Boston, MA, USA 02115, USA
+
+Issue date 2020 Sep 1.
+
+Abstract
+In comparative studies, the treatment effect is often assessed using a binary outcome that indicates response to the therapy. Commonly used summary measures for response include the cumulative and the current response rate at a specific time point. The current response rate is sometimes referred to as the “probability-of-being-in-response” (PBIR), which regards a patient as a responder only if he/she has achieved and remains in response at present. The methods utilized in practice for estimating these rates, however, may not be appropriate. Moreover, while an effective treatment is expected to achieve a rapid and sustained response, the response at a fixed time point does not provide information about the duration of response. As an alternative, one may consider a curve constructed from the current response rates over the entire study period, which can be used for visualizing how rapidly patients responded to therapy, and how long responses were sustained. The area under the probability-of-being-in-response curve is the mean duration of response. This connection between response and duration of response makes this curve attractive for assessing the treatment effect. In contrast to the conventional method for analyzing the duration of response data, which uses responders only, the above procedure includes all comers in the study. Though discussed extensively in the statistical literature, estimation of the current response rate curve has garnered little attention in the medical literature. In this paper, we illustrate how to construct and analyze such a curve using data from a recent study for treating renal cell carcinoma. We encourage clinical trialists to consider this robust and clinically interpretable procedure as an additional tool for evaluating treatment effects in clinical studies.
+
+INTRODUCTION
+In a clinical study comparing a treatment with a control, a binary outcome variable indicating response to the study therapy is often used for assessing treatment effects. The response is generally defined as an improvement in the patient’s health status, or a reduction in disease activity, and is evaluated periodically. For instance, in diseases such as rheumatoid arthritis and depression, response to an intervention may be defined by a certain level of improvement or change on a measurement scale (
+1
+)(
+2
+)(
+3
+). In oncology studies, treatment effects may be assessed by partial or complete objective response criteria, such as tumor size reduction of a pre-specified amount (
+4
+). In addition to progression-free and overall survival, objective response is frequently used as a secondary endpoint in late-stage solid cancer trials (
+5
+6
+7
+). Pre-specified objective response criteria have also been used to define primary endpoints for early phase clinical trials, accelerated approval of treatments for refractory malignant neoplasms, and for full approval of biosimilars (
+8
+9
+).
+
+Investigators may evaluate the duration of response to treatment with frequent measurements of outcomes. Because patients treated with an effective therapy are expected to respond rapidly and remain in response for a prolonged period, the duration of response has become an important and clinically meaningful outcome measure, especially in oncology studies (
+6
+10
+11
+).
+
+A response may not be observable if disease progression or death or a censoring event occurs first.
+Figure 1
+presents six possible case profiles for a response outcome. For the first case, response occurred at Month 2 and continued until Month 8, when progression or death occurred. For the second case, response occurred at Month 3 and progression or death occurred at Month 5. For the third case, response occurred at Month 2, but censoring occurred at Month 4. For the fourth case, censoring occurred at Month 3, before response. For the fifth case, progression or death occurred at Month 5, before response. For the last case, progression or death occurred at Month 10, again before response.
+
+Figure 1.
+Possible Patterns for Sequential Occurrences of Response (R), Progression/death (P/D), and Censoring Events (C).
+
+CUMULATIVE RESPONSE RATE (CRR)
+One way to summarize response outcomes is the cumulative response at or before a fixed time point. For instance, in a recent study that compared adjunctive vagus nerve stimulation with standard care in treatment-resistant depression, the primary efficacy measure was cumulative response, defined as a 50% decrease from the baseline depression score at any follow-up visit across 5-years (
+3
+). As another example, in a randomized placebo-controlled trial of an oral type-II collagen treatment for rheumatoid arthritis, the primary outcome was the 24-week cumulative response (
+12
+). In oncology studies, cumulative response is almost exclusively used to summarize the response rate at a fixed time.
+
+To illustrate how cumulative response is calculated, we use the six cases displayed in
+Figure 1
+. To estimate the cumulative response at Month 6, the responders include Cases 1, 2, and 3. Case 4, censored at Month 3, would conventionally be regarded as a non-responder. This approach presents two issues. First, if there are a non-trivial number of censoring events before Month 6 (like case 4), the true cumulative response rate may be underestimated, because any patients censored before Month 6 are treated as non-responders, even when censoring is non-informative. Second, patients like cases 2 or 3 who had progression, death, or censoring before Month 6 are still counted as responders, which does not accurately reflect their current response status at Month 6. The first issue can be addressed using standard survival analysis techniques for estimating the cumulative response rate in the presence of censoring (
+13
+). If a patient died or progressed before responding to therapy (cases 5 and 6), technically one can appropriately estimate the response rate by assigning them a rather large response time. For the second issue, we discuss an alternative using the current response rate.
+
+CURRENT RESPONSE RATE OR PROBABILITY-OF-BEING-IN-RESPONSE (PBIR)
+The current response rate or the probability-of-being-in-response (PBIR) is the proportion of patients who have achieved response and remain in response at present. This measure estimates the current rate rather than the cumulative response rate at a specific time. In
+Figure 1
+, case 2 is a responder at Month 3, but not at Month 6. Case 3 is a responder from Month 2 until censoring event at Month 4. For further illustration, consider a study in which the cumulative response rate at Month 6 is 40%, but the current response rate is only 20%. This result indicates that many early responders have not sustained their responses. Although the current response rate has been used outside of oncology studies, inference procedures utilized in practice might not be appropriate, especially in the presence of censoring. In this article, we extend the discussion from the probability-of-being-in-response (PBIR) at a fixed time point to the entire study period.
+
+THE DURATION OF RESPONSE (DOR)
+For non-oncology studies, duration of response is seldom used. For oncology studies, the conventional
+duration of response (
+DOR) analysis is descriptive (
+6
+) and based on responders only. Ignoring non-responders, such as cases 5 and 6 in
+Figure 1
+who have zero duration of response, can result in biased assessment of the duration, especially when the cumulative responses of the two treatment groups differ. For example, consider an ineffective treatment that achieves response in patients with low disease burden at baseline, and who are less likely to experience progression. For this ineffective treatment, the mean duration of response among only responders may appear impressive even though most patients will not benefit. Even if we are interested in the duration of response among responders only, the standard approach of constructing Kaplan-Meier curves and reporting the median duration of response, without formal statistical inference, does not allow us to draw conclusions about treatment efficacy. For this case, the Kaplan-Meier curves are not valid due to the presence of dependent censoring. As an example of such censoring, consider case 3 in
+Figure 1
+, whose response began at Month 2 and was censored at Month 4. Since both, the duration of response and the censoring time are measured from the initial response at Month 2, which is itself an outcome of treatment, the duration of response and censoring time are potentially dependent. In general, the Kaplan-Meier curve is biased for estimating the distribution of the duration of response under dependent censoring (
+14
+).
+
+USING PROBABILITY-OF-BEING-IN-RESPONSE CURVE AS A MEASURE OF OVERALL TREATMENT EFFECT
+While there is no direct relationship between the duration of response and cumulative response rates, duration of response is closely connected with the probability-of-being-in-response (PBIR) curve. A sharp rise of the curve at early time points indicates that patients respond to the treatment rapidly. A slow decline after its peak suggests that patients who responded had a long duration of response. In general, the higher the curve, the better the treatment for achieving and maintaining response. Therefore, the area under the curve can summarize the treatment effect (
+15
+). In the next section, we show via an example that the area under the current response rate or PBIR curve is in fact the mean duration of response for all patients, including both responders and non-responders. This interesting connection makes this curve an intuitive and clinically useful measure of the treatment effect for response-related endpoints.
+
+EXAMPLE of DATA ANALYSIS FOR RESPONSE OUTCOMES: JAVELIN RENAL-101 STUDY
+The probability-of-being-in-response curve analysis has been discussed extensively in the statistical literature but received much less attention in medical research (
+16
+17
+18
+19
+20
+21
+). For illustration, we use the data from the JAVELIN Renal-101 trial (
+NCT02684006
+), which is a multicenter, randomized, open-label, phase 3 study, that compared avelumab/axitinib with sunitinib among patients with advanced renal cell carcinoma. Patients were randomly assigned, in a 1:1 ratio, to avelumab/axitinib (N=442) or sunitinib (N=444). Among all randomized patients, progression-free survival was longer for patients assigned to avelumab/axitinib (hazard ratio, 0.69; 95% confidence interval [CI], 0.56 to 0.84; P<0.001) (
+22
+). Since the information regarding progression, death, and response was sparse beyond approximately 21 months after randomization, we confined our analysis to data up to this time point.
+
+CUMULATIVE RESPONSE RATE (CRR)
+The cumulative response rates (CRR) at Month 6 were 48% (=212/442) for avelumab/axitinib and 23% (=103/444) for sunitinib, considering censored patients as non-responders (thin solid lines in
+Figures 2A
+and
+2B
+). These curves plateau after approximately 12 months, suggesting that most responses occurred before Month 12. By that month, 24 more responses (13 for avelumab/axitinib and 11 for sunitinib) had occurred compared to Month 6, and only 2 additional responses occurred after Month 12 (both in the avelumab/axitinib arm). However, the curves do not convey any information about the durability of responses. In fact, 45 responders receiving avelumab/axitinib and 17 responders receiving sunitinib had progressed or died by Month 12.
+
+Figure 2.
+A.
+Conventional Cumulative Response Rate (CRR) Curve (solid) and Cumulative Incidence Curve (CIC, dashed).
+B.
+Probability-of-Being-in-Response (PBIR) over Time with Data from the JAVELIN Renal-101 Study.
+
+The dotted curves in
+Figure 2A
+are the cumulative incidence curves for time-to-response (
+13
+). Eighty-eight patients in the avelumab/axitinib arm and 135 patients in the sunitinib were censored before experiencing progression or death. These two curves are higher than the conventional cumulative response curves, especially after 5 months of follow-up, since the cumulative incidence curves appropriately account for censoring, whereas the cumulative response rate (CRR) curves would count censored observations as non-responders.
+
+CURRENT RESPONSE RATE OR PROBABILITY-OF-BEING-IN-RESPONSE (PBIR)
+If either progression or death occurred before response, conventionally we assume this patient would not respond during the entire study follow-up. In the absence of censoring, both estimation of the current response rate and construction of confidence intervals are straightforward. In the presence of progression, death, and censoring, well documented and theoretically justified methods are available for inference on probability-of-being-in-response (PBIR) (
+16
+17
+18
+19
+20
+21
+). In the JAVELIN Renal-101 study, the current response rate at Month 6 was 48% and 25% for avelumab/axitinib and sunitinib, respectively, a difference of 22% in favor of avelumab/axitinib (95% CI 16% to 29%). At Month 12, the corresponding rates were 43% and 25%, with a difference of 18% in favor of avelumab/axitinib (95% CI 10% to 25%). The thick curves in
+Figure 2B
+represent the current response rates over time. Over the 21-month follow-up period, the curve is uniformly higher for avelumab/axitinib than for sunitinib. The peaks of the curves occurred at 5.7 months for avelumab/axitinib and 5.8 months for sunitinib. Unlike the cumulative response rate (CRR) curves, the probability-of-being-in-response curves decline after these peaks, indicating that some patients did not have a sustained response. Note that in estimating the current response rate at a specific time point t, one may check if there are enough information to support appropriate analysis discussed in
+Supplementary materials
+.
+
+DURATION OF RESPONSE (DOR)
+For JAVELIN Renal-101 study, the Kaplan-Meier curves in
+Figure 3A
+are based on the conventional analysis of responders only. The median duration of response was not reached for either arm. Generally, no formal inference would be conducted to compare the Kaplan-Meier curves, however, those curves in
+Figure 3A
+give a distorted picture for comparing the durations of response. The selection of patients in these plots was based on a post-randomization criterion, namely, on response to treatment. Thus, these comparisons are not fair to a group, such as avelumab/axitinib, whose response rate was much higher than its counterpart (51.4% vs. 25.7%). To adjust for such imbalances, a common practice (
+23
+) is to construct Kaplan-Meier curves (
+Figure 3B
+), whose initial probabilities reflect the initial response rates among all-comers. However, this adjustment does not remedy the bias arising from dependent censoring (
+14
+). A simple alternative method for estimating the mean duration of response while incorporating data from both responders and non-responders is presented next.
+
+Figure 3.
+Using Duration of Response (DOR) Data from the JAVELIN Renal-101 Study to illustrate potentially biased comparisons via standard Kaplan-Meier procedure among
+A
+. Responders only (subject to patients’ selection bias); and
+B.
+All Patients (subject to bias due to dependent censoring)
+
+USING PROBABILITY-OF-BEING-IN-RESPONSE CURVE AS A MEASURE OF OVERALL TREATMENT EFFECT
+To utilize the current response rates over the entire study period for estimating the mean duration of response, consider as a new composite endpoint: the time to the first event from among progression, death, or response within 21 months after randomization. Although it may not have a straightforward clinical interpretation, this new endpoint bridges the response and duration of response outcomes.
+Figure 4A
+presents Kaplan-Meier curves for progression-free survival and the above composite endpoint in the avelumab/axitinib arm. Since the current response rate at a given time is the chance of having responded but not experienced progression or death, it is equal to the difference between the progression-and-death-free and the progression-death-and-response-free rates. At Month 6, the difference was 48% for avelumab/axitinib (69% for the progression-death-free rate minus 21% for the progression-death-response-free rate). Using the same argument, the probability-of-being-in-response curve over 21 months of the study period is the difference between two Kaplan-Meier curves in
+Figure 4A
+. This characterization provides an easy way to study the properties of the PBIR curve. The 21-month time window was determined by the maximum study follow-up. Note that the choice of the time window to calculate the area under the curve for estimating the mean DOR may be made based on the recommendations provided in the
+Supplementary materials
+. In addition, these two Kaplan-Meier curves are valid estimators provided that the censoring time is independent of the time-to-response and the time-to progression or death. It is also worth noting that, in practice, the time to progression or response cannot be continuously observed. The standard procedure is to use the examination time at which the event of interest is observed as the patient’s “true” event time. For a randomized clinical trial with relatively frequent clinical examinations, the impact of any potential bias resulting from this practice would be minimal.
+
+Figure 4.
+Mean Duration of Response (mDOR) from the JAVELIN Renal-101 Study.
+A.
+mDOR as the Area between two Kaplan-Meier curves for Progression/Death and the Progression/Death/Response in the avelumab plus axitinib arm.
+B.
+mDOR as the Area under the probability-of-being-in-response (PBIR) Curve in the avelumab plus axitinib arm.
+C.
+mDOR as the Area between two Kaplan-Meier curves for Progression/Death and Progression/Death/Response in the sunitinib arm.
+D.
+mDOR as the Area under probability-of-being-in-response Curve in the sunitinib arm.
+
+A simplified explanation on estimation of the above curve in the presence of censoring, using
+Figure 1
+appears in the
+supplementary materials
+.
+
+The area under the probability-of-being-in-response curve in
+Figure 4B
+equals the area between two Kaplan-Meier curves in
+Figure 4A
+and represents the mean duration of response (
+14
+). This average was 8.0 months for the avelumab/axitinib arm and 4.0 months for sunitinib (
+Figures 4C
+and
+4D
+), for a between treatment difference of 4.0 months in favor of avelumab/axitinib (95% CI 2.9 to 5.1 months).
+
+To extrapolate beyond the 21-month truncation time, one can fit a parametric Weibull model to the event time data that generated the Kaplan-Meier curves in
+Figure 4A
+and arrive at an estimate of the entire curve, the area under that curve and the resulting mean duration of response. However, extrapolation beyond the range of the observed data should always be interpreted with caution.
+
+The difference in the mean duration of response across the follow-up period, as given by the difference in the areas under the probability-of-being-in-response curves, provides a global summary measure of treatment difference. In the present case, this curve for avelumab/axitinib is uniformly above, and therefore better than, its sunitinib counterpart. The mean duration of response, estimated using data from all study patients, including responders and non-responders, is easier to interpret and communicate than conventional summaries.
+
+Since the probability-of-being-in-response curve is the difference of two “event-free” curves (progression-and-death-free versus progression-death-and-response-free), which can be consistently estimated via the Kaplan Meier method in the presence of non-informative censoring, the comparison based on the probability-of-being-in-response curves remains valid even when the follow-up time distributions differ between the two treatment groups.
+
+DISCUSSION
+With the emergence of novel and effective therapies for treating various diseases, the aims of treatment include not only rapidly controlling the disease and prolonging survival, but also keeping the diseases at bay for an extended period. Response-related outcomes, if appropriately defined, can play important roles in assessing the treatment effect.
+
+To explore the timing of initial response occurrences, one may use the partial area under the probability-of-being-in-response (PBIR) curve across a relatively short time period, for example, the first 6 months. A treatment that substantially improves the partial area under the curve is likely to achieve response more rapidly. The successful implementation of this proposal depends on the accurate assessment of the response status at a reasonable frequency. On the other hand, unless the assessment procedure is systematically different between treatment arms, the two-group comparison discussed in this paper remains valid. All analytical procedures presented in the paper can be implemented via
+R
+code included as
+supplemental material
+.
+
+Both the mean duration of response among all patients and that among responders have intuitive clinical interpretations. The former is the expected duration of response for a patient receiving a treatment (something a physician can explain before the patient receives the treatment), while the latter represents the expected duration of response among patients that have achieved a response (something a physician can explain after the patient achieves a response). There are pros and cons to each of these approaches, but we would argue that the former is a better summary for the entire population, since it combines the response rate and the duration of response information among responders. Furthermore, the comparison of the latter between treatment groups does not have a causal interpretation, since the response status is itself a post-randomization outcome, and the responder populations in the two treatment groups can be quite different.
+
+Although the proposed measure is an informative summary for the response profile in the entire patient population, no single metric can cover all possible treatment group comparisons. For example, the mean duration of stable disease can be estimated using the same approach for estimating the mean duration of response. Yet another common metric of efficacy is the proportion of patients whose duration of response lasted at least some duration, for example 6 months. However, no valid statistical methods are currently available for estimating this quantity since the standard approach of estimating the distribution of duration of response via the Kaplan-Meier methods is biased. More statistical research is needed to obtain an appropriate estimator for the distribution of the duration of response, either among the entire study population or among the responders only.
+
+Acknowledgements
+The insightful comments/suggestions from Editors and referees are greatly appreciated. Huang, Talukder and Rothenberg are employees and stockholders of Pfizer Inc., and Luo is an employee and stockholder of Sanofi. This research was partially supported by US NIH grants and contracts, including NHLBI R01 HL089778 (LT and LJW) and NIA R21 AG060227 (DHK and LJW)
+
+Contributor Information
+Bo Huang, Pfizer Inc., Groton, CT.
+
+Lu Tian, Department of Biomedical Data Science, Stanford University, Stanford, CA.
+
+Zachary R. McCaw, Department of Biostatistics, Harvard T.H. Chan School of Public Health, Boston, MA.
+
+Xiaodong Luo, Sanofi, Bridgewater, NJ.
+
+Enayet Talukder, Pfizer Inc., Groton, CT.
+
+Mace Rothenberg, Pfizer Inc., New York, NY.
+
+Wanling Xie, Department of Data Sciences, Dana Farber Cancer Institute, Boston, MA.
+
+Toni K. Choueiri, Department of Medical Oncology, Dana-Farber Cancer Institute, Boston, MA.
+
+Dae Hyun Kim, Hinda and Arthur Marcus Institute for Aging Research, Hebrew SeniorLife, Harvard Medical School, Boston, MA.
+
+Lee-Jen Wei, Department of Biostatistics, Harvard University, Boston, MA, USA.
+
+References
+1.
+Felson DT, Anderson JJ, Lange ML, et al.
+Should improvement in rheumatoid arthritis clinical trials be defined as fifty percent or seventy percent improvement in core set measures, rather than twenty percent?
+Arthritis Rheum
+1998; 41:1564.
+
+2.
+Smolen JS, Pangan AL, Emery P, Rigby W, Tanaka Y, Vargas JI, Zhang Y, Damjanov N, Friedman A, Othman AA, Camp HS. Upadacitinib as monotherapy in patients with active rheumatoid arthritis and inadequate response to methotrexate (SELECT-MONOTHERAPY): a randomised, placebo-controlled, double-blind phase 3 study. The Lancet. 2019.
+June
+8;393(10188):2303–11.
+
+3.
+Aaronson ST, Sears P, Ruvuna F, Bunker M, Conway CR, Dougherty DD, Reimherr FW, Schwartz TL, Zajecka JM. A 5-year observational study of patients with treatment-resistant depression treated with vagus nerve stimulation or treatment as usual: comparison of response, remission, and suicidality. American Journal of Psychiatry. 2017.
+July
+1;174(7):640–8.
+
+4.
+Maude SL, Frey N, Shaw PA, Aplenc R, Barrett DM, Bunin NJ, Chew A, Gonzalez VE, Zheng Z, Lacey SF, Mahnke YD. Chimeric antigen receptor T cells for sustained remissions in leukemia. New England Journal of Medicine. 2014.
+October
+16;371(16):1507–17.
+
+5.
+Eisenhauer EA, Therasse P, Bogaerts J, Schwartz LH, Sargent D, Ford R, Dancey J, Arbuck S, Gwyther S, Mooney M, Rubinstein L. New response evaluation criteria in solid tumours: revised RECIST guideline (version 1.1). European journal of cancer. 2009.
+January
+1;45(2):228–47.
+
+6.
+US Food and Drug Administration. Guidance for industry: clinical trial endpoints for the approval of cancer drugs and biologics. Washington, DC, US Food and Drug Administration;
+2018.
+December.
+
+7.
+Blumenthal GM, Pazdur R. Response rate as an approval endpoint in oncology: Back to the future. JAMA oncology. 2016.
+June
+1;2(6):780–1.
+
+8.
+Uno H, Schrag D, Kim DH, Tang D, Tian L, Rugo HS, Wei LJ. Assessing Clinical Equivalence in Oncology Biosimilar Trials with Time-to-Event Outcomes. JNCI Cancer Spectrum. 2019.
+December;3(4):pkz058.
+
+9.
+Rugo HS, Barve A, Waller CF, Hernandez-Bronchud M, Herson J, Yuan J, Sharma R, Baczkowski M, Kothekar M, Loganathan S, Manikhas A. Effect of a proposed trastuzumab biosimilar compared with trastuzumab on overall response rate in patients with ERBB2 (HER2)–positive metastatic breast cancer: a randomized clinical trial. JAMA. 2017.
+January
+3;317(1):37–47.
+
+10.
+Pilié PG, Jonasch E. Durable complete response in renal cell carcinoma clinical trials. The Lancet. 2019.
+May
+9. doi: 10.1016/S0140-6736(19)30949-3.
+
+11.
+US Food and Drug Administration. FDA approves mitomycin for low-grade upper tract urothelial cancer. April
+15, 2020.
+www.fda.gov/drugs/resources-information-approved-drugs/fda-approves-mitomycin-low-grade-upper-tract-urothelial-cancer
+.
+
+12.
+Barnett ML, Kremer JM, St. Clair EW, Clegg DO, Furst D, Weisman M, Fletcher MJ, Chasan-Taber S, Finger E, Morales A, Le CH. Treatment of rheumatoid arthritis with oral type II collagen: results of a multicenter, double-blind, placebo-controlled trial. Arthritis & Rheumatism: Official Journal of the American College of Rheumatology. 1998.
+February;41(2):290–7.
+
+13.
+Lin DY. Non-parametric inference for cumulative incidence functions in competing risks studies. Statistics in medicine. 1997.
+April
+30;16(8):901–10.
+
+14.
+Huang B, Tian L, Talukder E, Rothenberg M, Kim DH, Wei LJ. Evaluating Treatment Effect Based on Duration of Response for a Comparative Oncology Study. JAMA Oncology. 2018.
+June
+1;4(6):874–6
+
+15.
+Bathon JM, Martin RW, Fleischmann RM, Tesser JR, Schiff MH, Keystone EC, Genovese MC, Wasko MC, Moreland LW, Weaver AL, Markenson J. A comparison of etanercept and methotrexate in patients with early rheumatoid arthritis. New England Journal of Medicine. 2000.
+November
+30;343(22):1586–93.
+
+16.
+Temkin NR. An analysis for transient states with application to tumor shrinkage. Biometrics. 1978.
+December
+1:571–80.
+
+17.
+Begg CB, Larson M. A study of the use of the probability-of-being-in-response function as a summary of tumor response data. Biometrics. 1982.
+March
+1:59–66.
+
+18.
+Ellis S, Carroll KJ, Pemberton K. Analysis of duration of response in oncology trials. Contemporary clinical trials. 2008.
+July
+1;29(4):456–65.
+
+19.
+Tsai WY, Luo X, Crowley J
+The Probability of Being in Response Function and Its Applications In: Matsui S, Crowley J (eds) Frontiers of Biostatistical Methods and Applications in Clinical Oncology. 2017.
+Springer, Singapore.
+
+20.
+Pepe MS. Inference for events with dependent risks in multiple endpoint studies. Journal of the American Statistical Association. 1991.
+September
+1;86(415):770–8.
+
+21.
+Gouskova NA, Cole SR, Eron JJ, Fine JP. Viral suppression in HIV studies: combining times to suppression and rebound. Biometrics. 2014; 70(2):441–8.
+
+22.
+Motzer RJ, Penkov K, Haanen J, et al.
+Avelumab plus axitinib versus sunitinib for advanced renal-cell carcinoma. New England Journal of Medicine. 2019.
+March
+21;380(12):1103–15.
+
+23.
+Morgan TM. Analysis of duration of response: a problem of oncology trials. Control Clin Trials. 1988.
+March;9(1):11–8.
+
+Associated Data
+This section collects any data citations, data availability statements, or supplementary materials included in this article.

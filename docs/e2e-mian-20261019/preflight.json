@@ -1,0 +1,42 @@
+{
+  "stage": "0_preflight",
+  "blocker": "INPUT_PDF_MISSING",
+  "pdf_path": "C:\\Users\\31147\\Desktop\\coding_project\\ResearchGuard\\mian.pdf",
+  "pdf_exists": false,
+  "python": "3.11.17 | packaged by conda-forge | (main, Oct  6 2026, 23:51:21) [MSC v.1944 64 bit (AMD64)]",
+  "python_executable": "D:\\conda_envs\\researchguard\\python.exe",
+  "packages": {
+    "fastapi": "0.142.3",
+    "paper-qa": "2026.8.12",
+    "pypdf": "6.19.0",
+    "pdfplumber": "NOT_INSTALLED",
+    "PyMuPDF": "NOT_INSTALLED"
+  },
+  "health": {
+    "grobid": {
+      "status_code": 200
+    },
+    "backend": {
+      "status_code": 200
+    },
+    "frontend": {
+      "status_code": 200
+    }
+  },
+  "models": {
+    "LLM_PROVIDER": "openai-compatible",
+    "LLM_MODEL": "deepseek-flash",
+    "PAPERQA2_MODEL": "openai/deepseek-flash",
+    "PAPERQA2_EMBEDDING_MODEL": "openai/text-embedding-v4",
+    "RESEARCHGUARD_EVIDENCE_ENGINE": "paperqa2"
+  },
+  "credentials_configured": {
+    "LLM_API_KEY": true,
+    "PAPERQA2_API_KEY": true,
+    "PAPERQA2_EMBEDDING_API_KEY": true
+  },
+  "frontend_dependencies_present": true,
+  "source_store_present": true,
+  "paid_requests": 0,
+  "new_jobs": 0
+}

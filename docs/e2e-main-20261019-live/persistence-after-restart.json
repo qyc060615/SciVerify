@@ -1,0 +1,20 @@
+{
+  "reads": [
+    {
+      "port": 8001,
+      "status_code": 200,
+      "job_status": "waiting_for_source",
+      "revision": 40,
+      "equals_recorded_final": true
+    },
+    {
+      "port": 8000,
+      "status_code": 500,
+      "job_status": null,
+      "revision": null,
+      "equals_recorded_final": false
+    }
+  ],
+  "job_bytes_unchanged": true,
+  "no_model_calls_from_restart": true
+}

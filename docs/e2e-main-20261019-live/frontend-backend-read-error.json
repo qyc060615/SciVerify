@@ -1,0 +1,8 @@
+{
+  "status_code": 500,
+  "body": {
+    "detail": {
+      "code": "JOB_SNAPSHOT_CORRUPT"
+    }
+  }
+}

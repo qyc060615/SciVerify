@@ -144,3 +144,10 @@ def test_storage_capacity_includes_orphaned_temporaries(tmp_path):
         store.create(snapshot())
     assert (tmp_path / ".pending-orphan.tmp").stat().st_size == 10000
     assert not list(tmp_path.glob("*.json"))
+
+
+def test_default_job_store_is_isolated_from_live_demo_jobs(tmp_path):
+    # A default Runtime/TestClient must never recover or rewrite developer jobs.
+    store = LocalJobStore()
+    assert store.root == tmp_path / "jobs"
+    assert store.list_job_ids() == ()

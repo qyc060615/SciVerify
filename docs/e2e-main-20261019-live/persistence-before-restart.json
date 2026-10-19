@@ -1,0 +1,7 @@
+{
+  "job_id": "job_9fcae7ea95174d2b9d4a08755ad8b0a8",
+  "state": "waiting_for_source",
+  "revision": 40,
+  "job_sha256": "d9474de98502db7741b6642a6fd2a9f0222f1f6fe9404ad9c163f9f1f9dda90d",
+  "model_requests_before_restart": 278
+}

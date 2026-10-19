@@ -162,6 +162,9 @@ async def test_builtin_m4_verifier_receives_context_without_changing_claim_or_ev
             assert parsed.manuscript.title is None
             assert '"manuscript_title": null' in prompt
             assert "Manuscript context" in prompt
+            import re
+            context = json.loads(re.search(r"Manuscript context[^\n]*:\n(\{[^\n]*\})", prompt).group(1))
+            assert context["original_paragraph"] == parsed.paragraphs[0].text
             return super().generate(prompt, **kwargs)
     llm = RecordingLLM(list(analyses("INSUFFICIENT", "", "The selected excerpt does not settle the claim.", ids=[])))
     result = await verify_manuscript_core(parsed, extraction, source_retriever=lambda doi: paper,
@@ -182,3 +185,29 @@ def test_replayed_response_explains_withdrawn_judgment_and_keeps_raw_agents():
     assert "not accepted as the final judgment" in result.reasoning
     assert result.adjudicator == agents[2]
     assert result.suggested_correction is None
+
+
+def test_real_endpoint_alias_fixture_retains_definition_and_support_contract():
+    case = json.loads((FIXTURES / "scientific_c8_ref14.json").read_text(encoding="utf-8"))
+    assert "surviving and not receiving attentive care" not in case["context"]["text"]
+    assert "surviving and not receiving attentive care" in case["paragraph"]["text"]
+    chunks = [EvidenceChunk.model_validate(c) for c in case["original_verification"]["evidence_chunks"]]
+    evidence = evidence_to_legacy(chunks, preprocess_claim(case["claim"]["text"]))
+    agents = analyses("SUPPORTS", evidence[0].text,
+        "The paragraph defines the same recovered, alive state and the source measures its mean time over 28 days.",
+        ids=[evidence[0].chunk_id, evidence[1].chunk_id])
+    response = EvidenceRetrievalResponse(status="success", claim=case["claim"]["text"],
+        paper=EvidencePaperSummary(paper_id=chunks[0].source_document_id), evidence=evidence)
+    result = _verify_evidence(response.claim, response, llm=MockLLMProvider(list(agents)),
+        verification_context=json.dumps({"citation_context":case["context"]["text"],
+            "original_paragraph":case["paragraph"]["text"]}))
+    assert result.verdict == Verdict.SUPPORTS
+    assert result.evidence == evidence and result.claim == response.claim
+
+
+def test_different_operational_endpoints_are_not_automatically_equivalent():
+    text = "The primary endpoint was time until clinical recovery, not time spent recovered."
+    result = validate([item(text)], analyses("CONTRADICTS", text,
+        "The same trial explicitly measures time until recovery; the claim instead asserts time spent recovered."),
+        "The primary endpoint was time spent recovered.")
+    assert result.verdict == Verdict.CONTRADICTS

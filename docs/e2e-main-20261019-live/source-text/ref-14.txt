@@ -1,0 +1,369 @@
+Lee-Jen Wei , PhD
+Author information
+
+Copyright and License information
+
+Disclosures:
+Disclosures can be viewed at
+www.acponline.org/authors/icmje/ConflictOfInterestForms.do?msNum=M20-4044
+.
+
+Corresponding Author:
+Lee-Jen Wei, PhD, Department of Biostatistics, Harvard University, 655 Huntington Avenue, Boston, MA 02115; e-mail,
+wei@hsph.harvard.edu
+.
+
+Current Author Addresses:
+Dr. McCaw: Google, 1600 Amphitheatre Parkway, Mountain View, CA 94043.
+
+Dr. Tian: MSOB X347, Department of Biomedical Data Science, Stanford University, Stanford, CA 94943.
+
+Dr. Vassy: Jamaica Plain VA Medical Center, 150 South Huntington Avenue, 152-G, Boston, MA 02130.
+
+Dr. Ritchie: The Mongan Institute, Massachusetts General Hospital, 100 Cambridge Street, Suite 1600, Boston, MA 02114.
+
+Dr. Lee: Department of Emergency Medicine, National Taiwan University Hospital, Taipei, Taiwan 100.
+
+Dr. Kim: Marcus Institute for Aging Research, Hebrew SeniorLife, 1200 Centre Street, Boston, MA 02131.
+
+Dr. Wei: Department of Biostatistics, Harvard University, 655 Huntington Avenue, Boston, MA 02115.
+
+Author Contributions:
+Conception and design: L. Tian, L.J. Wei.
+
+Analysis and interpretation of the data: Z.R. McCaw, L. Tian, D.H. Kim, L.J. Wei.
+
+Drafting of the article: Z.R. McCaw, L. Tian, C.S. Ritchie, L.J. Wei.
+
+Critical revision for important intellectual content: Z.R. McCaw, L. Tian, J.L. Vassy, C.S. Ritchie, C.C. Lee, D.H. Kim, L.J. Wei.
+
+Final approval of the article: Z.R. McCaw, L. Tian, J.L. Vassy, C.S. Ritchie, C.C. Lee, D.H. Kim, L.J. Wei.
+
+Statistical expertise: Z.R. McCaw, L. Tian, L.J. Wei.
+
+Collection and assembly of data: Z.R. McCaw.
+
+This article is made available via the PMC Open Access Subset for unrestricted re-use for research, analyses, and text and data mining through PubMed Central. Acknowledgement of the original source shall include a notice similar to the following: "© 2020 American College of Physicians. Some rights reserved. This work permits non-commercial use, distribution, and reproduction in any medium, provided the original author and source are credited." These permissions are granted for the duration of the COVID-19 pandemic or until permissions are revoked in writing. Upon expiration of these permissions, PMC is granted a perpetual license to make this article available via PMC and Europe PMC, consistent with existing copyright protections.
+
+Trials evaluating treatments for COVID-19 often use the time to a positive outcome as a key end point. In the presence of death as a competing risk, commonly used survival analysis techniques may not be appropriate. Using examples from 2 recent trials of treatments for COVID-19, the authors discuss issues with the current practice and present alternative, more clinically interpretable approaches.
+
+Abstract
+Clinical trials of treatments for coronavirus disease 2019 (COVID-19) draw intense public attention. More than ever, valid, transparent, and intuitive summaries of the treatment effects, including efficacy and harm, are needed. In recently published and ongoing randomized comparative trials evaluating treatments for COVID-19, time to a positive outcome, such as recovery or improvement, has repeatedly been used as either the primary or key secondary end point. Because patients may die before recovery or improvement, data analysis of this end point faces a competing risk problem. Commonly used survival analysis techniques, such as the Kaplan–Meier method, often are not appropriate for such situations. Moreover, almost all trials have quantified treatment effects by using the hazard ratio, which is difficult to interpret for a positive event, especially in the presence of competing risks. Using 2 recent trials evaluating treatments (remdesivir and convalescent
+plasma) for COVID-19 as examples, a valid, well-established yet underused procedure is presented for estimating the cumulative recovery or improvement rate curve across the study period. Furthermore, an intuitive and clinically interpretable summary of treatment efficacy based on this curve is also proposed. Clinical investigators are encouraged to consider applying these methods for quantifying treatment effects in future studies of COVID-19.
+
+Several recent randomized, comparative trials of treatments for coronavirus disease 2019 (COVID-19) used time to a positive outcome, such as improvement or recovery, as either the primary end point or a key secondary end point (
+1–7
+). The
+Supplement Table
+(in Part A of the
+Supplement
+) provides detailed descriptions of the end points, efficacy measures, and analysis results from several recently published studies of COVID-19. This article discusses the issues and challenges that commonly arise in the analysis of such trials, and using examples from 2 trials, presents well-established yet underused analytic procedures that provide robust and clinically interpretable summaries of treatment efficacy.
+
+Example 1
+ACTT-1 (Adaptive COVID-19 Treatment Trial) is an ongoing double-blind, randomized, placebo-controlled trial of remdesivir versus placebo in adults hospitalized with COVID-19 who have evidence of lower respiratory tract involvement (
+5
+). Patient health was closely monitored across 28 days of follow-up and classified on an 8-point ordinal scale (Part B of the
+Supplement
+, available at Annals.org), with category 1 being the most favorable outcome (discharge from hospital with no limitation of activities) and category 8 being death. The primary end point was time to recovery, defined as the first time during the 28 days of follow-up the patient attained category 1, 2, or 3.
+
+Example 2
+Li and colleagues (
+7
+) conducted an open-label, randomized, comparative trial of convalescent plasma versus standard care among adults hospitalized with confirmed COVID-19 and severe or life-threatening symptoms. As in ACTT-1, patient health was closely monitored across 28 days and classified on a 6-point ordinal scale (Part C of the
+Supplement
+, available at Annals.org), with category 1 being discharge from the hospital and category 6 being death. The primary end point was time to clinical improvement, defined as hospital discharge or a 2-point reduction on the 6-point disease severity scale.
+
+Recovery and Death as Competing Events
+Figure 1
+illustrates the 4 possible outcome patterns for hypothetical patients in the remdesivir and convalescent plasma trials. In case 1, the patient recovered (or improved) on day 7 and had a postrecovery time span of 21 days. In case 2, the patient died on day 14 without recovery. Both trials assigned such patients an arbitrary recovery time that was censored at the end of follow-up. In fact, the recovery times of patients who have died could not be defined or estimated. By contrast, the postrecovery time span for these patients is well-defined as 0 days. In case 3, the patient was alive but had not recovered by day 21. Time to recovery was censored, for example, because of the patient's late entry into the trial; the postrecovery time span would be less than 7 days. In case 4, the patient survived the 28 days of follow-up without recovery, and the postrecovery time span was 0 days.
+
+Figure 1. Possible patterns for time to recovery for ACTT-1 (Adaptive COVID-19 Treatment Trial) and the study by Li and colleagues ( 7 ).
+In the remdesivir and convalescent plasma studies, the death of a patient before the end of the study prevents us from observing recovery or improvement. Because death is a negative outcome, whereas recovery or improvement is positive, the standard technique of defining a composite end point, such as the time to recovery or improvement or the time to death, is not applicable. Moreover, because the potential death and recovery times of each patient are probably correlated, standard survival analysis methods that treat death as independent censoring are not appropriate.
+
+Example 1: ACTT-1
+In ACTT-1 (
+5
+), 538 patients were assigned to remdesivir and 521 to placebo. Respectively, 334 and 273 patients recovered and 132 and 169 observations were censored, as in case 3. By day 15, 33 and 55 patients in the remdesivir and placebo groups, respectively, had died. Figure S3 of the original paper depicts the overall survival curves through day 29.
+
+To further explore the reported analysis (
+8
+), we scanned the cumulative recovery curves in Figure 2A and the overall survival curves in Figure S3 of the original ACTT-1 article to recreate the individual patient-level observations that we present in our
+Figure 1
+. The details of this reconstruction procedure are given in Part D of the
+Supplement
+(available at Annals.org). For the original analysis, the authors assigned a censored recovery time of 29 days to patients who died before recovery and applied the standard Kaplan–Meier method for estimating the time to recovery. Using the reconstructed data, our
+Figure 2
+presents 1 minus the Kaplan–Meier curves constructed via the method used in ACTT-1, which are almost identical to those reported in Figure 2A of the
+original article (
+5
+). In the presence of death as a competing risk and censored observations before day 28, the Kaplan–Meier curve does not provide a valid estimate of the proportion of patients who survived and recovered by each time point (
+9–12
+). In ACTT-1, 301 cases (132 + 169) were censored before day 28 at the interim analysis.
+
+Figure 2. Kaplan–Meier curves for the cumulative proportion of patients recovered, obtained by using reconstructed data from Beigel and colleagues ( 5 ).
+The strategy adopted by ACTT-1 investigators for managing death as a competing risk is unusual. The more common—although controversial—approach is to apply Kaplan–Meier while using the cause-specific hazard argument to treat the recovery times of patients who have died as being independently censored. Unfortunately, in such competing risk approaches, the corresponding Kaplan–Meier curve cannot be used to estimate the cumulative recovery rate curve (
+13
+,
+14
+).
+
+A valid and interpretable procedure for analyzing data from such studies is to construct cumulative incidence curves, rather than Kaplan–Meier curves, for estimating the proportion of surviving patients whose recovery time is less than any specific time point (
+9–12
+). Using the reconstructed patient-level time-to-event data, we were able to estimate the cumulative incidence curves for time to recovery for remdesivir and placebo (
+Figure 3
+,
+A
+). For example, among patients receiving remdesivir, 60% survived and recovered within 15 days, whereas in the placebo group, only 50% of patients survived and recovered. The curve for remdesivir is higher than that for placebo over the entire 28 days, indicating that the patients receiving remdesivir tended to recover faster than those receiving placebo. Note that
+for ACTT-1, except for the tails, the cumulative incidence curves in
+Figure 3
+,
+A
+, are quite similar to the Kaplan–Meier curves from the original study; thus, the study's conclusion remains valid. The next section discusses when the Kaplan–Meier method used by ACTT-1 can be seriously biased.
+
+Figure 3. Cumulative incidence curves ( A ) and mean postrecovery times ( B and C ).
+A.
+Cumulative incidence curves from ACTT-1 (Adaptive COVID-19 Treatment Trial) for the proportion of patients recovered, treating death as a competing risk and depicting days corresponding to the median recovery.
+B and C.
+Mean time in recovery, as the area under the cumulative incidence curve, across the 28 days of study follow-up.
+
+Example 2: Convalescent Plasma Study
+The study by Li and colleagues (
+7
+) also faced the issue of death as a competing risk. In this study, 52 patients were randomly assigned to receive convalescent plasma and 51 patients to receive standard care. For convalescent plasma and standard care, respectively, 27 and 22 patients recovered whereas 8 and 12 died. Using reconstructed data from the authors' reported Figures 2A and e2 (
+7
+), the cumulative incidence curves are presented in
+Supplement
+Figure 1 (Part E of the
+Supplement
+, available at Annals.org). Among patients receiving convalescent plasma, 53% had survived and improved by day 28, compared with 42% of patients in the standard care group. The difference was 11 percentage points (95% CI, −9 to 29 percentage points;
+P
+= 0.27).
+
+Kaplan–Meier Analysis Can Be Seriously Biased
+We conducted a numerical study to investigate when the Kaplan–Meier method used by ACTT-1 and Li and colleagues (
+7
+) may have serious issues estimating the cumulative rate of recovery or improvement. The Kaplan–Meier curve may be severely biased if the mortality and censoring rates are elevated during follow-up. The details are in Part F of the
+Supplement
+(available at Annals.org). Because the 2 studies discussed here had relatively low mortality and censoring rates, the bias was not severe. However, for studies with patients at elevated risk—for instance, those with acute respiratory distress syndrome—the short-term mortality rate may exceed 30%. In future studies, in which follow-up may extend well beyond 28 days, one may expect more censored observations, especially at the interim analysis, accentuating the risk of severe bias. Moreover,
+those studies may define a more stringent primary outcome, such as “complete recovery,” in contrast to “discharged from hospital,” which may include patients who have sustained irreversible physical or mental damage. Defining a more demanding desirable outcome may decrease the rate of complete recovery, whereas expanding the scope of the undesirable competing outcome may increase the rate of the competing event. As demonstrated via the numerical study reported in Part F of the
+Supplement
+, the Kaplan–Meier estimate of the cumulative recovery curve applied by the aforementioned studies may be severely biased under these situations. In any event, to avoid any potential bias, a valid method for estimating the recovery or improvement rate curve is strongly recommended.
+
+Summarizing Cumulative Recovery Curves: Alternatives to the Hazard Ratio for Time to Recovery
+ACTT-1 assessed the comparative efficacy of remdesivir versus placebo by using the hazard ratio (1.32 [CI, 1.12 to 1.55];
+< 0.001). However, a 32% increase in the “hazard” of recovery from remdesivir is difficult to interpret, because unlike “risk,” hazard is not a probability measure; that is, patients receiving remdesivir were not 32% more likely to recover than patients receiving placebo. With competing risks, the validity and interpretability of the hazard ratio become even more questionable (
+10
+11
+). Moreover, without a reference hazard curve from the placebo group, the hazard ratio by itself cannot assess the clinical utility of remdesivir.
+
+Using the cumulative incidence curve (
+A
+) for recovery, we can quantify the between-group difference by using summary measures that are more robust and interpretable than the hazard ratio. Standard choices include the median time to recovery, as well as the cumulative recovery rate at a specific time point. From
+A
+, the median recovery times were 11 and 15 days, respectively, for remdesivir and placebo. The difference was 4 days (CI, 1.0 to 7.0 days;
+= 0.003). However, the precision of a median estimate is often quite low, as reflected by the wide CI. Moreover, if the recovery rate on day 28 was less than 50%, then the median recovery time cannot be empirically estimated.
+
+The cumulative recovery rate on day 28 is also a reasonable summary if the time to recovery during the study is not of primary interest. Estimates for these rates correspond to the vertical distance from the
+x
+-axis to the cumulative incidence curves in
+A
+. In the present case, these were 74% and 70%, respectively, for remdesivir and placebo. The difference is 4.7 percentage points (CI, −2.8 to 11.6 percentage points;
+= 0.20). Thus, whether remdesivir was superior to placebo with respect to the cumulative recovery rate on day 28 is inconclusive.
+
+An alternative summary of the cumulative recovery rate over time is the area under the cumulative incidence curve up to 28 days. Intuitively, the larger the area, the better the therapy. In
+B
+and
+C
+, we present these areas of 11.9 and 14.1 days for the remdesivir and placebo groups, respectively. The clinical interpretation is informative; the area under the cumulative recovery curve is the average postrecovery time that study patients spent, as displayed for hypothetical patients on the right-hand side of
+Figure 1
+. Therefore, across the 28 days of follow-up, patients receiving remdesivir spent 14.1 postrecovery days, on average, whereas patients receiving placebo spent only 11.9 days. The difference of 2.2 days (CI, 0.89 to 3.52 days;
+< 0.001) favors remdesivir. Zhao and
+colleagues (
+12
+) recently presented a similarly intuitive summary measure for cardiovascular clinical studies in the presence of competing risks.
+
+For the study by Li and colleagues (
+7
+), the hazard ratio for time to improvement was 1.40 (CI, 0.79 to 2.49;
+= 0.26). Across the 28 days of follow-up, the area under the cumulative incidence curve (
+Supplement
+Figure 1) was 7.4 days for convalescent plasma and 5.2 days for standard care, for a difference of 2.2 days (CI, −0.96 to 5.2 days;
+= 0.17). That is, across the 28 days of follow-up, patients receiving convalescent plasma spent 2.2 more postimprovement days, on average, than patients receiving standard care.
+
+Survival Analysis via the Mean Survival Time Across the Study Period
+For the standard overall survival time in these examples, competing risks are not present and the standard Kaplan–Meier curves are appropriate. For overall survival, as for recovery, the higher the curve, the better the treatment. Thus, the area under the overall survival curve also provides a summary of treatment efficacy. In fact, the area under the Kaplan–Meier curve across a specific time window is the restricted mean survival time, which has been discussed extensively in the literature (
+15–18
+). For ACTT-1, by using reconstructed data from Figure S3 in the original paper (
+5
+), the 28-day restricted mean survival times were 26.1 days for remdesivir and 25.3 days for placebo (
+Supplement
+Figure 3 in Part G of the
+Supplement
+, available at Annals.org). The difference was 0.76 days (CI, −0.09 to 1.61 days;
+= 0.079). That is, across the 28 days of follow-up, patients receiving remdesivir survived 0.76 days longer, on average, than those receiving placebo. These summaries are much easier to contextualize than the corresponding hazard ratio of 0.70 (CI, 0.47 to 1.04;
+= 0.07). The overall survival rates on day 28 were 88% and 85% for remdesivir and placebo, with a difference of 3.1 percentage points (CI, −2.2 to 8.3 percentage points;
+= 0.25). For mortality, the 28-day rate difference is probably a better summary than either the hazard ratio or the mean survival time difference, considering the short follow-up.
+
+For the study by Li and colleagues (
+7
+), the hazard ratio for overall survival was 0.74 (CI, 0.30 to 1.84;
+= 0.52), whereas the 28-day restricted mean survival times were 25.5 days for convalescent plasma and 24.9 days for standard care, with a difference of 0.53 days (CI, −1.9 to 3.0 days;
+= 0.67). The day 28 mortality rates were 83% and 69% for convalescent plasma and standard care, respectively, with a difference of 13.9 percentage points (CI, −4.9 to 33 percentage points;
+= 0.15).
+
+Discussion
+Most published and ongoing studies of COVID-19 that involve both recovery and death as outcomes have applied analytic methods similar to those of the studies discussed here (Part A of the
+Supplement
+) (
+1
+,
+4
+,
+5
+,
+7
+). Accordingly, our proposal has potentially broad implications. Because time to recovery is not defined for patients who die before recovering, the mean time to recovery in the presence of death cannot be determined. In ACTT-1 and the convalescent plasma trial, the investigators arbitrarily censored the time to recovery or improvement at the end of study follow-up. By contrast, for a specific follow-up time, such as 28 days, the time spent after recovery is always well-defined, as shown in
+Figure 1
+, because a patient who has died does not spend any postrecovery time. Naturally, a prespecified time window, such as 28 days, is crucial for assessing and interpreting treatment efficacy using this metric. Future trials may extend the follow-up to gather more information.
+
+No single summary measure can capture all the information provided by the cumulative recovery curves in
+Figure 3
+. On the other hand, an intuitive and clinically meaningful summary is essential for designing studies and making treatment selection decisions. Especially for COVID-19 trials, we need transparent and unambiguous summaries of treatment efficacy that are easily comprehended by practitioners, patients, and regulatory agencies.
+
+The choice of end point is also crucial for short-term clinical studies in the critical care arena. For the end point of recovery, one must consider whether having recovered within a specific period, such as 28 days, or the time to recovery is of primary clinical interest. For COVID-19, both end points provide useful information about the clinical utility of a new therapy. On the other hand, for overall survival, it is not clear whether the 0.76-day difference in the time to death in ACTT-1 or the 0.53-day difference in the convalescent plasma trial is clinically informative. In this case, the mortality rate at a specific time point across a longer follow-up may be more relevant.
+
+Some of the treatment trials listed in Part A of the
+Supplement
+(
+4–7
+) applied a stratified Cox model to adjust for baseline factors, such as baseline disease severity. Generalizing the simple 2-sample procedure for estimating the difference in areas under the curve to allow for several strata is straightforward (
+19
+). Specifically, we first estimate the treatment effect within each stratum by calculating the difference in the areas under the cumulative incidence curves. We then summarize the overall treatment effect via the average of the aforementioned stratum-specific differences, weighted by the stratum sizes.
+
+All our analyses were performed in the R statistical computing environment (3.6.2; R Foundation for Statistical Computing) (
+20
+). Kaplan–Meier curves were constructed by using the
+survival
+package (
+21
+), cumulative incidence curves were estimated by using the
+cmprsk
+package (
+22
+), and survival differences and restricted mean survival time analyses were conducted by using the
+surv2sampleComp
+package (
+23
+). We have made software for analyzing the area under the cumulative incidence curve publicly available (
+24
+).
+
+Footnotes
+This article was published at Annals.org on 7 July 2020.
+
+* Drs. McCaw and Tian contributed equally to this work.
+
+References
+1.
+Cao B, Wang Y, Wen D, et al.
+A trial of lopinavir-ritonavir in adults hospitalized with severe COVID-19. N Engl J Med. 2020;382:1787-1799. [PMID: 32187464] doi:10.1056/NEJMoa2001282
+
+2.
+Hung IF, Lung KC, Tso EY, et al.
+Triple combination of interferon beta-1b, lopinavir-ritonavir, and ribavirin in the treatment of patients admitted to hospital with COVID-19: an open-label, randomised, phase 2 trial. Lancet. 2020;395:1695-1704. [PMID: 32401715] doi:10.1016/S0140-6736(20)31042-4
+
+3.
+Tang W, Cao Z, Han M, et al.
+Hydroxychloroquine in patients with mainly mild to moderate coronavirus disease 2019: open label, randomised controlled trial. BMJ. 2020;369:m1849. [PMID: 32409561] doi:10.1136/bmj.m1849
+
+4.
+Wang Y, Zhang D, Du G, et al.
+Remdesivir in adults with severe COVID-19: a randomised, double-blind, placebo-controlled, multicentre trial. Lancet. 2020;395:1569-1578. [PMID: 32423584] doi:10.1016/S0140-6736(20)31022-9
+
+5.
+Beigel JH, Tomashek KM, Dodd LE, et al; ACTT-1 Study Group Members.
+Remdesivir for the treatment of COVID-19 - preliminary report. N Engl J Med. 2020. [PMID: 32445440] doi:10.1056/NEJMoa2007764
+
+6.
+Goldman JD, Lye DCB, Hui DS, et al; GS-US-540-5773 Investigators.
+Remdesivir for 5 or 10 days in patients with severe COVID-19. N Engl J Med. 2020. [PMID: 32459919] doi:10.1056/NEJMoa2015301
+
+7.
+Li L, Zhang W, Hu Y, et al.
+Effect of convalescent plasma therapy on time to clinical improvement in patients with severe and life-threatening COVID-19: a randomized clinical trial. JAMA. 2020. [PMID: 32492084] doi:10.1001/jama.2020.10044
+
+8.
+Guyot P, Ades AE, Ouwens MJ, et al.
+Enhanced secondary analysis of survival data: reconstructing the data from published Kaplan-Meier survival curves. BMC Med Res Methodol. 2012;12:9. [PMID: 22297116] doi:10.1186/1471-2288-12-9
+
+9.
+Austin PC, Lee DS, Fine JP.
+Introduction to the analysis of survival data in the presence of competing risks. Circulation. 2016;133:601-9. [PMID: 26858290] doi:10.1161/CIRCULATIONAHA.115.017719
+
+10.
+Lau B, Cole SR, Gange SJ.
+Competing risk regression models for epidemiologic data. Am J Epidemiol. 2009;170:244-56. [PMID: 19494242] doi:10.1093/aje/kwp107
+
+11.
+Fine JP, Gray RJ.
+A proportional hazards model for the subdistribution of a competing risk. Journal of the American Statistical Association. 1999;94:496-509. doi:10.1080 /01621459.1999.10474144
+
+12.
+Zhao L, Tian L, Claggett B, et al.
+Estimating treatment effect with clinical interpretation from a comparative clinical trial with an end point subject to competing risks. JAMA Cardiol. 2018;3:357-358. [PMID: 29541747] doi:10.1001/jamacardio.2018.0127
+
+13.
+Wolkewitz M, Cooper BS, Bonten MJ, et al.
+Interpreting and comparing risks in the presence of competing events. BMJ. 2014;349:g5060. [PMID: 25146097] doi:10.1136/bmj.g5060
+
+14.
+Austin PC, Fine JP.
+Accounting for competing risks in randomized controlled trials: a review and recommendations for improvement. Stat Med. 2017;36:1203-1209. [PMID: 28102550] doi:10.1002/sim.7215
+
+15.
+Kim DH, Uno H, Wei LJ.
+Restricted mean survival time as a measure to interpret clinical trial results. JAMA Cardiol. 2017;2:1179-1180. [PMID: 28877311] doi:10.1001/jamacardio.2017.2922
+
+16.
+Pak K, Uno H, Kim DH, et al.
+Interpretability of cancer clinical trial results using restricted mean survival time as an alternative to the hazard ratio. JAMA Oncol. 2017;3:1692-1696. [PMID: 28975263] doi:10.1001/jamaoncol.2017.2797
+
+17.
+Uno H, Claggett B, Tian L, et al.
+Moving beyond the hazard ratio in quantifying the between-group difference in survival analysis. J Clin Oncol. 2014;32:2380-5. [PMID: 24982461] doi:10.1200/JCO.2014.55.2208
+
+18.
+McCaw ZR, Orkaby AR, Wei LJ, et al.
+Applying evidence-based medicine to shared decision making: value of restricted MeanSurvival time [Editorial]. Am J Med. 2019;132:13-15. [PMID: 30076822] doi:10.1016/j.amjmed.2018.07.026
+
+19.
+Tian L, Zhao L, Wei LJ.
+Predicting the restricted mean event time with the subject's baseline covariates in survival analysis. Biostatistics. 2014;15:222-33. [PMID: 24292992] doi:10.1093/biostatistics/kxt050
+
+20.
+The R Project for Statistical Computing.
+Home page. Accessed at
+www.R-project.org
+
+21.
+Therneau TM, Lumley T, Atkinson E, et al.
+survival: Survival Analysis. Accessed at
+https://CRAN.R-project.org/package=survival
+
+22.
+Gray B.
+cmprsk: Subdistribution Analysis of Competing Risks. Accessed at
+https://CRAN.R-project.org/package=cmprsk
+
+23.
+Tian L, Uno H, Horiguchi M.
+surv2sampleComp: Inference for Model-Free Between-Group Parameters for Censored Survival Data. Accessed at
+https://CRAN.R-project.org/package=surv2sampleComp
+
+24.
+McCaw Z.
+zrmacc/CICs. Accessed at
+https://github.com/zrmacc/CICs
+
+Associated Data
+This section collects any data citations, data availability statements, or supplementary materials included in this article.

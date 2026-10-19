@@ -1,0 +1,67 @@
+{
+  "job_id": "job_9fcae7ea95174d2b9d4a08755ad8b0a8",
+  "state": "waiting_for_source",
+  "revision": 40,
+  "created_at": "2026-10-19T06:59:25.763783+00:00",
+  "updated_at": "2026-10-19T07:16:39.244356+00:00",
+  "total_pairs": 17,
+  "completed_pairs": 14,
+  "scientific_agent_completed_pairs": 12,
+  "task_states": {
+    "completed": 14,
+    "blocked_source": 2,
+    "failed": 1
+  },
+  "reason_codes": {
+    "VERIFIED": 12,
+    "SOURCE_NOT_FOUND": 1,
+    "NO_RELEVANT_EVIDENCE": 2,
+    "DOI_MISSING": 1,
+    "SOURCE_REQUIRED_FULL_TEXT_UNAVAILABLE": 1
+  },
+  "verdicts": {
+    "OVERSTATED": 1,
+    "INSUFFICIENT": 6,
+    "SUPPORTED": 6,
+    "CONTRADICTED": 1
+  },
+  "pair_completion_rate": {
+    "numerator": 14,
+    "denominator": 17
+  },
+  "source_coverage_among_planned_references": {
+    "numerator": 9,
+    "denominator": 12
+  },
+  "source_coverage_among_all_references": {
+    "numerator": 9,
+    "denominator": 15
+  },
+  "claim_attribution_coverage": {
+    "numerator": 9,
+    "denominator": 10
+  },
+  "scientific_verification_coverage": {
+    "numerator": 12,
+    "denominator": 17
+  },
+  "attribution_blocked": 1,
+  "current_job_roundtrip": true,
+  "old_job_compatibility": [
+    {
+      "job_id": "job_355c3d27d93e47ecaa4126378989f61b",
+      "state": "waiting_for_source",
+      "revision": 32,
+      "json_roundtrip": true
+    },
+    {
+      "job_id": "job_3dbc1247f5f34c20b65a81831455e40f",
+      "state": "partially_completed",
+      "revision": 28,
+      "json_roundtrip": true
+    }
+  ],
+  "protected_preexisting_files_checked": 160,
+  "protected_preexisting_files_changed": [],
+  "agent_context_checks_all_pass": true
+}

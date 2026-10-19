@@ -1,0 +1,142 @@
+[
+  {
+    "claim": 1,
+    "reference": 1,
+    "assessment": "Likely Wrong",
+    "expected": "SUPPORTS or at least avoid a material-overstatement finding without establishing that the collective list is asserted for this one study",
+    "reason": "Real source supports oxygen, ventilation and hospital durations. The original paragraph is a collective examples list across four citations. Treating generic key secondary as the formal trial-designated key secondary outcome and requiring every example in Ref1 is probably too strict; this is an interpretation issue, not an explicit contradiction.",
+    "severity": "medium",
+    "root_cause": "Agent interpretation of collective citation and endpoint wording; source version warning also applies",
+    "action": "Show the caveat; do not auto-relabel the persisted result. A future focused evaluation should compare collective-list cases."
+  },
+  {
+    "claim": 1,
+    "reference": 2,
+    "assessment": "Likely Correct",
+    "expected": "INSUFFICIENT for the single-source pair",
+    "reason": "The retrieved methods distinguish safety secondary endpoints from exploratory clinical measures. This single source does not establish the entire illustrative list, and it cannot refute the other cited studies.",
+    "severity": "low",
+    "root_cause": "Limited pair-level support in a collective background citation",
+    "action": "Retain uncertainty, do not call it contradiction."
+  },
+  {
+    "claim": 1,
+    "reference": 3,
+    "assessment": "Correct",
+    "expected": "SUPPORTED",
+    "reason": "The actual cited outcomes/results include oxygen therapy, mechanical ventilation, hospital stay and ICU stay. The core examples match; omitted survivor qualifier is not a material claim that everyone survived.",
+    "severity": "none",
+    "root_cause": "Evidence supports the normal academic summary",
+    "action": "Good candidate for supervised evidence-expansion demonstration."
+  },
+  {
+    "claim": 1,
+    "reference": 4,
+    "assessment": "Likely Correct",
+    "expected": "SUPPORTED for an illustrative collective citation",
+    "reason": "The source supports oxygen-therapy duration and hospital admission duration, with relevant ventilation outcomes. The manuscript gives examples across several studies, not a statement that this study alone measures every item.",
+    "severity": "none",
+    "root_cause": "Reasonable contextual support",
+    "action": "Useful example of tolerance for ordinary multi-citation summaries."
+  },
+  {
+    "claim": 2,
+    "reference": 1,
+    "assessment": "Likely Correct",
+    "expected": "SUPPORTED",
+    "reason": "Saved trial text identifies ACTT-1 as phase 3, randomized and multicenter, with many sites and observed events. Calling it a large trial is a reasonable summary; recent is relative to the 2020 manuscript. The acquired final-report version is warned about and should remain visible.",
+    "severity": "low",
+    "root_cause": "Evidence supports the basic study descriptor; citation version unconfirmed",
+    "action": "Suitable for a basic provenance demonstration with version warning."
+  },
+  {
+    "claim": 4,
+    "reference": 1,
+    "assessment": "Correct",
+    "expected": "SUPPORTED",
+    "reason": "The source Figure 2 caption explicitly assigns cumulative recovery estimates to Panel A. The claim is limited to that figure location, not an invented treatment effect.",
+    "severity": "none",
+    "root_cause": "Direct caption-level evidence",
+    "action": "Strong demonstration candidate; retain original-version warning."
+  },
+  {
+    "claim": 4,
+    "reference": 6,
+    "assessment": "Correct",
+    "expected": "INSUFFICIENT for the actual extracted pair",
+    "reason": "Guyot source explains digitizing and reconstructing Kaplan-Meier curves; it does not locate ACTT-1 Figure 2A. The manuscript cites the trial for figure data and Guyot for reconstruction method. The literal figure-location claim was attributed too broadly.",
+    "severity": "medium",
+    "root_cause": "M3B co-citation attribution loses data-vs-method roles",
+    "action": "Future M3B targeted correction; preserve the current real insufficient result."
+  },
+  {
+    "claim": 5,
+    "reference": 1,
+    "assessment": "Likely Correct",
+    "expected": "INSUFFICIENT on retrieved chunks",
+    "reason": "Retrieved mortality analysis and main Figure 2 caption do not establish supplementary S3 numbering. A separate supplement may contain it; absence from these chunks is not contradiction. Exact preliminary version/supplement has not been verified.",
+    "severity": "low",
+    "root_cause": "Supplement and version coverage limitation",
+    "action": "Do not present as a broken citation; show missing evidence."
+  },
+  {
+    "claim": 5,
+    "reference": 6,
+    "assessment": "Correct",
+    "expected": "INSUFFICIENT",
+    "reason": "Actual retrieved chunk is a bibliography from the methodology source, not a supplementary caption of ACTT-1. It cannot establish S3 and contains no counterexample. The source attribution is over-broad and retrieval quality is low.",
+    "severity": "medium",
+    "root_cause": "M3B data/method attribution plus off-target PaperQA evidence",
+    "action": "Do not label fabricated or contradicted; improve attribution in a future focused task."
+  },
+  {
+    "claim": 6,
+    "reference": 7,
+    "assessment": "Likely Correct",
+    "expected": "INSUFFICIENT on the extracted figure-specific claim",
+    "reason": "PaperQA returned no relevant chunks for the literal statement about this manuscript panels 2B/C and hospital-attentive-care time. Ref7 discusses survival-curve summaries in general, not that figure.",
+    "severity": "medium",
+    "root_cause": "Upstream claim failed to separate a generic statistical method from this paper figure description",
+    "action": "Keep empty evidence visible and classify as insufficient, not source unavailable."
+  },
+  {
+    "claim": 6,
+    "reference": 8,
+    "assessment": "Likely Correct",
+    "expected": "INSUFFICIENT on the extracted figure-specific claim",
+    "reason": "The full cancer/RMST methodology source was acquired, but PaperQA found no relevant evidence for this COVID-19 paper panels 2B/C. This is different from retrieval of no source.",
+    "severity": "medium",
+    "root_cause": "Claim-source attribution granularity and query relevance",
+    "action": "Do not present as a false citation in the original article."
+  },
+  {
+    "claim": 8,
+    "reference": 14,
+    "assessment": "Clearly Wrong",
+    "expected": "SUPPORTED for the same operationally defined area-under-curve quantity",
+    "reason": "The original paragraph defines the curve as the proportion surviving and not receiving attentive care, over 28 days. The source defines the same curve area as mean time in recovery/postrecovery time. All three agents instead assumed event means recovery and wrongly invoked a complementary curve. The actual short citation context omitted the defining first sentence. Both state definition and mathematical quantity agree; labels alone do not prove a contradiction.",
+    "severity": "high",
+    "root_cause": "Missing original-paragraph endpoint definition plus Agent terminology reasoning; valid quoted evidence and unanimous agents bypass the structural validator and retain 0.95",
+    "action": "Minimal original-paragraph context and definition-first policy added; one real targeted replay recorded separately. Formal Job remains unchanged."
+  },
+  {
+    "claim": 9,
+    "reference": 14,
+    "assessment": "Correct",
+    "expected": "SUPPORTED",
+    "reason": "The source reports a numerical 28-day survival-time advantage of 0.76 days (26.1 vs 25.3) and higher day-28 survival (88% vs 85%). The p-value of 0.079 and CI including zero do not contradict the explicit numerically qualifier.",
+    "severity": "none",
+    "root_cause": "Correct distinction between numeric direction and statistical significance",
+    "action": "A good demonstration of the intended lenient but evidence-constrained policy."
+  },
+  {
+    "claim": 10,
+    "reference": 15,
+    "assessment": "Correct",
+    "expected": "SUPPORTED",
+    "reason": "The actual source gives responses beginning at Month 2 or Month 3 after study entry, and explains dependent censoring because the clock begins at a treatment-affected initial response. This directly supports the methodological generalization about event onset not necessarily coinciding with entry.",
+    "severity": "none",
+    "root_cause": "Relevant source methods and examples support the paraphrase",
+    "action": "Strong methods-oriented demonstration case with evidence expansion."
+  }
+]

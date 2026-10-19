@@ -240,6 +240,7 @@ async def verify_manuscript_core(
                 kwargs["verification_context"] = json.dumps({
                     "manuscript_title": parsed.manuscript.title,
                     "citation_context": context.text,
+                    "original_paragraph": next(p.text for p in parsed.paragraphs if p.id == claim.paragraph_id),
                     "cited_source_title": source.title,
                     "cited_source_year": source.year,
                 }, ensure_ascii=False)

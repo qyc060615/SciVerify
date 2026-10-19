@@ -1,0 +1,19 @@
+{
+  "protected_preexisting_files": 160,
+  "changed_files": [],
+  "credential_scan": "PASS",
+  "leaking_files": [],
+  "manual_completed_pair_reviews": 14,
+  "all_audit_scripts_parse": true,
+  "model_requests": 278,
+  "backend_tests": {
+    "passed": 1460,
+    "skipped": 1,
+    "warning": 1,
+    "seconds": 48.91
+  },
+  "frontend_tests": 115,
+  "frontend_build": "PASS",
+  "frontend_lint": "PASS",
+  "browser_workflow": "NOT TESTED"
+}

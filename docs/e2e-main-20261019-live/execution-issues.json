@@ -1,0 +1,61 @@
+[
+  {
+    "id": "TEST_JOB_STORE_NOT_ISOLATED",
+    "status": "FIXED",
+    "root_cause": "Autouse fixture isolated source cache but not the default Job Store; TestClient lifespan recovery changed this new running audit job to interrupted.",
+    "effect": "First real pair ran but its outcome could not commit; JOB_STALE_ATTEMPT. Its model calls remain in the usage ledger.",
+    "files": [
+      "backend/app/tests/conftest.py",
+      "backend/app/tests/test_verification_job_store.py"
+    ]
+  },
+  {
+    "id": "RESUME_PENDING_WITHOUT_LOCATOR",
+    "status": "FIXED",
+    "root_cause": "Resume attempted source recovery validation for every pending task, including never-executed DOI-missing references, and rejected the entire selection.",
+    "effect": "Initial resume returned HTTP 409 before scheduling any model work.",
+    "files": [
+      "backend/app/services/verification_jobs.py",
+      "backend/app/tests/test_verification_jobs.py"
+    ]
+  },
+  {
+    "id": "GROBID_TITLE_WRONG",
+    "status": "RECORDED",
+    "root_cause": "Actual GROBID TEI identifies the journal name as both main titles; application mapped the supplied title unchanged.",
+    "effect": "Real job title and Verifier manuscript_title are Contemporary Clinical Trials, not the verified PDF title."
+  },
+  {
+    "id": "PROTOCOL_URL_AS_DOI",
+    "status": "RECORDED",
+    "root_cause": "GROBID produced a DOI ending in suppl_file/...protocol.pdf; resolver preserved the original DOI.",
+    "effect": "Reference 5 will use an incorrect DOI locator; not manually corrected."
+  },
+  {
+    "id": "GROUPED_CITATION_AND_SELF_FIGURE_ATTRIBUTION",
+    "status": "UNDER_REVIEW",
+    "root_cause": "Original model extraction assigned literal descriptions of this manuscript figures to methodological cited works.",
+    "effect": "Scientific outcomes require manual interpretation; no labels or pair mappings were manually changed."
+  },
+  {
+    "id": "ENDPOINT_LABEL_CONFUSED_WITH_OPERATIONAL_DEFINITION",
+    "status": "FIXED_WITH_TARGETED_LIVE_ACCEPTANCE",
+    "root_cause": "The actual C8 citation context omitted the paragraph first sentence defining the event-free state. All three agents interpreted event-free using another event definition and wrongly opposed equivalent curve-area quantities. Quoted evidence and model agreement did not prove the semantic conflict.",
+    "effect": "Formal Job C8 Ref14 remains CONTRADICTED / 0.95. One separate real replay with original paragraph and definition-first policy gives SUPPORTS / 0.90.",
+    "files": [
+      "backend/app/services/manuscript_verification.py",
+      "backend/app/services/agents/scientific_policy.py",
+      "backend/app/tests/test_scientific_verdict_quality.py",
+      "backend/app/tests/fixtures/scientific_c8_ref14.json"
+    ],
+    "limitations": "One true model replay, not a statistical accuracy guarantee. The completed formal Job was not rewritten or rerun."
+  },
+  {
+    "id": "OLD_FRONTEND_BACKEND_PROCESS",
+    "status": "FIXED_ENVIRONMENT",
+    "root_cause": "Port 8000 was still running C:/rg-live/full_live_e2e_backend.py from the previous day. It returned JOB_SNAPSHOT_CORRUPT for this snapshot while the current-code port 8001 loaded the same bytes correctly.",
+    "effect": "Frontend configured for 8000 could not load the new report before restart.",
+    "action": "Confirmed all persisted jobs quiescent, stopped only the identified old process, started current standard uvicorn app on 8000. Both ports then returned identical revision-40 JobView; Job bytes and usage count unchanged.",
+    "limitations": "The exact stale in-memory schema field was not available in that old process log; no on-disk corruption was found."
+  }
+]

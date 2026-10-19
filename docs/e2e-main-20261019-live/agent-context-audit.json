@@ -1,0 +1,122 @@
+[
+  {
+    "claim_number": 1,
+    "reference_number": 1,
+    "roles_found": [
+      "Prosecutor",
+      "Defender",
+      "Adjudicator"
+    ],
+    "context_and_evidence_pass": true
+  },
+  {
+    "claim_number": 1,
+    "reference_number": 2,
+    "roles_found": [
+      "Prosecutor",
+      "Defender",
+      "Adjudicator"
+    ],
+    "context_and_evidence_pass": true
+  },
+  {
+    "claim_number": 1,
+    "reference_number": 3,
+    "roles_found": [
+      "Prosecutor",
+      "Defender",
+      "Adjudicator"
+    ],
+    "context_and_evidence_pass": true
+  },
+  {
+    "claim_number": 1,
+    "reference_number": 4,
+    "roles_found": [
+      "Prosecutor",
+      "Defender",
+      "Adjudicator"
+    ],
+    "context_and_evidence_pass": true
+  },
+  {
+    "claim_number": 2,
+    "reference_number": 1,
+    "roles_found": [
+      "Prosecutor",
+      "Defender",
+      "Adjudicator"
+    ],
+    "context_and_evidence_pass": true
+  },
+  {
+    "claim_number": 4,
+    "reference_number": 1,
+    "roles_found": [
+      "Prosecutor",
+      "Defender",
+      "Adjudicator"
+    ],
+    "context_and_evidence_pass": true
+  },
+  {
+    "claim_number": 4,
+    "reference_number": 6,
+    "roles_found": [
+      "Prosecutor",
+      "Defender",
+      "Adjudicator"
+    ],
+    "context_and_evidence_pass": true
+  },
+  {
+    "claim_number": 5,
+    "reference_number": 1,
+    "roles_found": [
+      "Prosecutor",
+      "Defender",
+      "Adjudicator"
+    ],
+    "context_and_evidence_pass": true
+  },
+  {
+    "claim_number": 5,
+    "reference_number": 6,
+    "roles_found": [
+      "Prosecutor",
+      "Defender",
+      "Adjudicator"
+    ],
+    "context_and_evidence_pass": true
+  },
+  {
+    "claim_number": 8,
+    "reference_number": 14,
+    "roles_found": [
+      "Prosecutor",
+      "Defender",
+      "Adjudicator"
+    ],
+    "context_and_evidence_pass": true
+  },
+  {
+    "claim_number": 9,
+    "reference_number": 14,
+    "roles_found": [
+      "Prosecutor",
+      "Defender",
+      "Adjudicator"
+    ],
+    "context_and_evidence_pass": true
+  },
+  {
+    "claim_number": 10,
+    "reference_number": 15,
+    "roles_found": [
+      "Prosecutor",
+      "Defender",
+      "Adjudicator"
+    ],
+    "context_and_evidence_pass": true
+  }
+]

@@ -1,0 +1,2145 @@
+[
+  {
+    "number": 1,
+    "reference": {
+      "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:0",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "raw_text": "J.H. Beigel, K.M. Tomashek, L.E. Dodd, et al., Remdesivir for the treatment of COVID-19 -a preliminary report, NEJM (2020 May 22), https://doi.org/10.1056/ NEJMoa2007764.",
+      "doi": "10.1056/nejmoa2007764",
+      "title": "Remdesivir for the treatment of COVID-19 -a preliminary report",
+      "authors": [
+        "J H Beigel",
+        "K M Tomashek",
+        "L E Dodd"
+      ],
+      "year": 2020,
+      "journal": "NEJM",
+      "url": "https://doi.org/10.1056/NEJMoa",
+      "resolution": {
+        "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:0",
+        "status": "resolved",
+        "original_doi": "10.1056/nejmoa2007764",
+        "resolved_doi": "10.1056/nejmoa2007764",
+        "matched_title": null,
+        "provider": "original",
+        "source_type": "doi",
+        "source_url": "https://doi.org/10.1056/",
+        "match_reason": "ORIGINAL_DOI_PRESERVED",
+        "match_confidence": null,
+        "diagnostics": [
+          "URL_FIELDS_DISAGREE_RAW_PREFERRED"
+        ],
+        "candidates": []
+      }
+    },
+    "scheduled_pairs": 4,
+    "outcomes": [
+      {
+        "state": "completed",
+        "reason": "VERIFIED"
+      },
+      {
+        "state": "completed",
+        "reason": "VERIFIED"
+      },
+      {
+        "state": "completed",
+        "reason": "VERIFIED"
+      },
+      {
+        "state": "completed",
+        "reason": "VERIFIED"
+      }
+    ],
+    "binding": {
+      "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:0",
+      "doi": "10.1056/nejmoa2007764",
+      "source_document_id": "source:126a2d33afafb4cc04617e9aa26a2d0d1781478eaf5ba58c012d45fa615a08ee",
+      "source_version": "sha256:5ebac4e467f46c12ffb2b50768f15781c723b5562fe1ae4985d6b5f985cfc86f",
+      "provenance": {
+        "original_citation": "J.H. Beigel, K.M. Tomashek, L.E. Dodd, et al., Remdesivir for the treatment of COVID-19 -a preliminary report, NEJM (2020 May 22), https://doi.org/10.1056/ NEJMoa2007764.",
+        "matched_doi": "10.1056/nejmoa2007764",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7262788/",
+        "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7262788/",
+        "retrieved_at": "2026-10-19T06:59:37.886444+00:00",
+        "retrieved_title": "Remdesivir for the Treatment of Covid-19 — Final Report",
+        "publication_date": "2020-05-22",
+        "retrieved_version": "sha256:5ebac4e467f46c12ffb2b50768f15781c723b5562fe1ae4985d6b5f985cfc86f",
+        "identity": "EXACT_IDENTITY",
+        "document_kind": "ARTICLE_FULL_TEXT",
+        "match_evidence": [
+          "ARTICLE_DOI_MATCH"
+        ],
+        "warnings": [
+          "ORIGINAL_CITATION_VERSION_UNCONFIRMED"
+        ],
+        "identity_confidence": null
+      }
+    },
+    "retrieval_status": "FULL_TEXT_ACCEPTED",
+    "source_document_audit_reconstruction": {
+      "id": "source:126a2d33afafb4cc04617e9aa26a2d0d1781478eaf5ba58c012d45fa615a08ee",
+      "reference_id": "reference:10.1056/nejmoa2007764",
+      "doi": "10.1056/nejmoa2007764",
+      "title": "Remdesivir for the Treatment of Covid-19 — Final Report",
+      "authors": [
+        "John H. Beigel",
+        "Kay M. Tomashek",
+        "Lori E. Dodd",
+        "Aneesh K. Mehta",
+        "Barry S. Zingman",
+        "Andre C. Kalil",
+        "Elizabeth Hohmann",
+        "Helen Y. Chu",
+        "Annie Luetkemeyer",
+        "Susan Kline",
+        "Diego Lopez de Castilla",
+        "Robert W. Finberg",
+        "Kerry Dierberg",
+        "Victor Tapson",
+        "Lanny Hsieh",
+        "Thomas F. Patterson",
+        "Roger Paredes",
+        "Daniel A. Sweeney",
+        "William R. Short",
+        "Giota Touloumi",
+        "David Chien Lye",
+        "Norio Ohmagari",
+        "Myoung-don Oh",
+        "Guillermo M. Ruiz-Palacios",
+        "Thomas Benfield",
+        "Gerd Fätkenheuer",
+        "Mark G. Kortepeter",
+        "Robert L. Atmar",
+        "C. Buddy Creech",
+        "Jens Lundgren",
+        "Abdel G. Babiker",
+        "Sarah Pett",
+        "James D. Neaton",
+        "Timothy H. Burgess",
+        "Tyler Bonnett",
+        "Michelle Green",
+        "Mat Makowski",
+        "Anu Osinusi",
+        "Seema Nayak",
+        "H. Clifford Lane"
+      ],
+      "year": 2020,
+      "content_locator": "memory://source:126a2d33afafb4cc04617e9aa26a2d0d1781478eaf5ba58c012d45fa615a08ee",
+      "content_hash": "sha256:5ebac4e467f46c12ffb2b50768f15781c723b5562fe1ae4985d6b5f985cfc86f",
+      "source_type": "remote",
+      "provider": "pmc",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7262788/",
+      "retrieval_status": "available"
+    },
+    "raw_content_sha256": "5ebac4e467f46c12ffb2b50768f15781c723b5562fe1ae4985d6b5f985cfc86f",
+    "format": "html",
+    "total_available_chunks": 65,
+    "selected_chunks_match_saved_artifact": true,
+    "paper": {
+      "paper_id": "10.1056/nejmoa2007764",
+      "doi": "10.1056/nejmoa2007764",
+      "title": "Remdesivir for the Treatment of Covid-19 — Final Report",
+      "authors": [
+        "John H. Beigel",
+        "Kay M. Tomashek",
+        "Lori E. Dodd",
+        "Aneesh K. Mehta",
+        "Barry S. Zingman",
+        "Andre C. Kalil",
+        "Elizabeth Hohmann",
+        "Helen Y. Chu",
+        "Annie Luetkemeyer",
+        "Susan Kline",
+        "Diego Lopez de Castilla",
+        "Robert W. Finberg",
+        "Kerry Dierberg",
+        "Victor Tapson",
+        "Lanny Hsieh",
+        "Thomas F. Patterson",
+        "Roger Paredes",
+        "Daniel A. Sweeney",
+        "William R. Short",
+        "Giota Touloumi",
+        "David Chien Lye",
+        "Norio Ohmagari",
+        "Myoung-don Oh",
+        "Guillermo M. Ruiz-Palacios",
+        "Thomas Benfield",
+        "Gerd Fätkenheuer",
+        "Mark G. Kortepeter",
+        "Robert L. Atmar",
+        "C. Buddy Creech",
+        "Jens Lundgren",
+        "Abdel G. Babiker",
+        "Sarah Pett",
+        "James D. Neaton",
+        "Timothy H. Burgess",
+        "Tyler Bonnett",
+        "Michelle Green",
+        "Mat Makowski",
+        "Anu Osinusi",
+        "Seema Nayak",
+        "H. Clifford Lane"
+      ],
+      "abstract": "BACKGROUND: Although several therapeutic agents have been evaluated for the treatment of coronavirus disease 2019 (Covid-19), no antiviral agents have yet been shown to be efficacious. METHODS: We conducted a double-blind, randomized, placebo-controlled trial of intravenous remdesivir in adults who were hospitalized with Covid-19 and had evidence of lower respiratory tract infection. Patients were randomly assigned to receive either remdesivir (200 mg loading dose on day 1, followed by 100 mg daily for up to 9 additional days) or placebo for up to 10 days. The primary outcome was the time to recovery, defined by either discharge from the hospital or hospitalization for infection-control purposes only. RESULTS: A total of 1062 patients underwent randomization (with 541 assigned to remdesivir and 521 to placebo). Those who received remdesivir had a median recovery time of 10 days (95% confidence interval [CI], 9 to 11), as compared with 15 days (95% CI, 13 to 18) among those who received placebo (rate ratio for recovery, 1.29; 95% CI, 1.12 to 1.49; P<0.001, by a log-rank test). In an analysis that used a proportional-odds model with an eight-category ordinal scale, the patients who received remdesivir were found to be more likely than those who received placebo to have clinical improvement at day 15 (odds ratio, 1.5; 95% CI, 1.2 to 1.9, after adjustment for actual disease severity). The Kaplan-Meier estimates of mortality were 6.7% with remdesivir and 11.9% with placebo by day 15 and 11.4% with remdesivir and 15.2% with placebo by day 29 (hazard ratio, 0.73; 95% CI, 0.52 to 1.03). Serious adverse events were reported in 131 of the 532 patients who received remdesivir (24.6%) and in 163 of the 516 patients who received placebo (31.6%). CONCLUSIONS: Our data show that remdesivir was superior to placebo in shortening the time to recovery in adults who were hospitalized with Covid-19 and had evidence of lower respiratory tract infection. (Funded by the National Institute of Allergy and Infectious Diseases and others; ACTT-1 ClinicalTrials.gov number, NCT04280705.).",
+      "journal": "New England Journal of Medicine",
+      "publisher": "Massachusetts Medical Society",
+      "publication_date": "2020-05-22",
+      "year": 2020,
+      "url": "https://doi.org/10.1056/nejmoa2007764",
+      "source_url": "https://doi.org/10.1056/nejmoa2007764",
+      "open_access": true,
+      "full_text_available": true,
+      "full_text_format": "html",
+      "full_text_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7262788/"
+    },
+    "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7262788/",
+    "provider": "pmc",
+    "source_identity_statuses": [
+      "confirmed"
+    ],
+    "cache_hit_values": [
+      true
+    ]
+  },
+  {
+    "number": 2,
+    "reference": {
+      "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:1",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "raw_text": "J.D. Goldman, D.C.B. Lye, D.S. Hui, et al., Remdesivir for 5 or 10 days in patients with severe COVID-19, NEJM (2020 May 27), https://doi.org/10.1056/ NEJMoa2015301.",
+      "doi": "10.1056/nejmoa2015301",
+      "title": "Remdesivir for 5 or 10 days in patients with severe COVID-19",
+      "authors": [
+        "J D Goldman",
+        "D C B Lye",
+        "D S Hui"
+      ],
+      "year": 2020,
+      "journal": "NEJM",
+      "url": "https://doi.org/10.1056/NEJMoa",
+      "resolution": {
+        "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:1",
+        "status": "resolved",
+        "original_doi": "10.1056/nejmoa2015301",
+        "resolved_doi": "10.1056/nejmoa2015301",
+        "matched_title": null,
+        "provider": "original",
+        "source_type": "doi",
+        "source_url": "https://doi.org/10.1056/",
+        "match_reason": "ORIGINAL_DOI_PRESERVED",
+        "match_confidence": null,
+        "diagnostics": [
+          "URL_FIELDS_DISAGREE_RAW_PREFERRED"
+        ],
+        "candidates": []
+      }
+    },
+    "scheduled_pairs": 1,
+    "outcomes": [
+      {
+        "state": "completed",
+        "reason": "VERIFIED"
+      }
+    ],
+    "binding": {
+      "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:1",
+      "doi": "10.1056/nejmoa2015301",
+      "source_document_id": "source:83282512bdeb9bc5f4b722420570deeb80d9e2d07f873f45950e2bbc85f8a131",
+      "source_version": "sha256:b224bab3bb6e2ed195427edc2e278f7d5d81fd6093610e064520c0ef7a43dfb1",
+      "provenance": {
+        "original_citation": "J.D. Goldman, D.C.B. Lye, D.S. Hui, et al., Remdesivir for 5 or 10 days in patients with severe COVID-19, NEJM (2020 May 27), https://doi.org/10.1056/ NEJMoa2015301.",
+        "matched_doi": "10.1056/nejmoa2015301",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7377062/",
+        "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7377062/",
+        "retrieved_at": "2026-10-19T07:09:11.534938+00:00",
+        "retrieved_title": "Remdesivir for 5 or 10 Days in Patients with Severe Covid-19",
+        "publication_date": "2020-05-27",
+        "retrieved_version": "sha256:b224bab3bb6e2ed195427edc2e278f7d5d81fd6093610e064520c0ef7a43dfb1",
+        "identity": "EXACT_IDENTITY",
+        "document_kind": "ARTICLE_FULL_TEXT",
+        "match_evidence": [
+          "ARTICLE_DOI_MATCH"
+        ],
+        "warnings": [
+          "ORIGINAL_CITATION_VERSION_UNCONFIRMED"
+        ],
+        "identity_confidence": null
+      }
+    },
+    "retrieval_status": "FULL_TEXT_ACCEPTED",
+    "source_document_audit_reconstruction": {
+      "id": "source:83282512bdeb9bc5f4b722420570deeb80d9e2d07f873f45950e2bbc85f8a131",
+      "reference_id": "reference:10.1056/nejmoa2015301",
+      "doi": "10.1056/nejmoa2015301",
+      "title": "Remdesivir for 5 or 10 Days in Patients with Severe Covid-19",
+      "authors": [
+        "Jason D. Goldman",
+        "David C.B. Lye",
+        "David S. Hui",
+        "Kristen M. Marks",
+        "Raffaele Bruno",
+        "Rocio Montejano",
+        "Christoph D. Spinner",
+        "Massimo Galli",
+        "Mi-Young Ahn",
+        "Ronald G. Nahass",
+        "Yao-Shen Chen",
+        "Devi SenGupta",
+        "Robert H. Hyland",
+        "Anu O. Osinusi",
+        "Huyen Cao",
+        "Christiana Blair",
+        "Xuelian Wei",
+        "Anuj Gaggar",
+        "Diana M. Brainard",
+        "William J. Towner",
+        "Jose Muñoz",
+        "Kathleen M. Mullane",
+        "Francisco M. Marty",
+        "Karen T. Tashima",
+        "George Diaz",
+        "Aruna Subramanian"
+      ],
+      "year": 2020,
+      "content_locator": "memory://source:83282512bdeb9bc5f4b722420570deeb80d9e2d07f873f45950e2bbc85f8a131",
+      "content_hash": "sha256:b224bab3bb6e2ed195427edc2e278f7d5d81fd6093610e064520c0ef7a43dfb1",
+      "source_type": "remote",
+      "provider": "pmc",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7377062/",
+      "retrieval_status": "available"
+    },
+    "raw_content_sha256": "b224bab3bb6e2ed195427edc2e278f7d5d81fd6093610e064520c0ef7a43dfb1",
+    "format": "html",
+    "total_available_chunks": 54,
+    "selected_chunks_match_saved_artifact": true,
+    "paper": {
+      "paper_id": "10.1056/nejmoa2015301",
+      "doi": "10.1056/nejmoa2015301",
+      "title": "Remdesivir for 5 or 10 Days in Patients with Severe Covid-19",
+      "authors": [
+        "Jason D. Goldman",
+        "David C.B. Lye",
+        "David S. Hui",
+        "Kristen M. Marks",
+        "Raffaele Bruno",
+        "Rocio Montejano",
+        "Christoph D. Spinner",
+        "Massimo Galli",
+        "Mi-Young Ahn",
+        "Ronald G. Nahass",
+        "Yao-Shen Chen",
+        "Devi SenGupta",
+        "Robert H. Hyland",
+        "Anu O. Osinusi",
+        "Huyen Cao",
+        "Christiana Blair",
+        "Xuelian Wei",
+        "Anuj Gaggar",
+        "Diana M. Brainard",
+        "William J. Towner",
+        "Jose Muñoz",
+        "Kathleen M. Mullane",
+        "Francisco M. Marty",
+        "Karen T. Tashima",
+        "George Diaz",
+        "Aruna Subramanian"
+      ],
+      "abstract": "BACKGROUND: Remdesivir is an RNA polymerase inhibitor with potent antiviral activity in vitro and efficacy in animal models of coronavirus disease 2019 (Covid-19). METHODS: We conducted a randomized, open-label, phase 3 trial involving hospitalized patients with confirmed SARS-CoV-2 infection, oxygen saturation of 94% or less while they were breathing ambient air, and radiologic evidence of pneumonia. Patients were randomly assigned in a 1:1 ratio to receive intravenous remdesivir for either 5 days or 10 days. All patients received 200 mg of remdesivir on day 1 and 100 mg once daily on subsequent days. The primary end point was clinical status on day 14, assessed on a 7-point ordinal scale. RESULTS: In total, 397 patients underwent randomization and began treatment (200 patients for 5 days and 197 for 10 days). The median duration of treatment was 5 days (interquartile range, 5 to 5) in the 5-day group and 9 days (interquartile range, 5 to 10) in the 10-day group. At baseline, patients randomly assigned to the 10-day group had significantly worse clinical status than those assigned to the 5-day group (P = 0.02). By day 14, a clinical improvement of 2 points or more on the ordinal scale occurred in 64% of patients in the 5-day group and in 54% in the 10-day group. After adjustment for baseline clinical status, patients in the 10-day group had a distribution in clinical status at day 14 that was similar to that among patients in the 5-day group (P = 0.14). The most common adverse events were nausea (9% of patients), worsening respiratory failure (8%), elevated alanine aminotransferase level (7%), and constipation (7%). CONCLUSIONS: In patients with severe Covid-19 not requiring mechanical ventilation, our trial did not show a significant difference between a 5-day course and a 10-day course of remdesivir. With no placebo control, however, the magnitude of benefit cannot be determined. (Funded by Gilead Sciences; GS-US-540-5773 ClinicalTrials.gov number, NCT04292899.).",
+      "journal": "New England Journal of Medicine",
+      "publisher": "Massachusetts Medical Society",
+      "publication_date": "2020-05-27",
+      "year": 2020,
+      "url": "https://doi.org/10.1056/nejmoa2015301",
+      "source_url": "https://doi.org/10.1056/nejmoa2015301",
+      "open_access": true,
+      "full_text_available": true,
+      "full_text_format": "html",
+      "full_text_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7377062/"
+    },
+    "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7377062/",
+    "provider": "pmc",
+    "source_identity_statuses": [
+      "confirmed"
+    ],
+    "cache_hit_values": [
+      false
+    ]
+  },
+  {
+    "number": 3,
+    "reference": {
+      "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:2",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "raw_text": "B. Cao, Y. Wang, D. Wen, et al., A trial of Lopinavir-ritonavir in adults hospitalized with severe COVID-19, NEJM 382 (19) (2020 May 7) 1787-1799, https://doi.org/ 10.1056/NEJMoa2001282.",
+      "doi": "10.1056/nejmoa2001282",
+      "title": "A trial of Lopinavir-ritonavir in adults hospitalized with severe COVID-19",
+      "authors": [
+        "B Cao",
+        "Y Wang",
+        "D Wen"
+      ],
+      "year": 2020,
+      "journal": "NEJM",
+      "url": "https://doi.org/10.1056/NEJMoa2001282",
+      "resolution": {
+        "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:2",
+        "status": "resolved",
+        "original_doi": "10.1056/nejmoa2001282",
+        "resolved_doi": "10.1056/nejmoa2001282",
+        "matched_title": null,
+        "provider": "original",
+        "source_type": "doi",
+        "source_url": "https://doi.org/",
+        "match_reason": "ORIGINAL_DOI_PRESERVED",
+        "match_confidence": null,
+        "diagnostics": [
+          "URL_FIELDS_DISAGREE_RAW_PREFERRED"
+        ],
+        "candidates": []
+      }
+    },
+    "scheduled_pairs": 1,
+    "outcomes": [
+      {
+        "state": "completed",
+        "reason": "VERIFIED"
+      }
+    ],
+    "binding": {
+      "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:2",
+      "doi": "10.1056/nejmoa2001282",
+      "source_document_id": "source:13a7183272ddf96daa7bc2e2ea9e956b3cb7f2fcaae81ffa7d412154cbdc5c6f",
+      "source_version": "sha256:08ba70208f2c26328feac779f38b86f4ebeaa62dd642fe09905dd5090ab44d9f",
+      "provenance": {
+        "original_citation": "B. Cao, Y. Wang, D. Wen, et al., A trial of Lopinavir-ritonavir in adults hospitalized with severe COVID-19, NEJM 382 (19) (2020 May 7) 1787-1799, https://doi.org/ 10.1056/NEJMoa2001282.",
+        "matched_doi": "10.1056/nejmoa2001282",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7121492/",
+        "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7121492/",
+        "retrieved_at": "2026-10-19T07:10:19.619819+00:00",
+        "retrieved_title": "A Trial of Lopinavir–Ritonavir in Adults Hospitalized with Severe Covid-19",
+        "publication_date": "2020-03-18",
+        "retrieved_version": "sha256:08ba70208f2c26328feac779f38b86f4ebeaa62dd642fe09905dd5090ab44d9f",
+        "identity": "EXACT_IDENTITY",
+        "document_kind": "ARTICLE_FULL_TEXT",
+        "match_evidence": [
+          "ARTICLE_DOI_MATCH"
+        ],
+        "warnings": [
+          "ORIGINAL_CITATION_VERSION_UNCONFIRMED"
+        ],
+        "identity_confidence": null
+      }
+    },
+    "retrieval_status": "FULL_TEXT_ACCEPTED",
+    "source_document_audit_reconstruction": {
+      "id": "source:13a7183272ddf96daa7bc2e2ea9e956b3cb7f2fcaae81ffa7d412154cbdc5c6f",
+      "reference_id": "reference:10.1056/nejmoa2001282",
+      "doi": "10.1056/nejmoa2001282",
+      "title": "A Trial of Lopinavir–Ritonavir in Adults Hospitalized with Severe Covid-19",
+      "authors": [
+        "Bin Cao",
+        "Yeming Wang",
+        "Danning Wen",
+        "Wen Liu",
+        "Jingli Wang",
+        "Guohui Fan",
+        "Lianguo Ruan",
+        "Bin Song",
+        "Yanping Cai",
+        "Ming Wei",
+        "Xingwang Li",
+        "Jiaan Xia",
+        "Nanshan Chen",
+        "Jie Xiang",
+        "Ting Yu",
+        "Tao Bai",
+        "Xuelei Xie",
+        "Li Zhang",
+        "Caihong Li",
+        "Ye Yuan",
+        "Hua Chen",
+        "Huadong Li",
+        "Hanping Huang",
+        "Shengjing Tu",
+        "Fengyun Gong",
+        "Ying Liu",
+        "Yuan Wei",
+        "Chongya Dong",
+        "Fei Zhou",
+        "Xiaoying Gu",
+        "Jiuyang Xu",
+        "Zhibo Liu",
+        "Yi Zhang",
+        "Hui Li",
+        "Lianhan Shang",
+        "Ke Wang",
+        "Kunxia Li",
+        "Xia Zhou",
+        "Xuan Dong",
+        "Zhaohui Qu",
+        "Sixia Lu",
+        "Xujuan Hu",
+        "Shunan Ruan",
+        "Shanshan Luo",
+        "Jing Wu",
+        "Lu Peng",
+        "Fang Cheng",
+        "Lihong Pan",
+        "Jun Zou",
+        "Chunmin Jia",
+        "Juan Wang",
+        "Xia Liu",
+        "Shuzhen Wang",
+        "Xudong Wu",
+        "Qin Ge",
+        "Jing He",
+        "Haiyan Zhan",
+        "Fang Qiu",
+        "Li Guo",
+        "Chaolin Huang",
+        "Thomas Jaki",
+        "Frederick G. Hayden",
+        "Peter W. Horby",
+        "Dingyu Zhang",
+        "Chen Wang"
+      ],
+      "year": 2020,
+      "content_locator": "memory://source:13a7183272ddf96daa7bc2e2ea9e956b3cb7f2fcaae81ffa7d412154cbdc5c6f",
+      "content_hash": "sha256:08ba70208f2c26328feac779f38b86f4ebeaa62dd642fe09905dd5090ab44d9f",
+      "source_type": "remote",
+      "provider": "pmc",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7121492/",
+      "retrieval_status": "available"
+    },
+    "raw_content_sha256": "08ba70208f2c26328feac779f38b86f4ebeaa62dd642fe09905dd5090ab44d9f",
+    "format": "html",
+    "total_available_chunks": 58,
+    "selected_chunks_match_saved_artifact": true,
+    "paper": {
+      "paper_id": "10.1056/nejmoa2001282",
+      "doi": "10.1056/nejmoa2001282",
+      "title": "A Trial of Lopinavir–Ritonavir in Adults Hospitalized with Severe Covid-19",
+      "authors": [
+        "Bin Cao",
+        "Yeming Wang",
+        "Danning Wen",
+        "Wen Liu",
+        "Jingli Wang",
+        "Guohui Fan",
+        "Lianguo Ruan",
+        "Bin Song",
+        "Yanping Cai",
+        "Ming Wei",
+        "Xingwang Li",
+        "Jiaan Xia",
+        "Nanshan Chen",
+        "Jie Xiang",
+        "Ting Yu",
+        "Tao Bai",
+        "Xuelei Xie",
+        "Li Zhang",
+        "Caihong Li",
+        "Ye Yuan",
+        "Hua Chen",
+        "Huadong Li",
+        "Hanping Huang",
+        "Shengjing Tu",
+        "Fengyun Gong",
+        "Ying Liu",
+        "Yuan Wei",
+        "Chongya Dong",
+        "Fei Zhou",
+        "Xiaoying Gu",
+        "Jiuyang Xu",
+        "Zhibo Liu",
+        "Yi Zhang",
+        "Hui Li",
+        "Lianhan Shang",
+        "Ke Wang",
+        "Kunxia Li",
+        "Xia Zhou",
+        "Xuan Dong",
+        "Zhaohui Qu",
+        "Sixia Lu",
+        "Xujuan Hu",
+        "Shunan Ruan",
+        "Shanshan Luo",
+        "Jing Wu",
+        "Lu Peng",
+        "Fang Cheng",
+        "Lihong Pan",
+        "Jun Zou",
+        "Chunmin Jia",
+        "Juan Wang",
+        "Xia Liu",
+        "Shuzhen Wang",
+        "Xudong Wu",
+        "Qin Ge",
+        "Jing He",
+        "Haiyan Zhan",
+        "Fang Qiu",
+        "Li Guo",
+        "Chaolin Huang",
+        "Thomas Jaki",
+        "Frederick G. Hayden",
+        "Peter W. Horby",
+        "Dingyu Zhang",
+        "Chen Wang"
+      ],
+      "abstract": "BACKGROUND: No therapeutics have yet been proven effective for the treatment of severe illness caused by SARS-CoV-2. METHODS: ) of less than 300 mm Hg. Patients were randomly assigned in a 1:1 ratio to receive either lopinavir-ritonavir (400 mg and 100 mg, respectively) twice a day for 14 days, in addition to standard care, or standard care alone. The primary end point was the time to clinical improvement, defined as the time from randomization to either an improvement of two points on a seven-category ordinal scale or discharge from the hospital, whichever came first. RESULTS: A total of 199 patients with laboratory-confirmed SARS-CoV-2 infection underwent randomization; 99 were assigned to the lopinavir-ritonavir group, and 100 to the standard-care group. Treatment with lopinavir-ritonavir was not associated with a difference from standard care in the time to clinical improvement (hazard ratio for clinical improvement, 1.31; 95% confidence interval [CI], 0.95 to 1.80). Mortality at 28 days was similar in the lopinavir-ritonavir group and the standard-care group (19.2% vs. 25.0%; difference, -5.8 percentage points; 95% CI, -17.3 to 5.7). The percentages of patients with detectable viral RNA at various time points were similar. In a modified intention-to-treat analysis, lopinavir-ritonavir led to a median time to clinical improvement that was shorter by 1 day than that observed with standard care (hazard ratio, 1.39; 95% CI, 1.00 to 1.91). Gastrointestinal adverse events were more common in the lopinavir-ritonavir group, but serious adverse events were more common in the standard-care group. Lopinavir-ritonavir treatment was stopped early in 13 patients (13.8%) because of adverse events. CONCLUSIONS: In hospitalized adult patients with severe Covid-19, no benefit was observed with lopinavir-ritonavir treatment beyond standard care. Future trials in patients with severe illness may help to confirm or exclude the possibility of a treatment benefit. (Funded by Major Projects of National Science and Technology on New Drug Creation and Development and others; Chinese Clinical Trial Register number, ChiCTR2000029308.).",
+      "journal": "New England Journal of Medicine",
+      "publisher": "Massachusetts Medical Society",
+      "publication_date": "2020-03-18",
+      "year": 2020,
+      "url": "https://doi.org/10.1056/nejmoa2001282",
+      "source_url": "https://doi.org/10.1056/nejmoa2001282",
+      "open_access": true,
+      "full_text_available": true,
+      "full_text_format": "html",
+      "full_text_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7121492/"
+    },
+    "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7121492/",
+    "provider": "pmc",
+    "source_identity_statuses": [
+      "confirmed"
+    ],
+    "cache_hit_values": [
+      false
+    ]
+  },
+  {
+    "number": 4,
+    "reference": {
+      "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:3",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "raw_text": "Y. Wang, D. Zhang, G. Du, et al., Remdesivir in adults with severe COVID-19: a randomised, double-blind, placebo-controlled, multicentre trial, Lancet 395 (10236) (2020 May 16) 1569-1578, https://doi.org/10.1016/S0140-6736(20) 31022-9.",
+      "doi": "10.1016/s0140-6736(20)31022-9",
+      "title": "Remdesivir in adults with severe COVID-19: a randomised, double-blind, placebo-controlled, multicentre trial",
+      "authors": [
+        "Y Wang",
+        "D Zhang",
+        "G Du"
+      ],
+      "year": 2020,
+      "journal": "Lancet",
+      "url": "https://doi.org/10.1016/S0140-6736(20",
+      "resolution": {
+        "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:3",
+        "status": "resolved",
+        "original_doi": "10.1016/s0140-6736(20)31022-9",
+        "resolved_doi": "10.1016/s0140-6736(20)31022-9",
+        "matched_title": null,
+        "provider": "original",
+        "source_type": "doi",
+        "source_url": "https://doi.org/10.1016/S0140-6736(20",
+        "match_reason": "ORIGINAL_DOI_PRESERVED",
+        "match_confidence": null,
+        "diagnostics": [],
+        "candidates": []
+      }
+    },
+    "scheduled_pairs": 1,
+    "outcomes": [
+      {
+        "state": "completed",
+        "reason": "VERIFIED"
+      }
+    ],
+    "binding": {
+      "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:3",
+      "doi": "10.1016/s0140-6736(20)31022-9",
+      "source_document_id": "source:f53647d6ec684100e29ff43fc663e167b93ed24f7a69e107ad870468578f5d3c",
+      "source_version": "sha256:1dc4213845d11e72d4640ff1a5aa0690a78b37e9a804a81c9df72c9ca83615b7",
+      "provenance": {
+        "original_citation": "Y. Wang, D. Zhang, G. Du, et al., Remdesivir in adults with severe COVID-19: a randomised, double-blind, placebo-controlled, multicentre trial, Lancet 395 (10236) (2020 May 16) 1569-1578, https://doi.org/10.1016/S0140-6736(20) 31022-9.",
+        "matched_doi": "10.1016/s0140-6736(20)31022-9",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7190303/",
+        "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7190303/",
+        "retrieved_at": "2026-10-19T07:10:52.428488+00:00",
+        "retrieved_title": "Remdesivir in adults with severe COVID-19: a randomised, double-blind, placebo-controlled, multicentre trial",
+        "publication_date": "2020-04-29",
+        "retrieved_version": "sha256:1dc4213845d11e72d4640ff1a5aa0690a78b37e9a804a81c9df72c9ca83615b7",
+        "identity": "EXACT_IDENTITY",
+        "document_kind": "ARTICLE_FULL_TEXT",
+        "match_evidence": [
+          "ARTICLE_DOI_MATCH"
+        ],
+        "warnings": [
+          "ORIGINAL_CITATION_VERSION_UNCONFIRMED"
+        ],
+        "identity_confidence": null
+      }
+    },
+    "retrieval_status": "FULL_TEXT_ACCEPTED",
+    "source_document_audit_reconstruction": {
+      "id": "source:f53647d6ec684100e29ff43fc663e167b93ed24f7a69e107ad870468578f5d3c",
+      "reference_id": "reference:10.1016/s0140-6736(20)31022-9",
+      "doi": "10.1016/s0140-6736(20)31022-9",
+      "title": "Remdesivir in adults with severe COVID-19: a randomised, double-blind, placebo-controlled, multicentre trial",
+      "authors": [
+        "Yeming Wang",
+        "Dingyu Zhang",
+        "Guanhua Du",
+        "Ronghui Du",
+        "Jianping Zhao",
+        "Yang Jin",
+        "Shouzhi Fu",
+        "Ling Gao",
+        "Zhenshun Cheng",
+        "Qiaofa Lu",
+        "Yi Hu",
+        "Guangwei Luo",
+        "Ke Wang",
+        "Yang Lu",
+        "Huadong Li",
+        "Shuzhen Wang",
+        "Shunan Ruan",
+        "Chengqing Yang",
+        "Chunlin Mei",
+        "Yi Wang",
+        "Dan Ding",
+        "Feng Wu",
+        "Xin Tang",
+        "Xianzhi Ye",
+        "Yingchun Ye",
+        "Bing Liu",
+        "Jie Yang",
+        "Wen Yin",
+        "Aili Wang",
+        "Guohui Fan",
+        "Fei Zhou",
+        "Zhibo Liu",
+        "Xiaoying Gu",
+        "Jiuyang Xu",
+        "Lianhan Shang",
+        "Yi Zhang",
+        "Lianjun Cao",
+        "Tingting Guo",
+        "Yan Wan",
+        "Hong Qin",
+        "Yushen Jiang",
+        "Thomas Jaki",
+        "Frederick G Hayden",
+        "Peter W Horby",
+        "Bin Cao",
+        "Chen Wang"
+      ],
+      "year": 2020,
+      "content_locator": "memory://source:f53647d6ec684100e29ff43fc663e167b93ed24f7a69e107ad870468578f5d3c",
+      "content_hash": "sha256:1dc4213845d11e72d4640ff1a5aa0690a78b37e9a804a81c9df72c9ca83615b7",
+      "source_type": "remote",
+      "provider": "pmc",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7190303/",
+      "retrieval_status": "available"
+    },
+    "raw_content_sha256": "1dc4213845d11e72d4640ff1a5aa0690a78b37e9a804a81c9df72c9ca83615b7",
+    "format": "html",
+    "total_available_chunks": 69,
+    "selected_chunks_match_saved_artifact": true,
+    "paper": {
+      "paper_id": "10.1016/s0140-6736(20)31022-9",
+      "doi": "10.1016/s0140-6736(20)31022-9",
+      "title": "Remdesivir in adults with severe COVID-19: a randomised, double-blind, placebo-controlled, multicentre trial",
+      "authors": [
+        "Yeming Wang",
+        "Dingyu Zhang",
+        "Guanhua Du",
+        "Ronghui Du",
+        "Jianping Zhao",
+        "Yang Jin",
+        "Shouzhi Fu",
+        "Ling Gao",
+        "Zhenshun Cheng",
+        "Qiaofa Lu",
+        "Yi Hu",
+        "Guangwei Luo",
+        "Ke Wang",
+        "Yang Lu",
+        "Huadong Li",
+        "Shuzhen Wang",
+        "Shunan Ruan",
+        "Chengqing Yang",
+        "Chunlin Mei",
+        "Yi Wang",
+        "Dan Ding",
+        "Feng Wu",
+        "Xin Tang",
+        "Xianzhi Ye",
+        "Yingchun Ye",
+        "Bing Liu",
+        "Jie Yang",
+        "Wen Yin",
+        "Aili Wang",
+        "Guohui Fan",
+        "Fei Zhou",
+        "Zhibo Liu",
+        "Xiaoying Gu",
+        "Jiuyang Xu",
+        "Lianhan Shang",
+        "Yi Zhang",
+        "Lianjun Cao",
+        "Tingting Guo",
+        "Yan Wan",
+        "Hong Qin",
+        "Yushen Jiang",
+        "Thomas Jaki",
+        "Frederick G Hayden",
+        "Peter W Horby",
+        "Bin Cao",
+        "Chen Wang"
+      ],
+      "abstract": null,
+      "journal": "The Lancet",
+      "publisher": "Elsevier BV",
+      "publication_date": "2020-04-29",
+      "year": 2020,
+      "url": "https://doi.org/10.1016/s0140-6736(20)31022-9",
+      "source_url": "https://doi.org/10.1016/s0140-6736(20)31022-9",
+      "open_access": true,
+      "full_text_available": true,
+      "full_text_format": "html",
+      "full_text_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7190303/"
+    },
+    "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7190303/",
+    "provider": "pmc",
+    "source_identity_statuses": [
+      "confirmed"
+    ],
+    "cache_hit_values": [
+      false
+    ]
+  },
+  {
+    "number": 5,
+    "reference": {
+      "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "raw_text": "https://www.nejm.org/doi/suppl/10.1056/NEJMoa2007764/suppl_file/ nejmoa2007764_protocol.pdf.",
+      "doi": "10.1056/nejmoa2007764/suppl_file/nejmoa2007764_protocol.pdf",
+      "title": null,
+      "authors": [],
+      "year": null,
+      "journal": null,
+      "url": "https://www.nejm.org/doi/suppl/10.1056/NEJMoa2007764/suppl_file/nejmoa2007764_protocol.pdf",
+      "resolution": {
+        "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+        "status": "resolved",
+        "original_doi": "10.1056/nejmoa2007764/suppl_file/nejmoa2007764_protocol.pdf",
+        "resolved_doi": "10.1056/nejmoa2007764/suppl_file/nejmoa2007764_protocol.pdf",
+        "matched_title": null,
+        "provider": "original",
+        "source_type": "doi",
+        "source_url": "https://www.nejm.org/doi/suppl/10.1056/NEJMoa2007764/suppl_file/",
+        "match_reason": "ORIGINAL_DOI_PRESERVED",
+        "match_confidence": null,
+        "diagnostics": [
+          "URL_FIELDS_DISAGREE_RAW_PREFERRED"
+        ],
+        "candidates": []
+      }
+    },
+    "scheduled_pairs": 1,
+    "outcomes": [
+      {
+        "state": "blocked_source",
+        "reason": "SOURCE_NOT_FOUND"
+      }
+    ],
+    "binding": null,
+    "retrieval_status": "NO_ACCEPTED_SOURCE_IN_JOB"
+  },
+  {
+    "number": 6,
+    "reference": {
+      "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:5",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "raw_text": "P. Guyot, A.E. Ades, M.J. Ouwens, et al., Enhanced secondary analysis of survival data: reconstructing the data from published Kaplan-Meier survival curves, BMC Med. Res. Methodol. 12 (2012) 9, https://doi.org/10.1186/1471-2288-12-9.",
+      "doi": "10.1186/1471-2288-12-9",
+      "title": "Enhanced secondary analysis of survival data: reconstructing the data from published Kaplan-Meier survival curves",
+      "authors": [
+        "P Guyot",
+        "A E Ades",
+        "M J Ouwens"
+      ],
+      "year": 2012,
+      "journal": "BMC Med. Res. Methodol",
+      "url": "https://doi.org/10.1186/1471-2288-12-9",
+      "resolution": {
+        "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:5",
+        "status": "resolved",
+        "original_doi": "10.1186/1471-2288-12-9",
+        "resolved_doi": "10.1186/1471-2288-12-9",
+        "matched_title": null,
+        "provider": "original",
+        "source_type": "doi",
+        "source_url": "https://doi.org/10.1186/1471-2288-12-9",
+        "match_reason": "ORIGINAL_DOI_PRESERVED",
+        "match_confidence": null,
+        "diagnostics": [],
+        "candidates": []
+      }
+    },
+    "scheduled_pairs": 2,
+    "outcomes": [
+      {
+        "state": "completed",
+        "reason": "VERIFIED"
+      },
+      {
+        "state": "completed",
+        "reason": "VERIFIED"
+      }
+    ],
+    "binding": {
+      "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:5",
+      "doi": "10.1186/1471-2288-12-9",
+      "source_document_id": "source:02da6bc32553a03b80e38407750926262897ce3508abf50743b6e1b2f5e8dc38",
+      "source_version": "sha256:ae457b3207ac0b6f6436dadd3aa9cdecc21dbb3d1aee304f62365e4988e979a1",
+      "provenance": {
+        "original_citation": "P. Guyot, A.E. Ades, M.J. Ouwens, et al., Enhanced secondary analysis of survival data: reconstructing the data from published Kaplan-Meier survival curves, BMC Med. Res. Methodol. 12 (2012) 9, https://doi.org/10.1186/1471-2288-12-9.",
+        "matched_doi": "10.1186/1471-2288-12-9",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3313891/",
+        "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3313891/",
+        "retrieved_at": "2026-10-19T07:12:37.276323+00:00",
+        "retrieved_title": "Enhanced secondary analysis of survival data: reconstructing the data from published Kaplan-Meier survival curves",
+        "publication_date": "2012-02-01",
+        "retrieved_version": "sha256:ae457b3207ac0b6f6436dadd3aa9cdecc21dbb3d1aee304f62365e4988e979a1",
+        "identity": "EXACT_IDENTITY",
+        "document_kind": "ARTICLE_FULL_TEXT",
+        "match_evidence": [
+          "ARTICLE_DOI_MATCH"
+        ],
+        "warnings": [
+          "ORIGINAL_CITATION_VERSION_UNCONFIRMED"
+        ],
+        "identity_confidence": null
+      }
+    },
+    "retrieval_status": "FULL_TEXT_ACCEPTED",
+    "source_document_audit_reconstruction": {
+      "id": "source:02da6bc32553a03b80e38407750926262897ce3508abf50743b6e1b2f5e8dc38",
+      "reference_id": "reference:10.1186/1471-2288-12-9",
+      "doi": "10.1186/1471-2288-12-9",
+      "title": "Enhanced secondary analysis of survival data: reconstructing the data from published Kaplan-Meier survival curves",
+      "authors": [
+        "Patricia Guyot",
+        "AE Ades",
+        "Mario JNM Ouwens",
+        "Nicky J Welton"
+      ],
+      "year": 2012,
+      "content_locator": "memory://source:02da6bc32553a03b80e38407750926262897ce3508abf50743b6e1b2f5e8dc38",
+      "content_hash": "sha256:ae457b3207ac0b6f6436dadd3aa9cdecc21dbb3d1aee304f62365e4988e979a1",
+      "source_type": "remote",
+      "provider": "pmc",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3313891/",
+      "retrieval_status": "available"
+    },
+    "raw_content_sha256": "ae457b3207ac0b6f6436dadd3aa9cdecc21dbb3d1aee304f62365e4988e979a1",
+    "format": "html",
+    "total_available_chunks": 84,
+    "selected_chunks_match_saved_artifact": true,
+    "paper": {
+      "paper_id": "10.1186/1471-2288-12-9",
+      "doi": "10.1186/1471-2288-12-9",
+      "title": "Enhanced secondary analysis of survival data: reconstructing the data from published Kaplan-Meier survival curves",
+      "authors": [
+        "Patricia Guyot",
+        "AE Ades",
+        "Mario JNM Ouwens",
+        "Nicky J Welton"
+      ],
+      "abstract": "BACKGROUND: The results of Randomized Controlled Trials (RCTs) on time-to-event outcomes that are usually reported are median time to events and Cox Hazard Ratio. These do not constitute the sufficient statistics required for meta-analysis or cost-effectiveness analysis, and their use in secondary analyses requires strong assumptions that may not have been adequately tested. In order to enhance the quality of secondary data analyses, we propose a method which derives from the published Kaplan Meier survival curves a close approximation to the original individual patient time-to-event data from which they were generated. METHODS: We develop an algorithm that maps from digitised curves back to KM data by finding numerical solutions to the inverted KM equations, using where available information on number of events and numbers at risk. The reproducibility and accuracy of survival probabilities, median survival times and hazard ratios based on reconstructed KM data was assessed by comparing published statistics (survival probabilities, medians and hazard ratios) with statistics based on repeated reconstructions by multiple observers. RESULTS: The validation exercise established there was no material systematic error and that there was a high degree of reproducibility for all statistics. Accuracy was excellent for survival probabilities and medians, for hazard ratios reasonable accuracy can only be obtained if at least numbers at risk or total number of events are reported. CONCLUSION: The algorithm is a reliable tool for meta-analysis and cost-effectiveness analyses of RCTs reporting time-to-event data. It is recommended that all RCTs should report information on numbers at risk and total number of events alongside KM curves.",
+      "journal": "BMC Medical Research Methodology",
+      "publisher": "Springer Science and Business Media LLC",
+      "publication_date": "2012-02-01",
+      "year": 2012,
+      "url": "https://doi.org/10.1186/1471-2288-12-9",
+      "source_url": "https://doi.org/10.1186/1471-2288-12-9",
+      "open_access": true,
+      "full_text_available": true,
+      "full_text_format": "html",
+      "full_text_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3313891/"
+    },
+    "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3313891/",
+    "provider": "pmc",
+    "source_identity_statuses": [
+      "confirmed"
+    ],
+    "cache_hit_values": [
+      false
+    ]
+  },
+  {
+    "number": 7,
+    "reference": {
+      "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:6",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "raw_text": "H. Uno, B. Claggett, L. Tian, et al., Moving beyond the hazard ratio in quantifying the between-group difference in survival analysis, J. Clin. Oncol. 32 (22) (2014) 2380-2385.",
+      "doi": "10.1200/jco.2014.55.2208",
+      "title": "Moving beyond the hazard ratio in quantifying the between-group difference in survival analysis",
+      "authors": [
+        "H Uno",
+        "B Claggett",
+        "L Tian"
+      ],
+      "year": 2014,
+      "journal": "J. Clin. Oncol",
+      "resolution": {
+        "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:6",
+        "status": "resolved",
+        "original_doi": null,
+        "resolved_doi": "10.1200/jco.2014.55.2208",
+        "matched_title": "Moving Beyond the Hazard Ratio in Quantifying the Between-Group Difference in Survival Analysis",
+        "provider": "crossref",
+        "source_type": "doi",
+        "source_url": null,
+        "match_reason": "IDENTITY_MATCHED",
+        "match_confidence": 0.99,
+        "diagnostics": [],
+        "candidates": [
+          {
+            "doi": "10.1200/jco.2014.55.2208",
+            "title": "Moving Beyond the Hazard Ratio in Quantifying the Between-Group Difference in Survival Analysis",
+            "authors": [
+              "Hajime Uno",
+              "Brian Claggett",
+              "Lu Tian",
+              "Eisuke Inoue",
+              "Paul Gallo",
+              "Toshio Miyata",
+              "Deborah Schrag",
+              "Masahiro Takeuchi",
+              "Yoshiaki Uyama",
+              "Lihui Zhao",
+              "Hicham Skali",
+              "Scott Solomon",
+              "Susanna Jacobus",
+              "Michael Hughes",
+              "Milton Packer",
+              "Lee-Jen Wei"
+            ],
+            "years": [
+              2014
+            ],
+            "journal": "Journal of Clinical Oncology",
+            "publication_type": "journal-article",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.99,
+            "evidence": [
+              "TITLE_SIMILARITY:1.0000",
+              "AUTHOR_MATCHES:3",
+              "JOURNAL_MATCH",
+              "YEAR_MATCH"
+            ],
+            "rejection_reason": null
+          },
+          {
+            "doi": "10.1001/jamaoncol.2017.2797",
+            "title": "Interpretability of Cancer Clinical Trial Results Using Restricted Mean Survival Time as an Alternative to the Hazard Ratio",
+            "authors": [
+              "Kyongsun Pak",
+              "Hajime Uno",
+              "Dae Hyun Kim",
+              "Lu Tian",
+              "Robert C. Kane",
+              "Masahiro Takeuchi",
+              "Haoda Fu",
+              "Brian Claggett",
+              "Lee-Jen Wei"
+            ],
+            "years": [
+              2017
+            ],
+            "journal": "JAMA Oncology",
+            "publication_type": "journal-article",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.23148936170212767,
+            "evidence": [
+              "TITLE_SIMILARITY:0.2128",
+              "AUTHOR_MATCHES:3"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          },
+          {
+            "doi": "10.1002/sim.9651",
+            "title": "Ratio and difference of average hazard with survival weight: New measures to quantify survival benefit of new therapy",
+            "authors": [
+              "Hajime Uno",
+              "Miki Horiguchi"
+            ],
+            "years": [
+              2023
+            ],
+            "journal": "Statistics in Medicine",
+            "publication_type": "journal-article",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.34828729281767956,
+            "evidence": [
+              "TITLE_SIMILARITY:0.3425"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          },
+          {
+            "doi": "10.1111/biom.12384",
+            "title": "On the Restricted Mean Survival Time Curve in Survival Analysis",
+            "authors": [
+              "Lihui Zhao",
+              "Brian Claggett",
+              "Lu Tian",
+              "Hajime Uno",
+              "Marc A. Pfeffer",
+              "Scott D. Solomon",
+              "Lorenzo Trippa",
+              "L. J. Wei"
+            ],
+            "years": [
+              2015,
+              2016
+            ],
+            "journal": "Biometrics",
+            "publication_type": "journal-article",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.4370588235294117,
+            "evidence": [
+              "TITLE_SIMILARITY:0.4412",
+              "AUTHOR_MATCHES:3"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          },
+          {
+            "doi": "10.32614/cran.package.surv2samplecomp",
+            "title": "surv2sampleComp: Inference for Model-Free Between-Group Parameters for Censored Survival Data",
+            "authors": [],
+            "years": [
+              2013
+            ],
+            "journal": "CRAN: Contributed Packages",
+            "publication_type": "dataset",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.35337423312883437,
+            "evidence": [
+              "TITLE_SIMILARITY:0.3926",
+              "AUTHORS_UNKNOWN"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          },
+          {
+            "doi": "10.32614/cran.package.survah",
+            "title": "survAH: Survival Data Analysis using Average Hazard",
+            "authors": [
+              "Hajime Uno",
+              "Miki Horiguchi",
+              "Zihan Qian"
+            ],
+            "years": [
+              2023
+            ],
+            "journal": "CRAN: Contributed Packages",
+            "publication_type": "dataset",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.2971428571428571,
+            "evidence": [
+              "TITLE_SIMILARITY:0.2857"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          },
+          {
+            "doi": "10.1001/jamacardio.2022.5279",
+            "title": "Quantifying and Interpreting the Prediction Accuracy of Models for the Time of a Cardiovascular Event—Moving Beyond C Statistic",
+            "authors": [
+              "Xuan Wang",
+              "Brian Lee Claggett",
+              "Lu Tian",
+              "Marcus Vinícius Bolívar Malachias",
+              "Marc A. Pfeffer",
+              "Lee-Jen Wei"
+            ],
+            "years": [
+              2023
+            ],
+            "journal": "JAMA Cardiology",
+            "publication_type": "journal-article",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.21905759162303665,
+            "evidence": [
+              "TITLE_SIMILARITY:0.1990"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          },
+          {
+            "doi": "10.2188/jea.je20240063",
+            "title": "Rare Event Approximation Between Subdistribution Hazard Ratio and Cause-specific Hazard Ratio in Survival Analysis With Competing Risks",
+            "authors": [
+              "Shiro Tanaka"
+            ],
+            "years": [
+              2024
+            ],
+            "journal": "Journal of Epidemiology",
+            "publication_type": "journal-article",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.369,
+            "evidence": [
+              "TITLE_SIMILARITY:0.4100"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          },
+          {
+            "doi": "10.4324/9781315739458-9",
+            "title": "Group analysis and performance art",
+            "authors": [],
+            "years": [
+              2014
+            ],
+            "journal": "Beyond the Anti-Group",
+            "publication_type": "book-chapter",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.23892857142857143,
+            "evidence": [
+              "TITLE_SIMILARITY:0.2321",
+              "AUTHORS_UNKNOWN",
+              "YEAR_MATCH"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          },
+          {
+            "doi": "10.1093/annonc/mdy109",
+            "title": "Adding a new analytical procedure with clinical interpretation in the tool box of survival analysis",
+            "authors": [
+              "H. Uno",
+              "B. Claggett",
+              "L. Tian",
+              "H. Fu",
+              "B. Huang",
+              "D.H. Kim",
+              "L.J. Wei"
+            ],
+            "years": [
+              2018
+            ],
+            "journal": "Annals of Oncology",
+            "publication_type": "journal-article",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.4711377245508982,
+            "evidence": [
+              "TITLE_SIMILARITY:0.4790",
+              "AUTHOR_MATCHES:3"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          }
+        ]
+      }
+    },
+    "scheduled_pairs": 1,
+    "outcomes": [
+      {
+        "state": "completed",
+        "reason": "NO_RELEVANT_EVIDENCE"
+      }
+    ],
+    "binding": {
+      "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:6",
+      "doi": "10.1200/jco.2014.55.2208",
+      "source_document_id": "source:673638568b8c1e79671dd3b4385bf7c095f3dc8a2d0ffca045321f22ccb32978",
+      "source_version": "sha256:41de5453ab209ebfa4db2e9c9988fa146654ae1660e07f7317328f5a01533047",
+      "provenance": {
+        "original_citation": "H. Uno, B. Claggett, L. Tian, et al., Moving beyond the hazard ratio in quantifying the between-group difference in survival analysis, J. Clin. Oncol. 32 (22) (2014) 2380-2385.",
+        "matched_doi": "10.1200/jco.2014.55.2208",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4105489/",
+        "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4105489/",
+        "retrieved_at": "2026-10-19T07:13:52.371481+00:00",
+        "retrieved_title": "Moving Beyond the Hazard Ratio in Quantifying the Between-Group Difference in Survival Analysis",
+        "publication_date": "2014-07-01",
+        "retrieved_version": "sha256:41de5453ab209ebfa4db2e9c9988fa146654ae1660e07f7317328f5a01533047",
+        "identity": "EXACT_IDENTITY",
+        "document_kind": "ARTICLE_FULL_TEXT",
+        "match_evidence": [
+          "ARTICLE_DOI_MATCH"
+        ],
+        "warnings": [
+          "ORIGINAL_CITATION_VERSION_UNCONFIRMED"
+        ],
+        "identity_confidence": null
+      }
+    },
+    "retrieval_status": "FULL_TEXT_ACCEPTED",
+    "source_document_audit_reconstruction": {
+      "id": "source:673638568b8c1e79671dd3b4385bf7c095f3dc8a2d0ffca045321f22ccb32978",
+      "reference_id": "reference:10.1200/jco.2014.55.2208",
+      "doi": "10.1200/jco.2014.55.2208",
+      "title": "Moving Beyond the Hazard Ratio in Quantifying the Between-Group Difference in Survival Analysis",
+      "authors": [
+        "Hajime Uno",
+        "Brian Claggett",
+        "Lu Tian",
+        "Eisuke Inoue",
+        "Paul Gallo",
+        "Toshio Miyata",
+        "Deborah Schrag",
+        "Masahiro Takeuchi",
+        "Yoshiaki Uyama",
+        "Lihui Zhao",
+        "Hicham Skali",
+        "Scott Solomon",
+        "Susanna Jacobus",
+        "Michael Hughes",
+        "Milton Packer",
+        "Lee-Jen Wei"
+      ],
+      "year": 2014,
+      "content_locator": "memory://source:673638568b8c1e79671dd3b4385bf7c095f3dc8a2d0ffca045321f22ccb32978",
+      "content_hash": "sha256:41de5453ab209ebfa4db2e9c9988fa146654ae1660e07f7317328f5a01533047",
+      "source_type": "remote",
+      "provider": "pmc",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4105489/",
+      "retrieval_status": "available"
+    },
+    "raw_content_sha256": "41de5453ab209ebfa4db2e9c9988fa146654ae1660e07f7317328f5a01533047",
+    "format": "html",
+    "total_available_chunks": 45,
+    "selected_chunks_match_saved_artifact": true,
+    "paper": {
+      "paper_id": "10.1200/jco.2014.55.2208",
+      "doi": "10.1200/jco.2014.55.2208",
+      "title": "Moving Beyond the Hazard Ratio in Quantifying the Between-Group Difference in Survival Analysis",
+      "authors": [
+        "Hajime Uno",
+        "Brian Claggett",
+        "Lu Tian",
+        "Eisuke Inoue",
+        "Paul Gallo",
+        "Toshio Miyata",
+        "Deborah Schrag",
+        "Masahiro Takeuchi",
+        "Yoshiaki Uyama",
+        "Lihui Zhao",
+        "Hicham Skali",
+        "Scott Solomon",
+        "Susanna Jacobus",
+        "Michael Hughes",
+        "Milton Packer",
+        "Lee-Jen Wei"
+      ],
+      "abstract": "In a longitudinal clinical study to compare two groups, the primary end point is often the time to a specific event (eg, disease progression, death). The hazard ratio estimate is routinely used to empirically quantify the between-group difference under the assumption that the ratio of the two hazard functions is approximately constant over time. When this assumption is plausible, such a ratio estimate may capture the relative difference between two survival curves. However, the clinical meaning of such a ratio estimate is difficult, if not impossible, to interpret when the underlying proportional hazards assumption is violated (ie, the hazard ratio is not constant over time). Although this issue has been studied extensively and various alternatives to the hazard ratio estimator have been discussed in the statistical literature, such crucial information does not seem to have reached the broader community of health science researchers. In this article, we summarize several critical concerns regarding this conventional practice and discuss various well-known alternatives for quantifying the underlying differences between groups with respect to a time-to-event end point. The data from three recent cancer clinical trials, which reflect a variety of scenarios, are used throughout to illustrate our discussions. When there is not sufficient information about the profile of the between-group difference at the design stage of the study, we encourage practitioners to consider a prespecified, clinically meaningful, model-free measure for quantifying the difference and to use robust estimation procedures to draw primary inferences.",
+      "journal": "Journal of Clinical Oncology",
+      "publisher": "American Society of Clinical Oncology (ASCO)",
+      "publication_date": "2014-07-01",
+      "year": 2014,
+      "url": "https://doi.org/10.1200/jco.2014.55.2208",
+      "source_url": "https://doi.org/10.1200/jco.2014.55.2208",
+      "open_access": true,
+      "full_text_available": true,
+      "full_text_format": "html",
+      "full_text_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4105489/"
+    },
+    "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4105489/",
+    "provider": "pmc",
+    "source_identity_statuses": [],
+    "cache_hit_values": []
+  },
+  {
+    "number": 8,
+    "reference": {
+      "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:7",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "raw_text": "K. Pak, H. Uno, D.H. Kim, et al., Interpretability of cancer clinical trial results using restricted mean survival time as an alternative to the hazard ratio, JAMA Oncol. 3 (12) (2017) 1692-1696.",
+      "doi": "10.1001/jamaoncol.2017.2797",
+      "title": "Interpretability of cancer clinical trial results using restricted mean survival time as an alternative to the hazard ratio",
+      "authors": [
+        "K Pak",
+        "H Uno",
+        "D H Kim"
+      ],
+      "year": 2017,
+      "journal": "JAMA Oncol",
+      "resolution": {
+        "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:7",
+        "status": "resolved",
+        "original_doi": null,
+        "resolved_doi": "10.1001/jamaoncol.2017.2797",
+        "matched_title": "Interpretability of Cancer Clinical Trial Results Using Restricted Mean Survival Time as an Alternative to the Hazard Ratio",
+        "provider": "crossref",
+        "source_type": "doi",
+        "source_url": null,
+        "match_reason": "IDENTITY_MATCHED",
+        "match_confidence": 0.99,
+        "diagnostics": [],
+        "candidates": [
+          {
+            "doi": "10.1001/jamaoncol.2017.2797",
+            "title": "Interpretability of Cancer Clinical Trial Results Using Restricted Mean Survival Time as an Alternative to the Hazard Ratio",
+            "authors": [
+              "Kyongsun Pak",
+              "Hajime Uno",
+              "Dae Hyun Kim",
+              "Lu Tian",
+              "Robert C. Kane",
+              "Masahiro Takeuchi",
+              "Haoda Fu",
+              "Brian Claggett",
+              "Lee-Jen Wei"
+            ],
+            "years": [
+              2017
+            ],
+            "journal": "JAMA Oncology",
+            "publication_type": "journal-article",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.99,
+            "evidence": [
+              "TITLE_SIMILARITY:1.0000",
+              "AUTHOR_MATCHES:3",
+              "JOURNAL_MATCH",
+              "YEAR_MATCH"
+            ],
+            "rejection_reason": null
+          },
+          {
+            "doi": "10.1001/jamacardio.2017.2922",
+            "title": "Restricted Mean Survival Time as a Measure to Interpret Clinical Trial Results",
+            "authors": [
+              "Dae Hyun Kim",
+              "Hajime Uno",
+              "Lee-Jen Wei"
+            ],
+            "years": [
+              2017
+            ],
+            "journal": "JAMA Cardiology",
+            "publication_type": "journal-article",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.4341618497109827,
+            "evidence": [
+              "TITLE_SIMILARITY:0.4046",
+              "YEAR_MATCH"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          },
+          {
+            "doi": "10.1161/circulationaha.119.040680",
+            "title": "Using the Restricted Mean Survival Time Difference as an Alternative to the Hazard Ratio for Analyzing Clinical Cardiovascular Studies",
+            "authors": [
+              "Zachary R. McCaw",
+              "Guosheng Yin",
+              "Lee-Jen Wei"
+            ],
+            "years": [
+              2019
+            ],
+            "journal": "Circulation",
+            "publication_type": "journal-article",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.5027027027027027,
+            "evidence": [
+              "TITLE_SIMILARITY:0.5586"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          },
+          {
+            "doi": "10.1016/j.clon.2018.04.011",
+            "title": "Cancer Biology and Survival Analysis in Cancer Trials: Restricted Mean Survival Time Analysis versus Hazard Ratios",
+            "authors": [
+              "R.P. A'Hern"
+            ],
+            "years": [
+              2018
+            ],
+            "journal": "Clinical Oncology",
+            "publication_type": "journal-article",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.5294117647058824,
+            "evidence": [
+              "TITLE_SIMILARITY:0.5882"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          },
+          {
+            "doi": "10.1056/evide2300142",
+            "title": "Breaking Free from the Hazard Ratio: Embracing the Restricted Mean Survival Time in Clinical Trials",
+            "authors": [
+              "Larry Han"
+            ],
+            "years": [
+              2023
+            ],
+            "journal": "NEJM Evidence",
+            "publication_type": "journal-article",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.36000000000000004,
+            "evidence": [
+              "TITLE_SIMILARITY:0.4000"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          },
+          {
+            "doi": "10.32614/cran.package.ssrmst",
+            "title": "SSRMST: Sample Size Calculation using Restricted Mean Survival Time",
+            "authors": [],
+            "years": [
+              2015
+            ],
+            "journal": "CRAN: Contributed Packages",
+            "publication_type": "dataset",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.42804878048780487,
+            "evidence": [
+              "TITLE_SIMILARITY:0.4756",
+              "AUTHORS_UNKNOWN"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          },
+          {
+            "doi": "10.1186/1471-2288-13-152",
+            "title": "Restricted mean survival time: an alternative to the hazard ratio for the design and analysis of randomized trials with a time-to-event outcome",
+            "authors": [
+              "Patrick Royston",
+              "Mahesh KB Parmar"
+            ],
+            "years": [
+              2013
+            ],
+            "journal": "BMC Medical Research Methodology",
+            "publication_type": "journal-article",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.44,
+            "evidence": [
+              "TITLE_SIMILARITY:0.4889"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          },
+          {
+            "doi": "10.32614/cran.package.survrm2perm",
+            "title": "survRM2perm: Permutation Test for Comparing Restricted Mean Survival Time",
+            "authors": [],
+            "years": [
+              2020
+            ],
+            "journal": "CRAN: Contributed Packages",
+            "publication_type": "dataset",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.4129411764705882,
+            "evidence": [
+              "TITLE_SIMILARITY:0.4588",
+              "AUTHORS_UNKNOWN"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          },
+          {
+            "doi": "10.1002/pst.1846",
+            "title": "Comparison of the restricted mean survival time with the hazard ratio in superiority trials with a time‐to‐event end point",
+            "authors": [
+              "Bo Huang",
+              "Pei‐Fen Kuan"
+            ],
+            "years": [
+              2017,
+              2018
+            ],
+            "journal": "Pharmaceutical Statistics",
+            "publication_type": "journal-article",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.428076923076923,
+            "evidence": [
+              "TITLE_SIMILARITY:0.4423",
+              "YEAR_MATCH"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          },
+          {
+            "doi": "10.21037/cco-23-48",
+            "title": "Assessing surrogacy using restricted mean survival time ratio for overall survival in liver cancer: a narrative review",
+            "authors": [
+              "Tiffany H. Leung",
+              "James C. Ho",
+              "Xiaofei Wang",
+              "Herbert Pang"
+            ],
+            "years": [
+              2023
+            ],
+            "journal": "Chinese Clinical Oncology",
+            "publication_type": "journal-article",
+            "provider": "crossref",
+            "relations": [],
+            "match_confidence": 0.4173913043478261,
+            "evidence": [
+              "TITLE_SIMILARITY:0.4638"
+            ],
+            "rejection_reason": "TITLE_MISMATCH"
+          }
+        ]
+      }
+    },
+    "scheduled_pairs": 1,
+    "outcomes": [
+      {
+        "state": "completed",
+        "reason": "NO_RELEVANT_EVIDENCE"
+      }
+    ],
+    "binding": {
+      "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:7",
+      "doi": "10.1001/jamaoncol.2017.2797",
+      "source_document_id": "source:6be4aaa1aaf07b12e3d3a41c56eaddcb95197b549790e2e4ee0e44d6d0375f02",
+      "source_version": "sha256:50c4147f4492444ef163442c490c6ca724a25c930985ace29e69492a5dcebb5f",
+      "provenance": {
+        "original_citation": "K. Pak, H. Uno, D.H. Kim, et al., Interpretability of cancer clinical trial results using restricted mean survival time as an alternative to the hazard ratio, JAMA Oncol. 3 (12) (2017) 1692-1696.",
+        "matched_doi": "10.1001/jamaoncol.2017.2797",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5824272/",
+        "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5824272/",
+        "retrieved_at": "2026-10-19T07:14:10.500195+00:00",
+        "retrieved_title": "Interpretability of Cancer Clinical Trial Results Using Restricted Mean Survival Time as an Alternative to the Hazard Ratio",
+        "publication_date": "2017-10-03",
+        "retrieved_version": "sha256:50c4147f4492444ef163442c490c6ca724a25c930985ace29e69492a5dcebb5f",
+        "identity": "EXACT_IDENTITY",
+        "document_kind": "ARTICLE_FULL_TEXT",
+        "match_evidence": [
+          "ARTICLE_DOI_MATCH"
+        ],
+        "warnings": [
+          "ORIGINAL_CITATION_VERSION_UNCONFIRMED"
+        ],
+        "identity_confidence": null
+      }
+    },
+    "retrieval_status": "FULL_TEXT_ACCEPTED",
+    "source_document_audit_reconstruction": {
+      "id": "source:6be4aaa1aaf07b12e3d3a41c56eaddcb95197b549790e2e4ee0e44d6d0375f02",
+      "reference_id": "reference:10.1001/jamaoncol.2017.2797",
+      "doi": "10.1001/jamaoncol.2017.2797",
+      "title": "Interpretability of Cancer Clinical Trial Results Using Restricted Mean Survival Time as an Alternative to the Hazard Ratio",
+      "authors": [
+        "Kyongsun Pak",
+        "Hajime Uno",
+        "Dae Hyun Kim",
+        "Lu Tian",
+        "Robert C. Kane",
+        "Masahiro Takeuchi",
+        "Haoda Fu",
+        "Brian Claggett",
+        "Lee-Jen Wei"
+      ],
+      "year": 2017,
+      "content_locator": "memory://source:6be4aaa1aaf07b12e3d3a41c56eaddcb95197b549790e2e4ee0e44d6d0375f02",
+      "content_hash": "sha256:50c4147f4492444ef163442c490c6ca724a25c930985ace29e69492a5dcebb5f",
+      "source_type": "remote",
+      "provider": "pmc",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5824272/",
+      "retrieval_status": "available"
+    },
+    "raw_content_sha256": "50c4147f4492444ef163442c490c6ca724a25c930985ace29e69492a5dcebb5f",
+    "format": "html",
+    "total_available_chunks": 50,
+    "selected_chunks_match_saved_artifact": true,
+    "paper": {
+      "paper_id": "10.1001/jamaoncol.2017.2797",
+      "doi": "10.1001/jamaoncol.2017.2797",
+      "title": "Interpretability of Cancer Clinical Trial Results Using Restricted Mean Survival Time as an Alternative to the Hazard Ratio",
+      "authors": [
+        "Kyongsun Pak",
+        "Hajime Uno",
+        "Dae Hyun Kim",
+        "Lu Tian",
+        "Robert C. Kane",
+        "Masahiro Takeuchi",
+        "Haoda Fu",
+        "Brian Claggett",
+        "Lee-Jen Wei"
+      ],
+      "abstract": "Importance: In a comparative clinical study with progression-free survival (PFS) or overall survival (OS) as the end point, the hazard ratio (HR) is routinely used to design the study and to estimate the treatment effect at the end of the study. The clinical interpretation of the HR may not be straightforward, especially when the underlying model assumption is not valid. A robust procedure for study design and analysis that enables clinically meaningful interpretation of trial results is warranted. Objective: To discuss issues of conventional trial design and analysis and to present alternatives to the HR using a recent immunotherapy study as an illustrative example. Design, Setting, and Participants: By comparing 2 groups in a survival analysis, we discuss issues of using the HR and present the restricted mean survival time (RMST) as a summary measure of patients’ survival profile over time. We show how to use the difference or ratio in RMST between 2 groups as an alternative for designing and analyzing a clinical study with an immunotherapy study as an illustrative example. Main Outcomes and Measures: Overall survival or PFS. Group contrast measures included HR, RMST difference or ratio, and the event rate difference. Results: For the illustrative example, the HR procedure indicates that nivolumab significantly prolonged patient OS and was numerically better than docetaxel for PFS. However, the median PFS time of docetaxel was significantly better than that of nivolumab. Therefore, it may be difficult to use median OS and/or PFS to interpret of the HR value clinically. On the other hand, using RMST difference, nivolumab was significantly better than docetaxel for both OS and PFS. We also provide details regarding design of a future study with RMST-based measures. Conclusions and Relevance: The design and analysis of a conventional cancer clinical trial can be improved by adopting a robust statistical procedure that enables clinically meaningful interpretations of the treatment effect. The RMST-based quantitative method may be used as a primary tool for future cancer trials or to help us to better understand the clinical interpretation of the HR even when its model assumption is plausible.",
+      "journal": "JAMA Oncology",
+      "publisher": "American Medical Association (AMA)",
+      "publication_date": "2017-10-03",
+      "year": 2017,
+      "url": "https://doi.org/10.1001/jamaoncol.2017.2797",
+      "source_url": "https://doi.org/10.1001/jamaoncol.2017.2797",
+      "open_access": true,
+      "full_text_available": true,
+      "full_text_format": "html",
+      "full_text_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5824272/"
+    },
+    "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5824272/",
+    "provider": "pmc",
+    "source_identity_statuses": [],
+    "cache_hit_values": []
+  },
+  {
+    "number": 9,
+    "reference": {
+      "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:8",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "raw_text": "D.H. Kim, H. Uno, L.J. Wei, Restricted mean survival time as a measure to interpret clinical trial results, JAMA Cardiol. 2 (11) (2017) 1179-1180.",
+      "doi": null,
+      "title": "Restricted mean survival time as a measure to interpret clinical trial results",
+      "authors": [
+        "D H Kim",
+        "H Uno",
+        "L J Wei"
+      ],
+      "year": 2017,
+      "journal": "JAMA Cardiol",
+      "resolution": {
+        "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:8",
+        "status": "provider_error",
+        "original_doi": null,
+        "resolved_doi": null,
+        "matched_title": null,
+        "provider": null,
+        "source_type": "unknown",
+        "source_url": null,
+        "match_reason": "PROVIDERS_UNAVAILABLE",
+        "match_confidence": null,
+        "diagnostics": [
+          "CROSSREF_RATE_LIMIT",
+          "OPENALEX_RATE_LIMIT"
+        ],
+        "candidates": []
+      }
+    },
+    "scheduled_pairs": 1,
+    "outcomes": [
+      {
+        "state": "failed",
+        "reason": "DOI_MISSING"
+      }
+    ],
+    "binding": null,
+    "retrieval_status": "NO_ACCEPTED_SOURCE_IN_JOB"
+  },
+  {
+    "number": 10,
+    "reference": {
+      "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:9",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "raw_text": "Z.R. McCaw, A.R. Orkaby, L.J. Wei, et al., Applying evidence-based medicine to shared decision making: value of restricted mean survival time, Am. J. Med. 132 (1) (2019) 13-15, https://doi.org/10.1016/j.amjmed.2018.07.026.",
+      "doi": "10.1016/j.amjmed.2018.07.026",
+      "title": "Applying evidence-based medicine to shared decision making: value of restricted mean survival time",
+      "authors": [
+        "Z R Mccaw",
+        "A R Orkaby",
+        "L J Wei"
+      ],
+      "year": 2019,
+      "journal": "Am. J. Med",
+      "url": "https://doi.org/10.1016/j.amjmed.2018.07.026",
+      "resolution": {
+        "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:9",
+        "status": "resolved",
+        "original_doi": "10.1016/j.amjmed.2018.07.026",
+        "resolved_doi": "10.1016/j.amjmed.2018.07.026",
+        "matched_title": null,
+        "provider": "original",
+        "source_type": "doi",
+        "source_url": "https://doi.org/10.1016/j.amjmed.2018.07.026",
+        "match_reason": "ORIGINAL_DOI_PRESERVED",
+        "match_confidence": null,
+        "diagnostics": [],
+        "candidates": []
+      }
+    },
+    "scheduled_pairs": 1,
+    "outcomes": [
+      {
+        "state": "blocked_source",
+        "reason": "SOURCE_REQUIRED_FULL_TEXT_UNAVAILABLE"
+      }
+    ],
+    "binding": null,
+    "retrieval_status": "NO_ACCEPTED_SOURCE_IN_JOB"
+  },
+  {
+    "number": 11,
+    "reference": {
+      "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:10",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "raw_text": "P.C. Austin, D.S. Lee, J.P. Fine, Introduction to the analysis of survival data in the presence of competing risks, Circulation 133 (6) (2016 Feb 9) 601-609, https://doi. org/10.1161/CIRCULATIONAHA.115.017719.",
+      "doi": "10.1161/circulationaha.115.017719",
+      "title": "Introduction to the analysis of survival data in the presence of competing risks",
+      "authors": [
+        "P C Austin",
+        "D S Lee",
+        "J P Fine"
+      ],
+      "year": 2016,
+      "journal": "Circulation",
+      "url": "https://doi.org/10.1161/CIRCULATIONAHA.115.017719",
+      "resolution": {
+        "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:10",
+        "status": "resolved",
+        "original_doi": "10.1161/circulationaha.115.017719",
+        "resolved_doi": "10.1161/circulationaha.115.017719",
+        "matched_title": null,
+        "provider": "original",
+        "source_type": "doi",
+        "source_url": null,
+        "match_reason": "ORIGINAL_DOI_PRESERVED",
+        "match_confidence": null,
+        "diagnostics": [
+          "URL_FIELDS_DISAGREE_RAW_PREFERRED",
+          "URL_INVALID_OR_PRIVATE"
+        ],
+        "candidates": []
+      }
+    },
+    "scheduled_pairs": 0,
+    "outcomes": [],
+    "binding": null,
+    "retrieval_status": "NOT_SCHEDULED: no resolved-attribution pair"
+  },
+  {
+    "number": 12,
+    "reference": {
+      "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:11",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "raw_text": "B. Lau, S.R. Cole, S.J. Gange, Competing risk regression models for epidemiologic data, Am. J. Epidemiol. 170 (2) (2009) 244-256, https://doi.org/10.1093/aje/ kwp107.",
+      "doi": "10.1093/aje/kwp107",
+      "title": "Competing risk regression models for epidemiologic data",
+      "authors": [
+        "B Lau",
+        "S R Cole",
+        "S J Gange"
+      ],
+      "year": 2009,
+      "journal": "Am. J. Epidemiol",
+      "url": "https://doi.org/10.1093/aje/kwp107",
+      "resolution": {
+        "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:11",
+        "status": "resolved",
+        "original_doi": "10.1093/aje/kwp107",
+        "resolved_doi": "10.1093/aje/kwp107",
+        "matched_title": null,
+        "provider": "original",
+        "source_type": "doi",
+        "source_url": "https://doi.org/10.1093/aje/",
+        "match_reason": "ORIGINAL_DOI_PRESERVED",
+        "match_confidence": null,
+        "diagnostics": [
+          "URL_FIELDS_DISAGREE_RAW_PREFERRED"
+        ],
+        "candidates": []
+      }
+    },
+    "scheduled_pairs": 0,
+    "outcomes": [],
+    "binding": null,
+    "retrieval_status": "NOT_SCHEDULED: no resolved-attribution pair"
+  },
+  {
+    "number": 13,
+    "reference": {
+      "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:12",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "raw_text": "L. Zhao, L. Tian, B. Claggett, et al., Estimating treatment effect with clinical in- terpretation from a comparative clinical trial with an end point subject to com- peting risks, JAMA Cardiol. 3 (4) (2018 Apr 1) 357-358, https://doi.org/10.1001/ jamacardio.2018.0127.",
+      "doi": "10.1001/jamacardio.2018.0127",
+      "title": "Estimating treatment effect with clinical interpretation from a comparative clinical trial with an end point subject to competing risks",
+      "authors": [
+        "L Zhao",
+        "L Tian",
+        "B Claggett"
+      ],
+      "year": 2018,
+      "journal": "JAMA Cardiol",
+      "url": "https://doi.org/10.1001/jamacardio.2018.0127",
+      "resolution": {
+        "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:12",
+        "status": "resolved",
+        "original_doi": "10.1001/jamacardio.2018.0127",
+        "resolved_doi": "10.1001/jamacardio.2018.0127",
+        "matched_title": null,
+        "provider": "original",
+        "source_type": "doi",
+        "source_url": "https://doi.org/10.1001/",
+        "match_reason": "ORIGINAL_DOI_PRESERVED",
+        "match_confidence": null,
+        "diagnostics": [
+          "URL_FIELDS_DISAGREE_RAW_PREFERRED"
+        ],
+        "candidates": []
+      }
+    },
+    "scheduled_pairs": 0,
+    "outcomes": [],
+    "binding": null,
+    "retrieval_status": "NOT_SCHEDULED: no resolved-attribution pair"
+  },
+  {
+    "number": 14,
+    "reference": {
+      "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:13",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "raw_text": "Z.R. McCaw, L. Tian, J.L. Vassay, et al., How to quantify and interpret treatment effects in comparative clinical studies of COVID-19, Ann. Intern. Med. (2020), https://doi.org/10.7326/M20-4044.",
+      "doi": "10.7326/m20-4044",
+      "title": "How to quantify and interpret treatment effects in comparative clinical studies of COVID-19",
+      "authors": [
+        "Z R Mccaw",
+        "L Tian",
+        "J L Vassay"
+      ],
+      "year": 2020,
+      "journal": "Ann. Intern. Med",
+      "url": "https://doi.org/10.7326/M20-4044",
+      "resolution": {
+        "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:13",
+        "status": "resolved",
+        "original_doi": "10.7326/m20-4044",
+        "resolved_doi": "10.7326/m20-4044",
+        "matched_title": null,
+        "provider": "original",
+        "source_type": "doi",
+        "source_url": "https://doi.org/10.7326/M20-4044",
+        "match_reason": "ORIGINAL_DOI_PRESERVED",
+        "match_confidence": null,
+        "diagnostics": [],
+        "candidates": []
+      }
+    },
+    "scheduled_pairs": 2,
+    "outcomes": [
+      {
+        "state": "completed",
+        "reason": "VERIFIED"
+      },
+      {
+        "state": "completed",
+        "reason": "VERIFIED"
+      }
+    ],
+    "binding": {
+      "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:13",
+      "doi": "10.7326/m20-4044",
+      "source_document_id": "source:008395bd012f1d200bd27731d3a0c6c8ab572a331c970dae25390f770deb9a62",
+      "source_version": "sha256:a5702d00cbe9e03f54b02205ce8953f096aae8cc385cb1e4bafc8d1f42353d2e",
+      "provenance": {
+        "original_citation": "Z.R. McCaw, L. Tian, J.L. Vassay, et al., How to quantify and interpret treatment effects in comparative clinical studies of COVID-19, Ann. Intern. Med. (2020), https://doi.org/10.7326/M20-4044.",
+        "matched_doi": "10.7326/m20-4044",
+        "source_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/7350552",
+        "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7350552/",
+        "retrieved_at": "2026-10-19T07:14:42.642280+00:00",
+        "retrieved_title": "How to Quantify and Interpret Treatment Effects in Comparative Clinical Studies of COVID-19",
+        "publication_date": "2020-09-24",
+        "retrieved_version": "sha256:a5702d00cbe9e03f54b02205ce8953f096aae8cc385cb1e4bafc8d1f42353d2e",
+        "identity": "EXACT_IDENTITY",
+        "document_kind": "ARTICLE_FULL_TEXT",
+        "match_evidence": [
+          "ARTICLE_DOI_MATCH"
+        ],
+        "warnings": [
+          "ORIGINAL_CITATION_VERSION_UNCONFIRMED"
+        ],
+        "identity_confidence": null
+      }
+    },
+    "retrieval_status": "FULL_TEXT_ACCEPTED",
+    "source_document_audit_reconstruction": {
+      "id": "source:008395bd012f1d200bd27731d3a0c6c8ab572a331c970dae25390f770deb9a62",
+      "reference_id": "reference:10.7326/m20-4044",
+      "doi": "10.7326/m20-4044",
+      "title": "How to Quantify and Interpret Treatment Effects in Comparative Clinical Studies of COVID-19",
+      "authors": [
+        "Zachary R. McCaw",
+        "Lu Tian",
+        "Jason L. Vassy",
+        "Christine Seel Ritchie",
+        "Chien-Chang Lee",
+        "Dae Hyun Kim",
+        "Lee-Jen Wei"
+      ],
+      "year": 2020,
+      "content_locator": "memory://source:008395bd012f1d200bd27731d3a0c6c8ab572a331c970dae25390f770deb9a62",
+      "content_hash": "sha256:a5702d00cbe9e03f54b02205ce8953f096aae8cc385cb1e4bafc8d1f42353d2e",
+      "source_type": "remote",
+      "provider": "unpaywall",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7350552/",
+      "retrieval_status": "available"
+    },
+    "raw_content_sha256": "a5702d00cbe9e03f54b02205ce8953f096aae8cc385cb1e4bafc8d1f42353d2e",
+    "format": "html",
+    "total_available_chunks": 43,
+    "selected_chunks_match_saved_artifact": true,
+    "paper": {
+      "paper_id": "10.7326/m20-4044",
+      "doi": "10.7326/m20-4044",
+      "title": "How to Quantify and Interpret Treatment Effects in Comparative Clinical Studies of COVID-19",
+      "authors": [
+        "Zachary R. McCaw",
+        "Lu Tian",
+        "Jason L. Vassy",
+        "Christine Seel Ritchie",
+        "Chien-Chang Lee",
+        "Dae Hyun Kim",
+        "Lee-Jen Wei"
+      ],
+      "abstract": "Clinical trials of treatments for coronavirus disease 2019 (COVID-19) draw intense public attention. More than ever, valid, transparent, and intuitive summaries of the treatment effects, including efficacy and harm, are needed. In recently published and ongoing randomized comparative trials evaluating treatments for COVID-19, time to a positive outcome, such as recovery or improvement, has repeatedly been used as either the primary or key secondary end point. Because patients may die before recovery or improvement, data analysis of this end point faces a competing risk problem. Commonly used survival analysis techniques, such as the Kaplan-Meier method, often are not appropriate for such situations. Moreover, almost all trials have quantified treatment effects by using the hazard ratio, which is difficult to interpret for a positive event, especially in the presence of competing risks. Using 2 recent trials evaluating treatments (remdesivir and convalescent plasma) for COVID-19 as examples, a valid, well-established yet underused procedure is presented for estimating the cumulative recovery or improvement rate curve across the study period. Furthermore, an intuitive and clinically interpretable summary of treatment efficacy based on this curve is also proposed. Clinical investigators are encouraged to consider applying these methods for quantifying treatment effects in future studies of COVID-19.",
+      "journal": "Annals of Internal Medicine",
+      "publisher": "American College of Physicians",
+      "publication_date": "2020-09-24",
+      "year": 2020,
+      "url": "https://doi.org/10.7326/m20-4044",
+      "source_url": "https://doi.org/10.7326/m20-4044",
+      "open_access": true,
+      "full_text_available": true,
+      "full_text_format": "html",
+      "full_text_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7350552/"
+    },
+    "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7350552/",
+    "provider": "unpaywall",
+    "source_identity_statuses": [
+      "confirmed"
+    ],
+    "cache_hit_values": [
+      false
+    ]
+  },
+  {
+    "number": 15,
+    "reference": {
+      "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:14",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "raw_text": "B. Huang, L. Tian, Z.R. McCaw, et al., Analysis of response data for assessing treatment effects in comparative clinical studies, Ann. Intern. Med. (2020), https:// doi.org/10.7326/M20-0104.",
+      "doi": "10.7326/m20-0104",
+      "title": "Analysis of response data for assessing treatment effects in comparative clinical studies",
+      "authors": [
+        "B Huang",
+        "L Tian",
+        "Z R Mccaw"
+      ],
+      "year": 2020,
+      "journal": "Ann. Intern. Med",
+      "url": "https://doi.org/10.7326/M20-0104",
+      "resolution": {
+        "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:14",
+        "status": "resolved",
+        "original_doi": "10.7326/m20-0104",
+        "resolved_doi": "10.7326/m20-0104",
+        "matched_title": null,
+        "provider": "original",
+        "source_type": "doi",
+        "source_url": "https://doi.org/10.7326/M20-0104",
+        "match_reason": "ORIGINAL_DOI_PRESERVED",
+        "match_confidence": null,
+        "diagnostics": [],
+        "candidates": []
+      }
+    },
+    "scheduled_pairs": 1,
+    "outcomes": [
+      {
+        "state": "completed",
+        "reason": "VERIFIED"
+      }
+    ],
+    "binding": {
+      "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:14",
+      "doi": "10.7326/m20-0104",
+      "source_document_id": "source:f918653eb0428002b9495428af1213380ab7bc5bd24f21cabc456ae54665b3cf",
+      "source_version": "sha256:2a5467909957bd9c0c65f3a8f0c2cd85a8f038316ee8b4c47b46b9a0794f0e36",
+      "provenance": {
+        "original_citation": "B. Huang, L. Tian, Z.R. McCaw, et al., Analysis of response data for assessing treatment effects in comparative clinical studies, Ann. Intern. Med. (2020), https:// doi.org/10.7326/M20-0104.",
+        "matched_doi": "10.7326/m20-0104",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7773521/",
+        "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7773521/",
+        "retrieved_at": "2026-10-19T07:16:12.506209+00:00",
+        "retrieved_title": "Analysis of response data for assessing treatment effects in comparative clinical studies",
+        "publication_date": "2020-08-31",
+        "retrieved_version": "sha256:2a5467909957bd9c0c65f3a8f0c2cd85a8f038316ee8b4c47b46b9a0794f0e36",
+        "identity": "EXACT_IDENTITY",
+        "document_kind": "ARTICLE_FULL_TEXT",
+        "match_evidence": [
+          "ARTICLE_DOI_MATCH"
+        ],
+        "warnings": [
+          "ORIGINAL_CITATION_VERSION_UNCONFIRMED"
+        ],
+        "identity_confidence": null
+      }
+    },
+    "retrieval_status": "FULL_TEXT_ACCEPTED",
+    "source_document_audit_reconstruction": {
+      "id": "source:f918653eb0428002b9495428af1213380ab7bc5bd24f21cabc456ae54665b3cf",
+      "reference_id": "reference:10.7326/m20-0104",
+      "doi": "10.7326/m20-0104",
+      "title": "Analysis of Response Data for Assessing Treatment Effects in Comparative Clinical Studies",
+      "authors": [
+        "Bo Huang",
+        "Lu Tian",
+        "Zachary R. McCaw",
+        "Xiaodong Luo",
+        "Enayet Talukder",
+        "Mace Rothenberg",
+        "Wanling Xie",
+        "Toni K. Choueiri",
+        "Dae Hyun Kim",
+        "Lee-Jen Wei"
+      ],
+      "year": 2020,
+      "content_locator": "memory://source:f918653eb0428002b9495428af1213380ab7bc5bd24f21cabc456ae54665b3cf",
+      "content_hash": "sha256:2a5467909957bd9c0c65f3a8f0c2cd85a8f038316ee8b4c47b46b9a0794f0e36",
+      "source_type": "remote",
+      "provider": "pmc",
+      "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7773521/",
+      "retrieval_status": "available"
+    },
+    "raw_content_sha256": "2a5467909957bd9c0c65f3a8f0c2cd85a8f038316ee8b4c47b46b9a0794f0e36",
+    "format": "html",
+    "total_available_chunks": 46,
+    "selected_chunks_match_saved_artifact": true,
+    "paper": {
+      "paper_id": "10.7326/m20-0104",
+      "doi": "10.7326/m20-0104",
+      "title": "Analysis of Response Data for Assessing Treatment Effects in Comparative Clinical Studies",
+      "authors": [
+        "Bo Huang",
+        "Lu Tian",
+        "Zachary R. McCaw",
+        "Xiaodong Luo",
+        "Enayet Talukder",
+        "Mace Rothenberg",
+        "Wanling Xie",
+        "Toni K. Choueiri",
+        "Dae Hyun Kim",
+        "Lee-Jen Wei"
+      ],
+      "abstract": "In comparative studies, treatment effect is often assessed using a binary outcome that indicates response to the therapy. Commonly used summary measures for response include the cumulative and current response rates at a specific time point. The current response rate is sometimes called the probability of being in response (PBIR), which regards a patient as a responder only if they have achieved and remain in response at present. The methods used in practice for estimating these rates, however, may not be appropriate. Moreover, whereas an effective treatment is expected to achieve a rapid and sustained response, the response at a fixed time point does not provide information about the duration of response (DOR). As an alternative, a curve constructed from the current response rates over the entire study period may be considered, which can be used for visualizing how rapidly patients responded to therapy and how long responses were sustained. The area under the PBIR curve is the mean DOR. This connection between response and DOR makes this curve attractive for assessing the treatment effect. In contrast to the conventional method for analyzing the DOR data, which uses responders only, the above procedure includes all patients in the study. Although discussed extensively in the statistical literature, estimation of the current response rate curve has garnered little attention in the medical literature. This article illustrates how to construct and analyze such a curve using data from a recent study for treating renal cell carcinoma. Clinical trialists are encouraged to consider this robust and clinically interpretable procedure as an additional tool for evaluating treatment effects in clinical studies.",
+      "journal": "Annals of Internal Medicine",
+      "publisher": "American College of Physicians",
+      "publication_date": "2020-08-31",
+      "year": 2020,
+      "url": "https://doi.org/10.7326/m20-0104",
+      "source_url": "https://doi.org/10.7326/m20-0104",
+      "open_access": true,
+      "full_text_available": true,
+      "full_text_format": "html",
+      "full_text_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7773521/"
+    },
+    "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7773521/",
+    "provider": "pmc",
+    "source_identity_statuses": [
+      "confirmed"
+    ],
+    "cache_hit_values": [
+      false
+    ]
+  }
+]

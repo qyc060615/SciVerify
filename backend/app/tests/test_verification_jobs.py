@@ -629,3 +629,49 @@ async def test_durability_real_retrieval_write_failure_then_retry(harness, monke
     assert final.state == JobState.COMPLETED and artifact.content == FULL_TEXT_HTML
     assert all(t.source_version == 'sha256:' + artifact.raw_content_sha256 for t in final.tasks)
     assert len(h.verified) == 2
+
+
+@pytest.mark.anyio
+async def test_interrupted_resume_classifies_missing_locator_and_continues(harness):
+    from app.services.verification_job_models import JobSnapshot, TaskRecord, EventRecord, task_key
+    from app.services.manuscript_verification import plan_manuscript_pairs
+    parsed, extraction = inputs((("r1",), ("r2",)),
+        {"r1": None, "r2": "10.1234/local"})
+    plan, blocked = plan_manuscript_pairs(parsed, extraction)
+    job_id, stamp = "job_" + "d" * 32, "fixture"
+    initial = JobSnapshot(job_id=job_id, input_fingerprint=extraction.metadata.input_fingerprint,
+        parsed=parsed, extraction=extraction, attribution_blocked=blocked,
+        tasks=tuple(TaskRecord(task_key=task_key(job_id, extraction.metadata.input_fingerprint, c.id, r.id),
+            claim_id=c.id, reference_id=r.id) for c, r, _ in plan),
+        events=(EventRecord(job_id=job_id, sequence=1, event_type="job_created", status="pending", timestamp=stamp),),
+        next_sequence=2, created_at=stamp, updated_at=stamp)
+    h = harness()
+    h.store.create(initial)
+    interrupted = h.store.commit(evolve(initial, "job_interrupted", JobState.INTERRUPTED), expected_revision=0)
+    await h.runtime.resume(job_id, expected_revision=interrupted.revision)
+    final = await h.runtime.wait(job_id)
+    assert final.state == JobState.PARTIALLY_COMPLETED
+    assert final.tasks[0].reason_code == "DOI_MISSING"
+    assert final.tasks[0].pair_outcome.verification.verdict is None
+    assert final.tasks[1].state == TaskState.COMPLETED
+    assert len(h.verified) == 1
+
+
+@pytest.mark.anyio
+async def test_missing_locator_resume_still_rejects_supplied_source_hash(harness):
+    from app.tests.test_verification_job_store import snapshot
+    from app.services.citation_context import fingerprint
+    from app.services.verification_job_models import task_key
+    h = harness()
+    original = snapshot()
+    parsed = original.parsed.model_copy(update={"references": tuple(
+        r.model_copy(update={"doi": None}) for r in original.parsed.references)})
+    fp = "sha256:" + fingerprint(parsed)
+    extraction = original.extraction.model_copy(update={"metadata": original.extraction.metadata.model_copy(
+        update={"input_fingerprint": fp})})
+    original = original.model_copy(update={"parsed": parsed, "extraction": extraction, "input_fingerprint": fp,
+        "tasks": tuple(t.model_copy(update={"task_key": task_key(original.job_id, fp, t.claim_id, t.reference_id)}) for t in original.tasks)})
+    h.store.create(original)
+    with pytest.raises(JobError, match="JOB_SOURCE_NOT_RECOVERABLE"):
+        await h.runtime.resume(original.job_id, expected_revision=0, source_hashes={"r1": "a" * 64})
+    assert not h.verified and not h.runtime._workers

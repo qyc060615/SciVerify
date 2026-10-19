@@ -1,0 +1,21 @@
+{
+  "reads": [
+    {
+      "port": 8001,
+      "status_code": 200,
+      "job_status": "waiting_for_source",
+      "revision": 40,
+      "equals_recorded_final": true
+    },
+    {
+      "port": 8000,
+      "status_code": 200,
+      "job_status": "waiting_for_source",
+      "revision": 40,
+      "equals_recorded_final": true
+    }
+  ],
+  "job_bytes_unchanged": true,
+  "no_model_calls_from_restart": true,
+  "old_8000_process": "Yesterday full_live_e2e_backend.py harness; returned JOB_SNAPSHOT_CORRUPT before replacing with current standard uvicorn app"
+}

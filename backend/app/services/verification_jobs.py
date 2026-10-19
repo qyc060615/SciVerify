@@ -205,7 +205,14 @@ class VerificationJobRuntime:
                         raise ValueError('No recoverable locator')
                     doi = locator.key
                 except (ValueError, AttributeError):
-                    raise JobError("JOB_SOURCE_NOT_RECOVERABLE") from None
+                    # Unstarted work can still lack a locator after interruption.
+                    # Let core classify it (e.g. DOI_MISSING), as on initial run;
+                    # it must not prevent all other pending pairs from resuming.
+                    if (task.state != TaskState.PENDING or task.source_version is not None
+                            or task.expected_raw_hash is not None or task.reference_id in hashes):
+                        raise JobError("JOB_SOURCE_NOT_RECOVERABLE") from None
+                    updates[task.task_key] = task.model_copy(update={"reason_code": "RESUME_REQUESTED"})
+                    continue
                 expected = hashes.get(task.reference_id) or task.expected_raw_hash
                 if task.source_version is not None:
                     if doi in doi_versions and doi_versions[doi] != task.source_version:

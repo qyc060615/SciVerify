@@ -47,6 +47,9 @@ def isolated_source_caches(tmp_path, monkeypatch):
     monkeypatch.setenv("RESEARCHGUARD_EVIDENCE_ENGINE", "lexical")
     # Each regression test starts with a fresh cache; never read a user's PDFs.
     monkeypatch.setenv("RESEARCHGUARD_SOURCE_CACHE_DIR", str(tmp_path / "sources"))
+    # TestClient lifespan starts job recovery when the developer enables jobs.
+    # Keep it away from real in-flight/persisted local demo jobs.
+    monkeypatch.setenv("RESEARCHGUARD_JOB_DIR", str(tmp_path / "jobs"))
     from app.researchguard.adapters.paperqa2 import clear_index_cache
     clear_index_cache()
     yield

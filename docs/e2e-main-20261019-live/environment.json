@@ -1,0 +1,20 @@
+{
+  "python": "3.11.17 | packaged by conda-forge | (main, Oct  6 2026, 23:51:21) [MSC v.1944 64 bit (AMD64)]",
+  "python_executable": "D:\\conda_envs\\researchguard\\python.exe",
+  "paperqa2": "2026.8.12",
+  "fastapi": "0.142.3",
+  "grobid": {
+    "status": "ok",
+    "service": "sciverify-backend"
+  },
+  "models": {
+    "verifier": "deepseek-flash",
+    "paperqa2": "openai/deepseek-flash",
+    "embedding": "openai/text-embedding-v4"
+  },
+  "audit_backend_port": 8001,
+  "original_backend_port": 8000,
+  "request_budget": 800,
+  "paperqa_cache_size": 16,
+  "no_mock_providers": true
+}

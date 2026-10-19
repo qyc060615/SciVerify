@@ -1,0 +1,26 @@
+{
+  "commands": [
+    "npm run test",
+    "npm run build",
+    "npm run lint"
+  ],
+  "working_directory": "C:/Users/31147/Desktop/coding_project/ResearchGuard/frontend",
+  "test_files_passed": 10,
+  "tests_passed": 115,
+  "build": "PASS",
+  "lint": "PASS",
+  "warnings": [
+    "Bundle chunk above 500 kB; generated JS 916.76 kB"
+  ],
+  "browser_attempts": [
+    {
+      "method": "cua browser inventory",
+      "result": "No browser surfaces; iab unavailable"
+    },
+    {
+      "method": "Installed computer-use Edge window",
+      "result": "Computer Use app approval timed out; no page inspection completed"
+    }
+  ],
+  "actual_browser_workflow": "NOT TESTED"
+}

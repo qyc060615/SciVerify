@@ -1,0 +1,888 @@
+{
+  "schema_version": 1,
+  "scope": "body_prose",
+  "offset_unit": "python_unicode_code_point",
+  "status": "partial",
+  "parsed": {
+    "manuscript": {
+      "id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "title": "Contemporary Clinical Trials",
+      "content_hash": "sha256:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f"
+    },
+    "paragraphs": [
+      {
+        "id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:0",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "text": "When assessing a new treatment vs. standard care in comparative clinical trials for COVID-19, certain key secondary endpoints are related to the duration of specific, undesirable events over the study period. Examples include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay [1][2][3][4]. Heuristically, the longer the duration, the worse the study therapy. However, since death is a possible study outcome, if a patient dies early in the study, their length of hospital stay is rather short. On the other hand, if a patient survives longer, they may spend more time in the hospital. Therefore, if the new treatment tends to provide a survival benefit over standard care, treatment efficacy as evaluated by the duration of, for example, hospitalization, can be misleading. This \"survival bias\" can make a treatment that prolongs survival appear to be less effective or worse than standard care. Common strategies for mitigating this bias may not be appropriate. For example, one may consider the durations of hospitalization among survivors only, or one may impute the durations of hospitalization for patients who die to an arbitrarily large value. However, neither of these strategies will provide a fair comparison if the mortality rates of the two arms differ appreciably. In this paper, we present a valid and clinically meaningful alternative based on the mean event-free survival time.",
+        "order": 0,
+        "page": null,
+        "section": "Introduction",
+        "sentence_spans": [
+          {
+            "start": 0,
+            "end": 208
+          },
+          {
+            "start": 209,
+            "end": 346
+          },
+          {
+            "start": 347,
+            "end": 415
+          },
+          {
+            "start": 416,
+            "end": 550
+          },
+          {
+            "start": 551,
+            "end": 641
+          },
+          {
+            "start": 642,
+            "end": 830
+          },
+          {
+            "start": 831,
+            "end": 952
+          },
+          {
+            "start": 953,
+            "end": 1019
+          },
+          {
+            "start": 1020,
+            "end": 1207
+          },
+          {
+            "start": 1208,
+            "end": 1334
+          },
+          {
+            "start": 1335,
+            "end": 1450
+          }
+        ]
+      },
+      {
+        "id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:1",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "text": "To illustrate this bias and present alternative endpoints, Fig. 1 shows 4 possible observation patterns for a typical COVID-19 study monitoring the duration of hospitalization. For case 1, the patient was discharged alive from the hospital on day 7. Across the 28 days of follow-up, their duration of hospital-free survival was 21 days. For case 2, the patient died after 14 days in hospital. Although the duration of hospitalization was 14 days, their duration of hospital-free survival was 0 days. For case 3, the patient was censored after 21 days in hospital, due for example to late entry into the study. Their duration of hospitalfree survival is less than 7 days. Lastly, for case 4, the patient remained in hospital across the 28 days of follow-up. Their duration of hospitalfree survival was 0 days. It is important to note that although the length of hospitalization may be misleading as an endpoint in the presence of death, the hospital-free survival time is a clinically interpretable endpoint that is not subject to the survival bias issue.",
+        "order": 1,
+        "page": null,
+        "section": "Introduction",
+        "sentence_spans": [
+          {
+            "start": 0,
+            "end": 176
+          },
+          {
+            "start": 177,
+            "end": 336
+          },
+          {
+            "start": 337,
+            "end": 392
+          },
+          {
+            "start": 393,
+            "end": 499
+          },
+          {
+            "start": 500,
+            "end": 609
+          },
+          {
+            "start": 610,
+            "end": 670
+          },
+          {
+            "start": 671,
+            "end": 756
+          },
+          {
+            "start": 757,
+            "end": 808
+          },
+          {
+            "start": 809,
+            "end": 1054
+          }
+        ]
+      },
+      {
+        "id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:2",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "text": "We now use a recent large clinical trial, ACTT-1 [1], to illustrate the advantages of using the event-free survival time for assessing treatment efficacy. Adaptive COVID-19 Treatment Trial (ACTT-1) is an ongoing, double-blinded, randomized, placebo-controlled trial of remdesivir versus placebo among patients hospitalized with COVID-19. Across the 28 days of follow-up, patient health was classified on an 8-point ordinal scale, spanning from category 1, discharge from hospital with no limitation of activities, to category 8, death. The primary endpoint was time-to recovery, defined as the first time during follow-up on which the patient reached categories 1, 2, or 3. Patients in these categories were either no longer hospitalized, or hospitalized but no longer requiring supplemental oxygen or attentive medical care (e.g., remained hospitalized for infection-control reasons). There were 538 and 521 patients assigned to remdesivir and placebo, respectively. Although not yet reported, key secondary endpoints discussed in the trial protocol included the durations of hospitalization, supplemental oxygen, and mechanical ventilation [5].",
+        "order": 2,
+        "page": null,
+        "section": "Example",
+        "sentence_spans": [
+          {
+            "start": 0,
+            "end": 154
+          },
+          {
+            "start": 155,
+            "end": 337
+          },
+          {
+            "start": 338,
+            "end": 535
+          },
+          {
+            "start": 536,
+            "end": 885
+          },
+          {
+            "start": 886,
+            "end": 967
+          },
+          {
+            "start": 968,
+            "end": 1146
+          }
+        ]
+      },
+      {
+        "id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:3",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "text": "Since the paper presented no results for the length of hospitalization endpoint, we considered a similar endpoint, the time patients spent in hospital receiving attentive medical care, to demonstrate the appropriate analysis of event-free survival data. This undesirable endpoint is complementary to the study's primary endpoint of time to recovery. To this end, we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper [1,6]. The reconstructed data consist of the patient's duration of the above undesirable event (hospitalized and receiving supplemental oxygen or ongoing medical care). As illustrated in our Fig. 1, the patient's observed duration of the undesirable event ended upon recovery, death, or censoring. There were 44 and 60 deaths and 132 and 169 censorings during follow-up for remdesivir and placebo. To analyze the reconstructed data, Fig. 2A presents the cumulative incidence curves for the proportion of patients not requiring attentive hospital care (including deceased patients). The areas above the cumulative incidence curves (Figs. 2B & C) represent the mean times, up to day 28, that patients spent in hospital receiving attentive care [7][8][9][10]. These were 13.4 days for placebo, and 12.0 days for remdesivir. The difference was 1.4 days (95% CI, 0.19 to 2.6 days; P = 0.024) in favor of remdesivir. That is, on average, patients receiving placebo spent an additional 1.4 days hospitalized and receiving oxygen or medical care across the 28 days of follow-up. Note that, in this case, the length of hospital stay was truncated by death. Since there were more deaths in the standard care arm, this analysis penalizes remdesivir.",
+        "order": 3,
+        "page": null,
+        "section": "Example",
+        "sentence_spans": [
+          {
+            "start": 0,
+            "end": 253
+          },
+          {
+            "start": 254,
+            "end": 349
+          },
+          {
+            "start": 350,
+            "end": 503
+          },
+          {
+            "start": 504,
+            "end": 665
+          },
+          {
+            "start": 666,
+            "end": 794
+          },
+          {
+            "start": 795,
+            "end": 894
+          },
+          {
+            "start": 895,
+            "end": 1078
+          },
+          {
+            "start": 1079,
+            "end": 1133
+          },
+          {
+            "start": 1134,
+            "end": 1253
+          },
+          {
+            "start": 1254,
+            "end": 1317
+          },
+          {
+            "start": 1318,
+            "end": 1407
+          },
+          {
+            "start": 1408,
+            "end": 1567
+          },
+          {
+            "start": 1568,
+            "end": 1644
+          },
+          {
+            "start": 1645,
+            "end": 1735
+          }
+        ]
+      },
+      {
+        "id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "text": "Now, to analyze the event-free survival times across the 28 days of follow-up, Fig. 3A presents the cumulative incidence curves for the proportion of patients surviving and not receiving attentive care. In contrast to Fig. 2A, these curves are constructed while treating death as a competing risk [11][12][13]. That is, patients who die were removed from the risk set and no longer eligible to experience recovery. The areas below these cumulative incidence curves (Figs. 3B & C) represent the mean event-free survival times up to day 28 [14]. These were 11.9 days for placebo, and 14.2 days for remdesivir. The difference was 2.2 days (95% CI, 0.89 to 3.52 days; P < 0.001) in favor of remdesivir. Thus, on average, patients receiving remdesivir survived event-free for an additional 2.2 days across the 28 days of follow-up. Note that the difference in mean event-free survival is highly statistically significant in favor of remdesivir in contrast to the moderately significant difference obtained using the duration of the need for medical attention. This may reflect the fact that remdesivir numerically prolonged patients' survival [14].",
+        "order": 4,
+        "page": null,
+        "section": "Example",
+        "sentence_spans": [
+          {
+            "start": 0,
+            "end": 202
+          },
+          {
+            "start": 203,
+            "end": 310
+          },
+          {
+            "start": 311,
+            "end": 414
+          },
+          {
+            "start": 415,
+            "end": 471
+          },
+          {
+            "start": 472,
+            "end": 543
+          },
+          {
+            "start": 544,
+            "end": 607
+          },
+          {
+            "start": 608,
+            "end": 698
+          },
+          {
+            "start": 699,
+            "end": 826
+          },
+          {
+            "start": 827,
+            "end": 1054
+          },
+          {
+            "start": 1055,
+            "end": 1143
+          }
+        ]
+      },
+      {
+        "id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:5",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "text": "Shortening the duration of hospitalization is not equivalent to extending the duration of hospital-free survival. A harmful treatment may shorten the duration of hospitalization by increasing the mortality rate without increasing the recovery rate. Such a treatment would reduce the duration of hospital-free survival. Conversely, a beneficial treatment may extend the duration of hospital-free either by reducing the mortality rate or by increasing the recovery rate. Only in the absence of death is reducing the hospital stay equivalent to extending the duration of hospital-free survival. However, if the mortality rates of the two arms are similar, then comparing the durations of hospitalization may be appropriate.",
+        "order": 5,
+        "page": null,
+        "section": "Discussions",
+        "sentence_spans": [
+          {
+            "start": 0,
+            "end": 113
+          },
+          {
+            "start": 114,
+            "end": 248
+          },
+          {
+            "start": 249,
+            "end": 318
+          },
+          {
+            "start": 319,
+            "end": 468
+          },
+          {
+            "start": 469,
+            "end": 591
+          },
+          {
+            "start": 592,
+            "end": 720
+          }
+        ]
+      },
+      {
+        "id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:6",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "text": "When dealing with, for example, the duration of ICU stay or oxygen utilization, the data are more complex than those from the endpoint discussed above since patients may enter the ICU during the study. This complexity extends to other cases where initiation of the event of interest does not necessarily start when the patient enters the study [15]. patient's eventual outcome, such as hospital discharge or death. Therefore, like case 6, the censoring was not independent of the ICUfree survival time and one cannot analyze the duration of ICU stay or ICU-free survival time via standard survival analysis methods. Further statistical research is needed to delineate the analytic procedures needed to obtain valid inference on the average ICU-free survival time.",
+        "order": 6,
+        "page": null,
+        "section": "Discussions",
+        "sentence_spans": [
+          {
+            "start": 0,
+            "end": 201
+          },
+          {
+            "start": 202,
+            "end": 349
+          },
+          {
+            "start": 350,
+            "end": 414
+          },
+          {
+            "start": 415,
+            "end": 615
+          },
+          {
+            "start": 616,
+            "end": 763
+          }
+        ]
+      },
+      {
+        "id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:7",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "text": "Note that if there are no censored observations before Day 28, then the analysis of ICU-stay is straightforward. In future trials for COVID-19, the trial size may be larger and the length of study follow-up may be longer. Therefore, at the interim analysis, there are likely to be a sizable number of censored observations, and one is likely to encounter the same challenges faced in the ACTT-1 trial.",
+        "order": 7,
+        "page": null,
+        "section": "Discussions",
+        "sentence_spans": [
+          {
+            "start": 0,
+            "end": 112
+          },
+          {
+            "start": 113,
+            "end": 221
+          },
+          {
+            "start": 222,
+            "end": 401
+          }
+        ]
+      },
+      {
+        "id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:8",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "text": "In conclusion, the conventional approach to analyzing the duration of an undesirable clinical event may not be appropriate. On the other hand, a simple conversion of this endpoint to the event-free survival counterpart is clinically interpretable and leads to a fair assessment of treatment efficacy.",
+        "order": 8,
+        "page": null,
+        "section": "Discussions",
+        "sentence_spans": [
+          {
+            "start": 0,
+            "end": 123
+          },
+          {
+            "start": 124,
+            "end": 300
+          }
+        ]
+      }
+    ],
+    "references": [
+      {
+        "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:0",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "raw_text": "J.H. Beigel, K.M. Tomashek, L.E. Dodd, et al., Remdesivir for the treatment of COVID-19 -a preliminary report, NEJM (2020 May 22), https://doi.org/10.1056/ NEJMoa2007764.",
+        "doi": "10.1056/nejmoa2007764",
+        "title": "Remdesivir for the treatment of COVID-19 -a preliminary report",
+        "authors": [
+          "J H Beigel",
+          "K M Tomashek",
+          "L E Dodd"
+        ],
+        "year": 2020,
+        "journal": "NEJM",
+        "url": "https://doi.org/10.1056/NEJMoa"
+      },
+      {
+        "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:1",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "raw_text": "J.D. Goldman, D.C.B. Lye, D.S. Hui, et al., Remdesivir for 5 or 10 days in patients with severe COVID-19, NEJM (2020 May 27), https://doi.org/10.1056/ NEJMoa2015301.",
+        "doi": "10.1056/nejmoa2015301",
+        "title": "Remdesivir for 5 or 10 days in patients with severe COVID-19",
+        "authors": [
+          "J D Goldman",
+          "D C B Lye",
+          "D S Hui"
+        ],
+        "year": 2020,
+        "journal": "NEJM",
+        "url": "https://doi.org/10.1056/NEJMoa"
+      },
+      {
+        "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:2",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "raw_text": "B. Cao, Y. Wang, D. Wen, et al., A trial of Lopinavir-ritonavir in adults hospitalized with severe COVID-19, NEJM 382 (19) (2020 May 7) 1787-1799, https://doi.org/ 10.1056/NEJMoa2001282.",
+        "doi": "10.1056/nejmoa2001282",
+        "title": "A trial of Lopinavir-ritonavir in adults hospitalized with severe COVID-19",
+        "authors": [
+          "B Cao",
+          "Y Wang",
+          "D Wen"
+        ],
+        "year": 2020,
+        "journal": "NEJM",
+        "url": "https://doi.org/10.1056/NEJMoa2001282"
+      },
+      {
+        "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:3",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "raw_text": "Y. Wang, D. Zhang, G. Du, et al., Remdesivir in adults with severe COVID-19: a randomised, double-blind, placebo-controlled, multicentre trial, Lancet 395 (10236) (2020 May 16) 1569-1578, https://doi.org/10.1016/S0140-6736(20) 31022-9.",
+        "doi": "10.1016/s0140-6736(20)31022-9",
+        "title": "Remdesivir in adults with severe COVID-19: a randomised, double-blind, placebo-controlled, multicentre trial",
+        "authors": [
+          "Y Wang",
+          "D Zhang",
+          "G Du"
+        ],
+        "year": 2020,
+        "journal": "Lancet",
+        "url": "https://doi.org/10.1016/S0140-6736(20"
+      },
+      {
+        "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "raw_text": "https://www.nejm.org/doi/suppl/10.1056/NEJMoa2007764/suppl_file/ nejmoa2007764_protocol.pdf.",
+        "doi": "10.1056/nejmoa2007764/suppl_file/nejmoa2007764_protocol.pdf",
+        "title": null,
+        "authors": [],
+        "year": null,
+        "journal": null,
+        "url": "https://www.nejm.org/doi/suppl/10.1056/NEJMoa2007764/suppl_file/nejmoa2007764_protocol.pdf"
+      },
+      {
+        "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:5",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "raw_text": "P. Guyot, A.E. Ades, M.J. Ouwens, et al., Enhanced secondary analysis of survival data: reconstructing the data from published Kaplan-Meier survival curves, BMC Med. Res. Methodol. 12 (2012) 9, https://doi.org/10.1186/1471-2288-12-9.",
+        "doi": "10.1186/1471-2288-12-9",
+        "title": "Enhanced secondary analysis of survival data: reconstructing the data from published Kaplan-Meier survival curves",
+        "authors": [
+          "P Guyot",
+          "A E Ades",
+          "M J Ouwens"
+        ],
+        "year": 2012,
+        "journal": "BMC Med. Res. Methodol",
+        "url": "https://doi.org/10.1186/1471-2288-12-9"
+      },
+      {
+        "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:6",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "raw_text": "H. Uno, B. Claggett, L. Tian, et al., Moving beyond the hazard ratio in quantifying the between-group difference in survival analysis, J. Clin. Oncol. 32 (22) (2014) 2380-2385.",
+        "doi": null,
+        "title": "Moving beyond the hazard ratio in quantifying the between-group difference in survival analysis",
+        "authors": [
+          "H Uno",
+          "B Claggett",
+          "L Tian"
+        ],
+        "year": 2014,
+        "journal": "J. Clin. Oncol"
+      },
+      {
+        "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:7",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "raw_text": "K. Pak, H. Uno, D.H. Kim, et al., Interpretability of cancer clinical trial results using restricted mean survival time as an alternative to the hazard ratio, JAMA Oncol. 3 (12) (2017) 1692-1696.",
+        "doi": null,
+        "title": "Interpretability of cancer clinical trial results using restricted mean survival time as an alternative to the hazard ratio",
+        "authors": [
+          "K Pak",
+          "H Uno",
+          "D H Kim"
+        ],
+        "year": 2017,
+        "journal": "JAMA Oncol"
+      },
+      {
+        "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:8",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "raw_text": "D.H. Kim, H. Uno, L.J. Wei, Restricted mean survival time as a measure to interpret clinical trial results, JAMA Cardiol. 2 (11) (2017) 1179-1180.",
+        "doi": null,
+        "title": "Restricted mean survival time as a measure to interpret clinical trial results",
+        "authors": [
+          "D H Kim",
+          "H Uno",
+          "L J Wei"
+        ],
+        "year": 2017,
+        "journal": "JAMA Cardiol"
+      },
+      {
+        "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:9",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "raw_text": "Z.R. McCaw, A.R. Orkaby, L.J. Wei, et al., Applying evidence-based medicine to shared decision making: value of restricted mean survival time, Am. J. Med. 132 (1) (2019) 13-15, https://doi.org/10.1016/j.amjmed.2018.07.026.",
+        "doi": "10.1016/j.amjmed.2018.07.026",
+        "title": "Applying evidence-based medicine to shared decision making: value of restricted mean survival time",
+        "authors": [
+          "Z R Mccaw",
+          "A R Orkaby",
+          "L J Wei"
+        ],
+        "year": 2019,
+        "journal": "Am. J. Med",
+        "url": "https://doi.org/10.1016/j.amjmed.2018.07.026"
+      },
+      {
+        "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:10",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "raw_text": "P.C. Austin, D.S. Lee, J.P. Fine, Introduction to the analysis of survival data in the presence of competing risks, Circulation 133 (6) (2016 Feb 9) 601-609, https://doi. org/10.1161/CIRCULATIONAHA.115.017719.",
+        "doi": "10.1161/circulationaha.115.017719",
+        "title": "Introduction to the analysis of survival data in the presence of competing risks",
+        "authors": [
+          "P C Austin",
+          "D S Lee",
+          "J P Fine"
+        ],
+        "year": 2016,
+        "journal": "Circulation",
+        "url": "https://doi.org/10.1161/CIRCULATIONAHA.115.017719"
+      },
+      {
+        "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:11",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "raw_text": "B. Lau, S.R. Cole, S.J. Gange, Competing risk regression models for epidemiologic data, Am. J. Epidemiol. 170 (2) (2009) 244-256, https://doi.org/10.1093/aje/ kwp107.",
+        "doi": "10.1093/aje/kwp107",
+        "title": "Competing risk regression models for epidemiologic data",
+        "authors": [
+          "B Lau",
+          "S R Cole",
+          "S J Gange"
+        ],
+        "year": 2009,
+        "journal": "Am. J. Epidemiol",
+        "url": "https://doi.org/10.1093/aje/kwp107"
+      },
+      {
+        "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:12",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "raw_text": "L. Zhao, L. Tian, B. Claggett, et al., Estimating treatment effect with clinical in- terpretation from a comparative clinical trial with an end point subject to com- peting risks, JAMA Cardiol. 3 (4) (2018 Apr 1) 357-358, https://doi.org/10.1001/ jamacardio.2018.0127.",
+        "doi": "10.1001/jamacardio.2018.0127",
+        "title": "Estimating treatment effect with clinical interpretation from a comparative clinical trial with an end point subject to competing risks",
+        "authors": [
+          "L Zhao",
+          "L Tian",
+          "B Claggett"
+        ],
+        "year": 2018,
+        "journal": "JAMA Cardiol",
+        "url": "https://doi.org/10.1001/jamacardio.2018.0127"
+      },
+      {
+        "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:13",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "raw_text": "Z.R. McCaw, L. Tian, J.L. Vassay, et al., How to quantify and interpret treatment effects in comparative clinical studies of COVID-19, Ann. Intern. Med. (2020), https://doi.org/10.7326/M20-4044.",
+        "doi": "10.7326/m20-4044",
+        "title": "How to quantify and interpret treatment effects in comparative clinical studies of COVID-19",
+        "authors": [
+          "Z R Mccaw",
+          "L Tian",
+          "J L Vassay"
+        ],
+        "year": 2020,
+        "journal": "Ann. Intern. Med",
+        "url": "https://doi.org/10.7326/M20-4044"
+      },
+      {
+        "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:14",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "raw_text": "B. Huang, L. Tian, Z.R. McCaw, et al., Analysis of response data for assessing treatment effects in comparative clinical studies, Ann. Intern. Med. (2020), https:// doi.org/10.7326/M20-0104.",
+        "doi": "10.7326/m20-0104",
+        "title": "Analysis of response data for assessing treatment effects in comparative clinical studies",
+        "authors": [
+          "B Huang",
+          "L Tian",
+          "Z R Mccaw"
+        ],
+        "year": 2020,
+        "journal": "Ann. Intern. Med",
+        "url": "https://doi.org/10.7326/M20-0104"
+      }
+    ],
+    "citation_callouts": [
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:0",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:0",
+        "text": "[1]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:0"
+        ],
+        "page": null,
+        "span": {
+          "start": 333,
+          "end": 336
+        },
+        "order": 0,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:1",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:0",
+        "text": "[2]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:1"
+        ],
+        "page": null,
+        "span": {
+          "start": 336,
+          "end": 339
+        },
+        "order": 1,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:2",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:0",
+        "text": "[3]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:2"
+        ],
+        "page": null,
+        "span": {
+          "start": 339,
+          "end": 342
+        },
+        "order": 2,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:3",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:0",
+        "text": "[4]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:3"
+        ],
+        "page": null,
+        "span": {
+          "start": 342,
+          "end": 345
+        },
+        "order": 3,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:2",
+        "text": "[1]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:0"
+        ],
+        "page": null,
+        "span": {
+          "start": 49,
+          "end": 52
+        },
+        "order": 4,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:5",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:2",
+        "text": "[5]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4"
+        ],
+        "page": null,
+        "span": {
+          "start": 1142,
+          "end": 1145
+        },
+        "order": 5,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:6",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:3",
+        "text": "[1,",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:0"
+        ],
+        "page": null,
+        "span": {
+          "start": 497,
+          "end": 500
+        },
+        "order": 6,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:7",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:3",
+        "text": "6]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:5"
+        ],
+        "page": null,
+        "span": {
+          "start": 500,
+          "end": 502
+        },
+        "order": 7,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:8",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:3",
+        "text": "[7]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:6"
+        ],
+        "page": null,
+        "span": {
+          "start": 1239,
+          "end": 1242
+        },
+        "order": 8,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:9",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:3",
+        "text": "[8]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:7"
+        ],
+        "page": null,
+        "span": {
+          "start": 1242,
+          "end": 1245
+        },
+        "order": 9,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:10",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:3",
+        "text": "[9]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:8"
+        ],
+        "page": null,
+        "span": {
+          "start": 1245,
+          "end": 1248
+        },
+        "order": 10,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:11",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:3",
+        "text": "[10]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:9"
+        ],
+        "page": null,
+        "span": {
+          "start": 1248,
+          "end": 1252
+        },
+        "order": 11,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:12",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+        "text": "[11]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:10"
+        ],
+        "page": null,
+        "span": {
+          "start": 297,
+          "end": 301
+        },
+        "order": 12,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:13",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+        "text": "[12]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:11"
+        ],
+        "page": null,
+        "span": {
+          "start": 301,
+          "end": 305
+        },
+        "order": 13,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:14",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+        "text": "[13]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:12"
+        ],
+        "page": null,
+        "span": {
+          "start": 305,
+          "end": 309
+        },
+        "order": 14,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:15",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+        "text": "[14]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:13"
+        ],
+        "page": null,
+        "span": {
+          "start": 538,
+          "end": 542
+        },
+        "order": 15,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:16",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+        "text": "[14]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:13"
+        ],
+        "page": null,
+        "span": {
+          "start": 1138,
+          "end": 1142
+        },
+        "order": 16,
+        "resolution_status": "resolved"
+      },
+      {
+        "id": "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:17",
+        "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+        "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:6",
+        "text": "[15]",
+        "reference_ids": [
+          "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:14"
+        ],
+        "page": null,
+        "span": {
+          "start": 344,
+          "end": 348
+        },
+        "order": 17,
+        "resolution_status": "resolved"
+      }
+    ],
+    "citation_contexts": []
+  },
+  "diagnostics": [
+    {
+      "code": "MISSING_REFERENCE_METADATA",
+      "severity": "warning",
+      "entity_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+      "safe_message": "A reference has incomplete bibliographic metadata."
+    }
+  ]
+}

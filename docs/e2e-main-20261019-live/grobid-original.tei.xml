@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" 
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd"
+ xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">Contemporary Clinical Trials</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability  status="unknown">
+					<licence/>
+				</availability>
+				<date type="published" when="2020-09-12">12 September 2020</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct status="extracted">
+					<analytic>
+						<author>
+							<persName><forename type="first">Zachary</forename><forename type="middle">R</forename><surname>Mccaw</surname></persName>
+							<affiliation key="aff0">
+								<address>
+									<settlement>Google Mountain View</settlement>
+									<region>CA</region>
+									<country key="US">United States of America</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Lu</forename><surname>Tian</surname></persName>
+							<affiliation key="aff1">
+								<orgName type="department">Department of Biomedical Data Science</orgName>
+								<orgName type="institution">Stanford University</orgName>
+								<address>
+									<settlement>Stanford</settlement>
+									<region>CA</region>
+									<country key="US">United States of America</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Kevin</forename><forename type="middle">N</forename><surname>Sheth</surname></persName>
+							<affiliation key="aff2">
+								<orgName type="department">Division of Neurocritical Care and Emergency Neurology</orgName>
+								<orgName type="institution">Yale School of Medicine</orgName>
+								<address>
+									<settlement>New Haven</settlement>
+									<region>CT</region>
+									<country key="US">United States of America</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">Wan-Ting</forename><surname>Hsu</surname></persName>
+							<affiliation key="aff3">
+								<orgName type="institution">Medical Wizdom, LLC</orgName>
+								<address>
+									<settlement>Brookline</settlement>
+									<region>MA</region>
+									<country key="US">United States of America</country>
+								</address>
+							</affiliation>
+							<affiliation key="aff6">
+								<orgName type="department">Department of Biostatistics</orgName>
+								<orgName type="institution">Harvard University</orgName>
+								<address>
+									<addrLine>655 Huntington Avenue</addrLine>
+									<postCode>02115</postCode>
+									<settlement>Boston</settlement>
+									<region>MA</region>
+									<country key="US">USA</country>
+								</address>
+							</affiliation>
+						</author>
+						<author>
+							<persName><forename type="first">W</forename><forename type="middle">Taylor</forename><surname>Kimberly</surname></persName>
+							<affiliation key="aff4">
+								<orgName type="department" key="dep1">Division of Neurocritical Care</orgName>
+								<orgName type="department" key="dep2">Department of Neurology</orgName>
+								<orgName type="institution">Massachusetts General Hospital</orgName>
+								<address>
+									<settlement>Boston</settlement>
+									<region>MA</region>
+									<country key="US">United States of America</country>
+								</address>
+							</affiliation>
+						</author>
+						<author role="corresp">
+							<persName><forename type="first">Lee-Jen</forename><surname>Wei</surname></persName>
+							<email>wei@hsph.harvard.edu</email>
+							<affiliation key="aff5">
+								<orgName type="institution" key="instit1">Harvard T.H</orgName>
+								<orgName type="institution" key="instit2">Chan School of Public Health</orgName>
+								<address>
+									<settlement>Boston</settlement>
+									<region>MA</region>
+									<country key="US">United States of America</country>
+								</address>
+							</affiliation>
+						</author>
+						<title level="a" type="main">Contemporary Clinical Trials</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2020-09-12">12 September 2020</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">AA88CC8CB60C273A6979E74D4A63DBDF</idno>
+					<idno type="DOI">10.1016/j.cct.2020.106145</idno>
+					<note type="submission">Received 9 July 2020; Received in revised form 18 August 2020; Accepted 7 September 2020</note>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.9.1" ident="GROBID" when="2026-10-19T05:27+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<label type="revision">0.9.1</label>
+					<label type="parameters">startPage=-1, endPage=-1, consolidateCitations=0, consolidateHeader=0, consolidateFunders=0, includeRawAffiliations=false, includeRawCitations=true, includeRawCopyrights=false, generateTeiIds=false, generateTeiCoordinates=[], flavor=null, debugLabelingCollector=disabled</label>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p><s>Since January 2020 Elsevier has created a COVID-19 resource centre with free information in English and Mandarin on the novel coronavirus COVID-19.</s><s>The COVID-19 resource centre is hosted on Elsevier Connect, the company's public news and information website.</s></p><p><s>Elsevier hereby grants permission to make all its COVID-19-related research that is available on the COVID-19 resource centre -including this research content -immediately available in PubMed Central and other publicly funded repositories, such as the WHO COVID database with rights for unrestricted research re-use and analyses in any form or by any means with acknowledgement of the original source.</s><s>These permissions are granted for free by Elsevier for as long as the COVID-19 resource centre remains active.</s></p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1.">Introduction</head><p><s>When assessing a new treatment vs. standard care in comparative clinical trials for COVID-19, certain key secondary endpoints are related to the duration of specific, undesirable events over the study period.</s><s>Examples include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay <ref type="bibr" target="#b0">[1]</ref><ref type="bibr" target="#b1">[2]</ref><ref type="bibr" target="#b2">[3]</ref><ref type="bibr" target="#b3">[4]</ref>.</s><s>Heuristically, the longer the duration, the worse the study therapy.</s><s>However, since death is a possible study outcome, if a patient dies early in the study, their length of hospital stay is rather short.</s><s>On the other hand, if a patient survives longer, they may spend more time in the hospital.</s><s>Therefore, if the new treatment tends to provide a survival benefit over standard care, treatment efficacy as evaluated by the duration of, for example, hospitalization, can be misleading.</s><s>This "survival bias" can make a treatment that prolongs survival appear to be less effective or worse than standard care.</s><s>Common strategies for mitigating this bias may not be appropriate.</s><s>For example, one may consider the durations of hospitalization among survivors only, or one may impute the durations of hospitalization for patients who die to an arbitrarily large value.</s><s>However, neither of these strategies will provide a fair comparison if the mortality rates of the two arms differ appreciably.</s><s>In this paper, we present a valid and clinically meaningful alternative based on the mean event-free survival time.</s></p><p><s>To illustrate this bias and present alternative endpoints, Fig. <ref type="figure" target="#fig_0">1</ref> shows 4 possible observation patterns for a typical COVID-19 study monitoring the duration of hospitalization.</s><s>For case 1, the patient was discharged alive from the hospital on day 7. Across the 28 days of follow-up, their duration of hospital-free survival was 21 days.</s><s>For case 2, the patient died after 14 days in hospital.</s><s>Although the duration of hospitalization was 14 days, their duration of hospital-free survival was 0 days.</s><s>For case 3, the patient was censored after 21 days in hospital, due for example to late entry into the study.</s><s>Their duration of hospitalfree survival is less than 7 days.</s><s>Lastly, for case 4, the patient remained in hospital across the 28 days of follow-up.</s><s>Their duration of hospitalfree survival was 0 days.</s><s>It is important to note that although the length of hospitalization may be misleading as an endpoint in the presence of death, the hospital-free survival time is a clinically interpretable endpoint that is not subject to the survival bias issue.</s></p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2.">Example</head><p><s>We now use a recent large clinical trial, ACTT-1 <ref type="bibr" target="#b0">[1]</ref>, to illustrate the advantages of using the event-free survival time for assessing treatment efficacy.</s><s>Adaptive COVID-19 Treatment Trial (ACTT-1) is an ongoing, double-blinded, randomized, placebo-controlled trial of remdesivir versus placebo among patients hospitalized with COVID-19.</s><s>Across the 28 days of follow-up, patient health was classified on an 8-point ordinal scale, spanning from category 1, discharge from hospital with no limitation of activities, to category 8, death.</s><s>The primary endpoint was time-to recovery, defined as the first time during follow-up on which the patient reached categories 1, 2, or 3. Patients in these categories were either no longer hospitalized, or hospitalized but no longer requiring supplemental oxygen or attentive medical care (e.g., remained hospitalized for infection-control reasons).</s><s>There were 538 and 521 patients assigned to remdesivir and placebo, respectively.</s><s>Although not yet reported, key secondary endpoints discussed in the trial protocol included the durations of hospitalization, supplemental oxygen, and mechanical ventilation <ref type="bibr" target="#b4">[5]</ref>.</s></p><p><s>Since the paper presented no results for the length of hospitalization endpoint, we considered a similar endpoint, the time patients spent in hospital receiving attentive medical care, to demonstrate the appropriate analysis of event-free survival data.</s><s>This undesirable endpoint is complementary to the study's primary endpoint of time to recovery.</s><s>To this end, we scanned the cumulative recovery rate curves in Fig. <ref type="figure" target="#fig_1">2A</ref> and also the survival curves in Supplementary Fig. <ref type="figure" target="#fig_3">S3</ref> of the original paper <ref type="bibr" target="#b0">[1,</ref><ref type="bibr" target="#b5">6]</ref>.</s><s>The reconstructed data consist of the patient's duration of the above undesirable event (hospitalized and receiving supplemental oxygen or ongoing medical care).</s><s>As illustrated in our Fig. <ref type="figure" target="#fig_0">1</ref>, the patient's observed duration of the undesirable event ended upon recovery, death, or censoring.</s><s>There were 44 and 60 deaths and 132 and 169 censorings during follow-up for remdesivir and placebo.</s><s>To analyze the reconstructed data, Fig. <ref type="figure" target="#fig_1">2A</ref> presents the cumulative incidence curves for the proportion of patients not requiring attentive hospital care (including deceased patients).</s><s>The areas above the cumulative incidence curves (Figs.</s><s><ref type="figure" target="#fig_1">2B</ref> &amp; <ref type="figure">C</ref>) represent the mean times, up to day 28, that patients spent in hospital receiving attentive care <ref type="bibr" target="#b6">[7]</ref><ref type="bibr" target="#b7">[8]</ref><ref type="bibr" target="#b8">[9]</ref><ref type="bibr" target="#b9">[10]</ref>.</s><s>These were 13.4 days for placebo, and 12.0 days for remdesivir.</s><s>The difference was 1.4 days (95% CI, 0.19 to 2.6 days; P = 0.024) in favor of remdesivir.</s><s>That is, on average, patients receiving placebo spent an additional 1.4 days hospitalized and receiving oxygen or medical care across the 28 days of follow-up.</s><s>Note that, in this case, the length of hospital stay was truncated by death.</s><s>Since there were more deaths in the standard  care arm, this analysis penalizes remdesivir.</s></p><p><s>Now, to analyze the event-free survival times across the 28 days of follow-up, Fig. <ref type="figure" target="#fig_3">3A</ref> presents the cumulative incidence curves for the proportion of patients surviving and not receiving attentive care.</s><s>In contrast to Fig. <ref type="figure" target="#fig_1">2A</ref>, these curves are constructed while treating death as a competing risk <ref type="bibr" target="#b10">[11]</ref><ref type="bibr" target="#b11">[12]</ref><ref type="bibr" target="#b12">[13]</ref>.</s><s>That is, patients who die were removed from the risk set and no longer eligible to experience recovery.</s><s>The areas below these cumulative incidence curves (Figs.</s><s><ref type="figure" target="#fig_3">3B</ref> &amp; <ref type="figure">C</ref>) represent the mean event-free survival times up to day 28 <ref type="bibr" target="#b13">[14]</ref>.</s><s>These were 11.9 days for placebo, and 14.2 days for remdesivir.</s><s>The difference was 2.2 days (95% CI, 0.89 to 3.52 days; P &lt; 0.001) in favor of remdesivir.</s><s>Thus, on average, patients receiving remdesivir survived event-free for an additional 2.2 days across the 28 days of follow-up.</s><s>Note that the difference in mean event-free survival is highly statistically significant in favor of remdesivir in contrast to the moderately significant difference obtained using the duration of the need for medical attention.</s><s>This may reflect the fact that remdesivir numerically prolonged patients' survival <ref type="bibr" target="#b13">[14]</ref>.</s></p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.">Discussions</head><p><s>Shortening the duration of hospitalization is not equivalent to extending the duration of hospital-free survival.</s><s>A harmful treatment may shorten the duration of hospitalization by increasing the mortality rate without increasing the recovery rate.</s><s>Such a treatment would reduce the duration of hospital-free survival.</s><s>Conversely, a beneficial treatment may extend the duration of hospital-free either by reducing the mortality rate or by increasing the recovery rate.</s><s>Only in the absence of death is reducing the hospital stay equivalent to extending the duration of hospital-free survival.</s><s>However, if the mortality rates of the two arms are similar, then comparing the durations of hospitalization may be appropriate.</s></p><p><s>When dealing with, for example, the duration of ICU stay or oxygen utilization, the data are more complex than those from the endpoint discussed above since patients may enter the ICU during the study.</s><s>This complexity extends to other cases where initiation of the event of interest does not necessarily start when the patient enters the study <ref type="bibr" target="#b14">[15]</ref>.</s><s>patient's eventual outcome, such as hospital discharge or death.</s><s>Therefore, like case 6, the censoring was not independent of the ICUfree survival time and one cannot analyze the duration of ICU stay or ICU-free survival time via standard survival analysis methods.</s><s>Further statistical research is needed to delineate the analytic procedures needed to obtain valid inference on the average ICU-free survival time.</s></p><p><s>Note that if there are no censored observations before Day 28, then the analysis of ICU-stay is straightforward.</s><s>In future trials for COVID-19, the trial size may be larger and the length of study follow-up may be longer.</s><s>Therefore, at the interim analysis, there are likely to be a sizable number of censored observations, and one is likely to encounter the same challenges faced in the ACTT-1 trial.</s></p><p><s>In conclusion, the conventional approach to analyzing the duration of an undesirable clinical event may not be appropriate.</s><s>On the other hand, a simple conversion of this endpoint to the event-free survival counterpart is clinically interpretable and leads to a fair assessment of treatment efficacy.</s></p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0"><head>Fig. 1 .</head><label>1</label><figDesc><div><p><s>Fig. 1.</s><s>Possible patterns for the duration of hospitalization in trials for COVID-19.</s></p></div></figDesc><graphic coords="3,38.66,57.20,248.12,124.78" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1"><head>Fig. 2 .</head><label>2</label><figDesc><div><p><s>Fig. 2. (A) Cumulative incidence curves for the proportion of patients not requiring attentive care.</s><s>(B &amp; C) Mean time spent in hospital receiving attentive care via the area above the cumulative incidence curve.</s></p></div></figDesc><graphic coords="3,69.62,378.87,455.01,340.11" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2"><head>Fig. 4</head><label>4</label><figDesc><div><p><s>provides various possible patterns with respect to the ICU endpoint.</s><s>For example, in case 4, the patient was in ICU from day 7 to 14.</s><s>For case 5, the patient died during the ICU stay.</s><s>The ICU-free survival days are given on the right-hand side of Fig.4.</s><s>The complexity of such data arises because entry into the ICU is likely dependent on the</s></p></div></figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3"><head>Fig. 3 .</head><label>3</label><figDesc><div><p><s>Fig. 3. (A) Cumulative incidence curves for the proportion of patients surviving and not requiring attentive care.</s><s>(B &amp; C) Mean event-free survival as the area under the cumulative incidence curve.</s></p></div></figDesc><graphic coords="4,69.62,57.88,455.01,340.11" type="bitmap" /></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4"><head>Fig. 4 .</head><label>4</label><figDesc><div><p><s>Fig. 4. Possible patterns for the duration of ICU stay.</s></p></div></figDesc><graphic coords="4,307.62,575.83,248.16,152.64" type="bitmap" /></figure>
+		</body>
+		<back>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct status="extracted" xml:id="b0">
+	<analytic>
+		<title level="a" type="main">Remdesivir for the treatment of COVID-19 -a preliminary report</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">H</forename><surname>Beigel</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">K</forename><forename type="middle">M</forename><surname>Tomashek</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">E</forename><surname>Dodd</surname></persName>
+		</author>
+		<idno type="DOI">10.1056/NEJMoa2007764</idno>
+		<ptr target="https://doi.org/10.1056/NEJMoa" />
+	</analytic>
+	<monogr>
+		<title level="j">NEJM</title>
+		<imprint>
+			<date type="published" when="2020-05-22">2020 May 22. 2007764</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">J.H. Beigel, K.M. Tomashek, L.E. Dodd, et al., Remdesivir for the treatment of COVID-19 -a preliminary report, NEJM (2020 May 22), https://doi.org/10.1056/ NEJMoa2007764.</note>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Remdesivir for 5 or 10 days in patients with severe COVID-19</title>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">D</forename><surname>Goldman</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">C B</forename><surname>Lye</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">S</forename><surname>Hui</surname></persName>
+		</author>
+		<idno type="DOI">10.1056/NEJMoa2015301</idno>
+		<ptr target="https://doi.org/10.1056/NEJMoa" />
+	</analytic>
+	<monogr>
+		<title level="j">NEJM</title>
+		<imprint>
+			<date type="published" when="2020-05-27">2020 May 27. 2015301</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">J.D. Goldman, D.C.B. Lye, D.S. Hui, et al., Remdesivir for 5 or 10 days in patients with severe COVID-19, NEJM (2020 May 27), https://doi.org/10.1056/ NEJMoa2015301.</note>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b2">
+	<analytic>
+		<title level="a" type="main">A trial of Lopinavir-ritonavir in adults hospitalized with severe COVID-19</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Cao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Wen</surname></persName>
+		</author>
+		<idno type="DOI">10.1056/NEJMoa2001282</idno>
+		<ptr target="https://doi.org/10.1056/NEJMoa2001282" />
+	</analytic>
+	<monogr>
+		<title level="j">NEJM</title>
+		<imprint>
+			<biblScope unit="volume">382</biblScope>
+			<biblScope unit="page" from="1787" to="1799" />
+			<date type="published" when="2020-05-19">19. 2020 May 7</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">B. Cao, Y. Wang, D. Wen, et al., A trial of Lopinavir-ritonavir in adults hospitalized with severe COVID-19, NEJM 382 (19) (2020 May 7) 1787-1799, https://doi.org/ 10.1056/NEJMoa2001282.</note>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Remdesivir in adults with severe COVID-19: a randomised, double-blind, placebo-controlled, multicentre trial</title>
+		<author>
+			<persName><forename type="first">Y</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">G</forename><surname>Du</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/S0140-6736(20)31022-9</idno>
+		<ptr target="https://doi.org/10.1016/S0140-6736(20" />
+	</analytic>
+	<monogr>
+		<title level="j">Lancet</title>
+		<imprint>
+			<biblScope unit="volume">395</biblScope>
+			<biblScope unit="page" from="31022" to="31029" />
+			<date type="published" when="2020-05-16">10236. 2020 May 16</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">Y. Wang, D. Zhang, G. Du, et al., Remdesivir in adults with severe COVID-19: a randomised, double-blind, placebo-controlled, multicentre trial, Lancet 395 (10236) (2020 May 16) 1569-1578, https://doi.org/10.1016/S0140-6736(20) 31022-9.</note>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b4">
+	<monogr>
+		<title/>
+		<idno type="DOI">10.1056/NEJMoa2007764/suppl_file/nejmoa2007764_protocol.pdf</idno>
+		<ptr target="https://www.nejm.org/doi/suppl/10.1056/NEJMoa2007764/suppl_file/nejmoa2007764_protocol.pdf" />
+		<imprint/>
+	</monogr>
+	<note type="raw_reference">https://www.nejm.org/doi/suppl/10.1056/NEJMoa2007764/suppl_file/ nejmoa2007764_protocol.pdf.</note>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b5">
+	<analytic>
+		<title level="a" type="main">Enhanced secondary analysis of survival data: reconstructing the data from published Kaplan-Meier survival curves</title>
+		<author>
+			<persName><forename type="first">P</forename><surname>Guyot</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">E</forename><surname>Ades</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">M</forename><forename type="middle">J</forename><surname>Ouwens</surname></persName>
+		</author>
+		<idno type="DOI">10.1186/1471-2288-12-9</idno>
+		<ptr target="https://doi.org/10.1186/1471-2288-12-9" />
+	</analytic>
+	<monogr>
+		<title level="j">BMC Med. Res. Methodol</title>
+		<imprint>
+			<biblScope unit="volume">12</biblScope>
+			<date type="published" when="2012">2012</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">P. Guyot, A.E. Ades, M.J. Ouwens, et al., Enhanced secondary analysis of survival data: reconstructing the data from published Kaplan-Meier survival curves, BMC Med. Res. Methodol. 12 (2012) 9, https://doi.org/10.1186/1471-2288-12-9.</note>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b6">
+	<analytic>
+		<title level="a" type="main">Moving beyond the hazard ratio in quantifying the between-group difference in survival analysis</title>
+		<author>
+			<persName><forename type="first">H</forename><surname>Uno</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Claggett</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Tian</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">J. Clin. Oncol</title>
+		<imprint>
+			<biblScope unit="volume">32</biblScope>
+			<biblScope unit="issue">22</biblScope>
+			<biblScope unit="page" from="2380" to="2385" />
+			<date type="published" when="2014">2014</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">H. Uno, B. Claggett, L. Tian, et al., Moving beyond the hazard ratio in quantifying the between-group difference in survival analysis, J. Clin. Oncol. 32 (22) (2014) 2380-2385.</note>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b7">
+	<analytic>
+		<title level="a" type="main">Interpretability of cancer clinical trial results using restricted mean survival time as an alternative to the hazard ratio</title>
+		<author>
+			<persName><forename type="first">K</forename><surname>Pak</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Uno</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">H</forename><surname>Kim</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">JAMA Oncol</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="issue">12</biblScope>
+			<biblScope unit="page" from="1692" to="1696" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">K. Pak, H. Uno, D.H. Kim, et al., Interpretability of cancer clinical trial results using restricted mean survival time as an alternative to the hazard ratio, JAMA Oncol. 3 (12) (2017) 1692-1696.</note>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b8">
+	<analytic>
+		<title level="a" type="main">Restricted mean survival time as a measure to interpret clinical trial results</title>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">H</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">H</forename><surname>Uno</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">J</forename><surname>Wei</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">JAMA Cardiol</title>
+		<imprint>
+			<biblScope unit="volume">2</biblScope>
+			<biblScope unit="issue">11</biblScope>
+			<biblScope unit="page" from="1179" to="1180" />
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">D.H. Kim, H. Uno, L.J. Wei, Restricted mean survival time as a measure to interpret clinical trial results, JAMA Cardiol. 2 (11) (2017) 1179-1180.</note>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b9">
+	<analytic>
+		<title level="a" type="main">Applying evidence-based medicine to shared decision making: value of restricted mean survival time</title>
+		<author>
+			<persName><forename type="first">Z</forename><forename type="middle">R</forename><surname>Mccaw</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">A</forename><forename type="middle">R</forename><surname>Orkaby</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><forename type="middle">J</forename><surname>Wei</surname></persName>
+		</author>
+		<idno type="DOI">10.1016/j.amjmed.2018.07.026</idno>
+		<ptr target="https://doi.org/10.1016/j.amjmed.2018.07.026" />
+	</analytic>
+	<monogr>
+		<title level="j">Am. J. Med</title>
+		<imprint>
+			<biblScope unit="volume">132</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="13" to="15" />
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">Z.R. McCaw, A.R. Orkaby, L.J. Wei, et al., Applying evidence-based medicine to shared decision making: value of restricted mean survival time, Am. J. Med. 132 (1) (2019) 13-15, https://doi.org/10.1016/j.amjmed.2018.07.026.</note>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b10">
+	<analytic>
+		<title level="a" type="main">Introduction to the analysis of survival data in the presence of competing risks</title>
+		<author>
+			<persName><forename type="first">P</forename><forename type="middle">C</forename><surname>Austin</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">D</forename><forename type="middle">S</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">P</forename><surname>Fine</surname></persName>
+		</author>
+		<idno type="DOI">10.1161/CIRCULATIONAHA.115.017719</idno>
+		<ptr target="https://doi.org/10.1161/CIRCULATIONAHA.115.017719" />
+	</analytic>
+	<monogr>
+		<title level="j">Circulation</title>
+		<imprint>
+			<biblScope unit="volume">133</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="601" to="609" />
+			<date type="published" when="2016-02-09">2016 Feb 9</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">P.C. Austin, D.S. Lee, J.P. Fine, Introduction to the analysis of survival data in the presence of competing risks, Circulation 133 (6) (2016 Feb 9) 601-609, https://doi. org/10.1161/CIRCULATIONAHA.115.017719.</note>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b11">
+	<analytic>
+		<title level="a" type="main">Competing risk regression models for epidemiologic data</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Lau</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">R</forename><surname>Cole</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">S</forename><forename type="middle">J</forename><surname>Gange</surname></persName>
+		</author>
+		<idno type="DOI">10.1093/aje/kwp107</idno>
+		<ptr target="https://doi.org/10.1093/aje/kwp107" />
+	</analytic>
+	<monogr>
+		<title level="j">Am. J. Epidemiol</title>
+		<imprint>
+			<biblScope unit="volume">170</biblScope>
+			<biblScope unit="issue">2</biblScope>
+			<biblScope unit="page" from="244" to="256" />
+			<date type="published" when="2009">2009</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">B. Lau, S.R. Cole, S.J. Gange, Competing risk regression models for epidemiologic data, Am. J. Epidemiol. 170 (2) (2009) 244-256, https://doi.org/10.1093/aje/ kwp107.</note>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b12">
+	<analytic>
+		<title level="a" type="main">Estimating treatment effect with clinical interpretation from a comparative clinical trial with an end point subject to competing risks</title>
+		<author>
+			<persName><forename type="first">L</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Tian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">B</forename><surname>Claggett</surname></persName>
+		</author>
+		<idno type="DOI">10.1001/jamacardio.2018.0127</idno>
+		<ptr target="https://doi.org/10.1001/jamacardio.2018.0127" />
+	</analytic>
+	<monogr>
+		<title level="j">JAMA Cardiol</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="357" to="358" />
+			<date type="published" when="2018-04-01">2018 Apr 1</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">L. Zhao, L. Tian, B. Claggett, et al., Estimating treatment effect with clinical in- terpretation from a comparative clinical trial with an end point subject to com- peting risks, JAMA Cardiol. 3 (4) (2018 Apr 1) 357-358, https://doi.org/10.1001/ jamacardio.2018.0127.</note>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b13">
+	<analytic>
+		<title level="a" type="main">How to quantify and interpret treatment effects in comparative clinical studies of COVID-19</title>
+		<author>
+			<persName><forename type="first">Z</forename><forename type="middle">R</forename><surname>Mccaw</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Tian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">J</forename><forename type="middle">L</forename><surname>Vassay</surname></persName>
+		</author>
+		<idno type="DOI">10.7326/M20-4044</idno>
+		<ptr target="https://doi.org/10.7326/M20-4044" />
+	</analytic>
+	<monogr>
+		<title level="j">Ann. Intern. Med</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">Z.R. McCaw, L. Tian, J.L. Vassay, et al., How to quantify and interpret treatment effects in comparative clinical studies of COVID-19, Ann. Intern. Med. (2020), https://doi.org/10.7326/M20-4044.</note>
+</biblStruct>
+
+<biblStruct status="extracted" xml:id="b14">
+	<analytic>
+		<title level="a" type="main">Analysis of response data for assessing treatment effects in comparative clinical studies</title>
+		<author>
+			<persName><forename type="first">B</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">L</forename><surname>Tian</surname></persName>
+		</author>
+		<author>
+			<persName><forename type="first">Z</forename><forename type="middle">R</forename><surname>Mccaw</surname></persName>
+		</author>
+		<idno type="DOI">10.7326/M20-0104</idno>
+		<ptr target="https://doi.org/10.7326/M20-0104" />
+	</analytic>
+	<monogr>
+		<title level="j">Ann. Intern. Med</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="raw_reference">B. Huang, L. Tian, Z.R. McCaw, et al., Analysis of response data for assessing treatment effects in comparative clinical studies, Ann. Intern. Med. (2020), https:// doi.org/10.7326/M20-0104.</note>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>
