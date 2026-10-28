@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import re
 from collections import deque
 from dataclasses import dataclass
@@ -37,6 +38,10 @@ from app.services.full_text_qualifier import (
     is_full_text_document,
     normalize_candidate_url,
 )
+
+EUROPEPMC_API_URL = os.getenv("EUROPEPMC_API_URL", "https://www.ebi.ac.uk/europepmc/webservices/rest").rstrip("/")
+UNPAYWALL_API_URL = os.getenv("UNPAYWALL_API_URL", "https://api.unpaywall.org/v2").rstrip("/")
+SEMANTIC_SCHOLAR_RETRIEVAL_URL = os.getenv("SEMANTIC_SCHOLAR_RETRIEVAL_URL", "https://api.semanticscholar.org/graph/v1").rstrip("/")
 
 logger = logging.getLogger(__name__)
 
@@ -591,7 +596,7 @@ def _discover_europe_pmc_candidates(
     available via NIH Open Access policy. Never bypasses paywalls or anti-bot protections.
     """
     url = (
-        f"https://www.ebi.ac.uk/europepmc/webservices/rest/search"
+        f"{EUROPEPMC_API_URL}/search"
         f"?query=DOI:{doi}&format=json"
     )
     try:
@@ -634,7 +639,7 @@ def _discover_europe_pmc_candidates(
         return []
 
 
-_UNPAYWALL_EMAIL = "team@sciverify.local"
+_UNPAYWALL_EMAIL = os.getenv("UNPAYWALL_EMAIL", "team@sciverify.local")
 _KNOWN_REPOSITORY_HOSTS = (
     "arxiv.org",
     "biorxiv.org",
@@ -672,7 +677,7 @@ def _discover_unpaywall_candidates(
     Tier 5: Publisher OA PDFs (only if legitimately open access)
     Never includes paywalled or subscription-required content.
     """
-    url = f"https://api.unpaywall.org/v2/{doi}?email={_UNPAYWALL_EMAIL}"
+    url = f"{UNPAYWALL_API_URL}/{doi}?email={_UNPAYWALL_EMAIL}"
     candidates: list[FullTextCandidate] = []
     try:
         response = client.get(url, timeout=10.0)
@@ -730,7 +735,7 @@ def _discover_semantic_scholar_candidates(
     Never bypasses paywalls or access controls.
     """
     url = (
-        f"https://api.semanticscholar.org/graph/v1/paper/DOI:{doi}"
+        f"{SEMANTIC_SCHOLAR_RETRIEVAL_URL}/paper/DOI:{doi}"
         f"?fields=openAccessPdf,isOpenAccess"
     )
     try:

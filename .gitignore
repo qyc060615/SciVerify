@@ -159,3 +159,6 @@ backend/evaluation/checkpoints/
 
 # ResearchGuard local accepted sources
 backend/data/researchguard/sources/
+
+# Local API settings (DPAPI protected on Windows; never commit)
+backend/.researchguard-settings*

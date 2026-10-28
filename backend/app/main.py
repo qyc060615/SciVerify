@@ -13,10 +13,15 @@ if backend_env.exists():
 else:
     load_dotenv(override=True)
 
+from app.settings_store import apply_saved_settings
+
+apply_saved_settings()
+
 from app.logging_config import configure_application_logging
 
 configure_application_logging()
 
+from app.api.routes.settings import router as settings_router
 from app.api.routes.repository import router as repository_router
 from app.api.routes.citations import router as citations_router
 from app.api.routes.evidence import router as evidence_router
@@ -80,6 +85,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(settings_router)
 app.include_router(repository_router)
 app.include_router(citations_router)
 app.include_router(papers_router)

@@ -20,6 +20,10 @@ try:
 except ImportError:
     pass
 
+from app.settings_store import apply_saved_settings
+
+apply_saved_settings()
+
 PAPER_REQUEST_TIMEOUT = float(os.getenv("PAPER_REQUEST_TIMEOUT", "30"))
 MAX_DOCUMENT_SIZE = int(os.getenv("MAX_DOCUMENT_SIZE", str(20 * 1024 * 1024)))
 CHUNK_SIZE = int(os.getenv("CHUNK_SIZE", "1000"))

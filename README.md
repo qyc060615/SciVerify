@@ -700,13 +700,28 @@ VITE_SUPABASE_ANON_KEY=
 > [!WARNING]
 > Never commit real credentials. `backend/.env` and `frontend/.env.local` are ignored. Model API keys belong only in the backend, never in a `VITE_*` variable.
 
-Local Demo is enabled only when **Vite development mode AND the flag is exactly `true`**. It uses a stable local identity with no session/token. Supabase authentication, profiles and history are not called, even if Supabase environment values remain populated. Login/register and password-recovery routes return to the workspace; settings are read-only and no logout action is shown.
+Local Demo is enabled only when **Vite development mode AND the flag is exactly `true`**. It uses a stable local identity with no session/token. Supabase authentication, profiles and history are not called, even if Supabase environment values remain populated. Login/register and password-recovery routes return to the workspace; account identity remains read-only and no logout action is shown. Settings also provides loopback-only service/API administration; saved API changes require a backend restart after running jobs finish. See [Settings API management](docs/SETTINGS_API_MANAGEMENT.md) for credential protection, configuration precedence, probe semantics and current limitations.
 
 For normal Supabase mode, set `VITE_LOCAL_DEMO_MODE=false` (or omit it), configure `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`, and restart the frontend. Missing Supabase configuration does not automatically enable Demo.
 
 ---
 
 ## 24. Running Local Demo
+
+### One-command startup (after initial setup)
+
+From the repository root:
+
+```powershell
+npm run dev
+```
+
+This starts the existing Python backend (one worker, port 8000) and Vite Local Demo (port 5173) in the same terminal. Open http://127.0.0.1:5173/app/manuscripts. Start GROBID yourself; this command does not manage Docker or GROBID. Press Ctrl+C to stop the services launched by this command. The backend does not auto-reload during jobs; finish running jobs before restarting to apply saved API settings.
+
+The launcher reuses a project virtual environment, active/configured Conda environment, this workstation's existing D:/conda_envs/researchguard environment, or a Python on PATH with backend dependencies. An explicit RESEARCHGUARD_PYTHON executable overrides detection. Existing .env files are never overwritten and no packages are installed at startup. If ports 8000/5173 are occupied, stop your existing manually started services first; the launcher will not kill them. Check the environment without launching services with npm run dev -- --check.
+
+The separate-terminal commands remain available below.
+
 
 ### Terminal 1: Start the Backend (from the repository root)
 ```bash
