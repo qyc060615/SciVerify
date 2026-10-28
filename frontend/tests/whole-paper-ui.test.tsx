@@ -14,6 +14,7 @@ import type { ParseResponse, ReferenceResolution } from '@/types/manuscript'
 const services = vi.hoisted(() => ({ parse: vi.fn(), resolve: vi.fn(), extract: vi.fn(), limits: vi.fn(), create: vi.fn(), get: vi.fn(), resume: vi.fn(), demo: vi.fn() }))
 vi.mock('@/services/manuscriptService', async importOriginal => ({ ...await importOriginal<object>(), parseManuscript: services.parse, resolveReferences: services.resolve, extractClaims: services.extract, getUploadLimits: services.limits }))
 vi.mock('@/services/verificationJobService', async importOriginal => ({ ...await importOriginal<object>(), createVerificationJob: services.create, getVerificationJob: services.get, resumeVerificationJob: services.resume }))
+vi.mock('@/services/sourceService', async original => ({ ...await original<object>(), getLocalSourceStatus: vi.fn().mockResolvedValue({ availability: 'not_cached', remote_status: 'not_checked', raw_content_sha256: null, format: null }) }))
 vi.mock('@/lib/demo-mode', () => ({ isLocalDemoMode: services.demo }))
 
 function app(path = '/app/manuscripts') {
@@ -36,8 +37,8 @@ async function resolveAndReview() {
   await screen.findByRole('button', { name: 'Resolve references' })
   expect(screen.queryByRole('button', { name: 'Extract claims' })).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Resolve references' }))
-  await screen.findByRole('button', { name: 'Continue with reviewed references' })
-  fireEvent.click(screen.getByRole('button', { name: 'Continue with reviewed references' }))
+  await screen.findByRole('button', { name: 'Continue to Claims' })
+  fireEvent.click(screen.getByRole('button', { name: 'Continue to Claims' }))
   await screen.findByRole('button', { name: 'Extract claims' })
 }
 
@@ -57,8 +58,9 @@ describe('whole-paper upload and review', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Extract claims' }))
     await screen.findByText('Review extracted claims')
     expect(services.extract).toHaveBeenCalledWith(fixture.parse_response)
+    fireEvent.click(screen.getByRole('button', { name: 'Continue to Verification' }))
     expect(screen.getByText(/may call external LLM/)).toBeTruthy()
-    const start = screen.getByRole('button', { name: 'Start whole-paper verification' })
+    const start = screen.getByRole('button', { name: 'Start Verification' })
     fireEvent.click(start); fireEvent.click(start)
     await screen.findByText('Verification overview')
     expect(services.create).toHaveBeenCalledTimes(1)
@@ -77,7 +79,8 @@ describe('whole-paper upload and review', () => {
     fireEvent.change(screen.getByLabelText('Manuscript PDF'), { target: { files: [new File(['%PDF'], 'paper.pdf')] } })
     fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' })); await resolveAndReview()
     fireEvent.click(screen.getByRole('button', { name: 'Extract claims' })); await screen.findByText('Review extracted claims')
-    const button = screen.getByRole('button', { name: 'Start whole-paper verification' }) as HTMLButtonElement
+    fireEvent.click(screen.getByRole('button', { name: 'Continue to Verification' }))
+    const button = screen.getByRole('button', { name: 'Start Verification' }) as HTMLButtonElement
     expect(button.disabled).toBe(true)
     fireEvent.click(screen.getByRole('checkbox')); expect(button.disabled).toBe(false)
   })
@@ -87,7 +90,7 @@ describe('whole-paper upload and review', () => {
     fireEvent.change(screen.getByLabelText('Manuscript PDF'), { target: { files: [new File(['%PDF'], 'paper.pdf')] } })
     fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' })); await resolveAndReview()
     fireEvent.click(screen.getByRole('button', { name: 'Extract claims' })); await screen.findByText('Review extracted claims')
-    expect((screen.getByRole('button', { name: 'Start whole-paper verification' }) as HTMLButtonElement).disabled).toBe(true)
+    expect((screen.getByRole('button', { name: 'Continue to Verification' }) as HTMLButtonElement).disabled).toBe(true)
     expect(screen.getByText(/No executable pairs/)).toBeTruthy(); expect(services.create).not.toHaveBeenCalled()
   })
   it('restores a saved job URL without parse/extract/create', async () => {
@@ -111,13 +114,16 @@ describe('whole-paper upload and review', () => {
     app(); await screen.findByText(/PDF limit/)
     fireEvent.change(screen.getByLabelText('Manuscript PDF'), { target: { files: [new File(['%PDF'], 'paper.pdf')] } })
     fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' })); await resolveAndReview()
+    fireEvent.click(screen.getByRole('button', { name: /^References/ }))
     expect(screen.getByText(/2 DOI identities ready/)).toBeTruthy()
-    expect(screen.getByText('ambiguous')).toBeTruthy(); expect(screen.getByText('provider_error')).toBeTruthy()
+    expect(screen.getByText('ambiguous')).toBeTruthy(); expect(screen.getByText('provider error')).toBeTruthy()
     expect(screen.getByText(/will attempt document retrieval and identity checks/)).toBeTruthy(); expect(screen.getByText(/OPENALEX_RATE_LIMIT/)).toBeTruthy()
     expect(screen.getByText(/Resolved DOI: 10.1234\/enriched/)).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: 'Continue to Claims' }))
     fireEvent.click(screen.getByRole('button', { name: 'Extract claims' })); await screen.findByText('Review extracted claims')
     expect(services.extract).toHaveBeenCalledWith(enriched)
-    fireEvent.click(screen.getByRole('button', { name: 'Start whole-paper verification' })); await screen.findByText('Verification overview')
+    fireEvent.click(screen.getByRole('button', { name: 'Continue to Verification' }))
+    fireEvent.click(screen.getByRole('button', { name: 'Start Verification' })); await screen.findByText('Verification overview')
     const submitted = services.create.mock.calls[0][0]
     expect(submitted.parsed.references).toEqual(enriched.parsed.references)
     expect(submitted.extraction.metadata.input_fingerprint).toBe(fixture.job_request.extraction.metadata.input_fingerprint)
@@ -132,10 +138,13 @@ describe('whole-paper upload and review', () => {
     const button = screen.getByRole('button', { name: 'Resolve references' })
     fireEvent.click(button); fireEvent.click(button)
     expect(services.resolve).toHaveBeenCalledTimes(1)
-    finish(fixture.parse_response); await screen.findByRole('button', { name: 'Continue with reviewed references' })
-    fireEvent.click(screen.getByRole('button', { name: 'Continue with reviewed references' }))
+    finish(fixture.parse_response); await screen.findByRole('button', { name: 'Continue to Claims' })
+    fireEvent.click(screen.getByRole('button', { name: 'Continue to Claims' }))
     fireEvent.click(screen.getByRole('button', { name: 'Extract claims' })); await screen.findByText('Review extracted claims')
+    fireEvent.click(screen.getByRole('button', { name: 'Replace PDF' }))
+    fireEvent.change(screen.getByLabelText('Manuscript PDF'), { target: { files: [new File(['%PDF'], 'replacement.pdf')] } })
     fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' }))
+    await screen.findByRole('button', { name: 'Resolve references' })
     await waitFor(() => expect(screen.queryByText('Review extracted claims')).toBeNull())
     expect(screen.queryByRole('button', { name: 'Extract claims' })).toBeNull()
   })
@@ -204,4 +213,72 @@ describe('pair-level report contracts', () => {
     await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('Committed results remain visible'))
     expect(screen.getByText('Contradicted')).toBeTruthy()
   })
+})
+
+
+it('step navigation never bypasses reference review, extraction or job creation', async () => {
+  app(); await screen.findByText(/PDF limit/)
+  expect(screen.getByRole('button', { name: 'Claims', exact: true })).toHaveProperty('disabled', true)
+  expect(screen.getByRole('button', { name: 'Verification', exact: true })).toHaveProperty('disabled', true)
+  expect(screen.getByRole('button', { name: 'Report', exact: true })).toHaveProperty('disabled', true)
+  fireEvent.change(screen.getByLabelText('Manuscript PDF'), { target: { files: [new File(['%PDF'], 'fresh.pdf')] } })
+  fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' }))
+  await screen.findByRole('heading', { name: 'Review References' })
+  expect(screen.queryByLabelText('Manuscript PDF')).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Resolve references' }))
+  await screen.findByRole('button', { name: 'Continue to Claims' })
+  expect(screen.getByRole('button', { name: 'Claims', exact: true })).toHaveProperty('disabled', true)
+  expect(services.extract).not.toHaveBeenCalled(); expect(services.create).not.toHaveBeenCalled()
+  fireEvent.click(screen.getByRole('button', { name: 'Replace PDF' }))
+  expect(screen.getByLabelText('Manuscript PDF')).toBeTruthy()
+  expect(screen.getByRole('button', { name: 'References', exact: true })).toHaveProperty('disabled', true)
+})
+
+it('ambiguous claims remain non-executable through review and stage navigation', async () => {
+  const result = structuredClone(fixture.job_request.extraction)
+  result.status = 'partial'
+  result.claims.push({ ...result.claims[0], id: 'ambiguous-claim', text: 'A separate uncertain attribution.', attribution_status: 'ambiguous' })
+  services.extract.mockResolvedValue(result)
+  app(); await screen.findByText(/PDF limit/)
+  fireEvent.change(screen.getByLabelText('Manuscript PDF'), { target: { files: [new File(['%PDF'], 'paper.pdf')] } })
+  fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' })); await resolveAndReview()
+  fireEvent.click(screen.getByRole('button', { name: 'Extract claims' }))
+  await screen.findByText('Ambiguous · Citation attribution unclear')
+  fireEvent.click(screen.getByRole('button', { name: 'Continue to Verification' }))
+  expect(screen.getByText('2 Claim–Reference pairs ready for verification')).toBeTruthy()
+  expect(screen.getByRole('button', { name: 'Start Verification' })).toHaveProperty('disabled', true)
+  expect(services.create).not.toHaveBeenCalled()
+})
+
+it('report navigation shows one claim and retains independent pair verdicts', () => {
+  const job = structuredClone(jobFixture())
+  const next = { ...job.claims[0], id: 'another-claim', text: 'Another claim to inspect separately.' }
+  job.claims.push(next)
+  job.tasks.push({ ...job.tasks[0], task_key: 'another-task', claim_id: next.id, pair_outcome: { ...job.tasks[0].pair_outcome!, verification: { ...job.tasks[0].pair_outcome!.verification, claim_id: next.id, verdict: 'INSUFFICIENT', confidence: null } } })
+  render(<WholePaperReport job={job} />)
+  expect(screen.getAllByTestId('pair-card')).toHaveLength(2)
+  expect(screen.getByText('Contradicted')).toBeTruthy()
+  fireEvent.click(screen.getByRole('button', { name: /^Claim 02/ }))
+  expect(screen.getAllByTestId('pair-card')).toHaveLength(1)
+  expect(screen.getByText('Insufficient evidence')).toBeTruthy()
+  expect(screen.queryByText('Contradicted')).toBeNull()
+})
+
+it('a saved report can revisit preparation without rerunning extraction or creating jobs', async () => {
+  app('/app/manuscripts/jobs/' + jobId)
+  await screen.findByText('Verification overview')
+  fireEvent.click(screen.getByRole('button', { name: /^Claims/ }))
+  expect(screen.getByText('Saved claims')).toBeTruthy()
+  fireEvent.click(screen.getByRole('button', { name: /^Verification — completed/ }))
+  expect(screen.getByText('Verification task created')).toBeTruthy()
+  expect(services.create).not.toHaveBeenCalled(); expect(services.extract).not.toHaveBeenCalled()
+})
+
+
+it.each([null, NaN, Infinity, -0.1, 1.1])('never displays invalid confidence %s', confidence => {
+  const job = structuredClone(jobFixture())
+  job.tasks[0].pair_outcome!.verification.confidence = confidence
+  render(<WholePaperReport job={job} />)
+  expect(screen.queryByText(/Confidence:/)).toBeNull()
+  expect(screen.getByText('Contradicted')).toBeTruthy()
 })

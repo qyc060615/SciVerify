@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { AppHeader } from '@/components/app/AppHeader'
 import { Button } from '@/components/ui/Button'
@@ -7,6 +7,10 @@ import { Panel } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { ClaimExtractionPreview } from '@/components/manuscript/ClaimExtractionPreview'
 import { ReferenceReview } from '@/components/manuscript/ReferenceReview'
+import { WorkflowStepper, type WorkflowStage } from '@/components/manuscript/WorkflowStepper'
+import { PdfPicker } from '@/components/manuscript/PdfPicker'
+import { DiagnosticDetails } from '@/components/manuscript/DiagnosticDetails'
+import { RecentLocalJobs } from '@/components/manuscript/RecentLocalJobs'
 import { extractClaims, getUploadLimits, parseManuscript, resolveReferences, validatePdf } from '@/services/manuscriptService'
 import { buildJobCreateRequest, executablePairCount } from '@/services/manuscriptBridge'
 import { createVerificationJob } from '@/services/verificationJobService'
@@ -20,66 +24,91 @@ export default function WholePaperVerifyPage() {
   const [file, setFile] = useState<File | null>(null)
   const [parsed, setParsed] = useState<ParseResponse | null>(null)
   const [extraction, setExtraction] = useState<ExtractionResult | null>(null)
+  const [stage, setStage] = useState<WorkflowStage>('upload')
   const [busy, setBusy] = useState<string | null>(null)
+  const [sourceUploads, setSourceUploads] = useState<Record<string, boolean>>({})
   const [error, setError] = useState<string | null>(null)
   const [confirmedPartial, setConfirmedPartial] = useState(false)
   const [referencesResolved, setReferencesResolved] = useState(false)
   const [referencesReviewed, setReferencesReviewed] = useState(false)
+  const [claimsReviewed, setClaimsReviewed] = useState(false)
   const action = useRef(false)
   const [recent] = useState<string[]>(() => {
     try { const ids: unknown = JSON.parse(localStorage.getItem('researchguard-recent-jobs') ?? '[]'); return Array.isArray(ids) ? ids.filter((id): id is string => typeof id === 'string' && /^job_[0-9a-f]{32}$/.test(id)).slice(0, 8) : [] } catch { return [] }
   })
+  const working = !!busy || Object.values(sourceUploads).some(Boolean)
+  const pairs = extraction ? executablePairCount(extraction) : 0
+  const ready = !!extraction && ['completed', 'partial'].includes(extraction.status) && pairs > 0
+  const allowed: WorkflowStage[] = ['upload', ...(parsed ? ['references' as const] : []), ...(referencesReviewed ? ['claims' as const] : []), ...(claimsReviewed && ready ? ['verification' as const] : [])]
+  const completed: WorkflowStage[] = [...(parsed ? ['upload' as const] : []), ...(referencesReviewed ? ['references' as const] : []), ...(claimsReviewed ? ['claims' as const] : [])]
   async function perform(step: string, operation: () => Promise<void>) {
-    if (action.current) return
+    if (action.current || Object.values(sourceUploads).some(Boolean)) return
     action.current = true; setBusy(step); setError(null)
     try { await operation() } catch (e) { setError(wholePaperError(e)) } finally { action.current = false; setBusy(null) }
   }
-  const pairs = extraction ? executablePairCount(extraction) : 0
-  return <div className="space-y-6">
-    <AppHeader title="Whole-paper verification" eyebrow="Local research workspace" description="Parse your manuscript, resolve reference identities, review attributed claims, then verify each cited reference independently." />
-    <Panel className="space-y-4">
-      <h2 className="text-lg font-semibold">1. Upload your manuscript</h2>
-      <p className="text-sm text-text-secondary">Upload the manuscript you want to check, not a cited reference PDF. Parsing uses your local GROBID service.</p>
-      {limits.isPending ? <p>Reading backend upload limits…</p> : limits.error ? <p role="alert">{wholePaperError(limits.error)} <Button variant="outline" onClick={() => void limits.refetch()}>Reconnect</Button></p> : <p className="text-sm text-text-muted">PDF limit: {((limits.data?.manuscript_max_bytes ?? 0) / 1024 / 1024).toFixed(1)} MB</p>}
-      <label className="block text-sm">Manuscript PDF<input className="mt-2 block w-full" type="file" accept="application/pdf,.pdf" disabled={!!busy} onChange={e => { setFile(e.target.files?.[0] ?? null); setParsed(null); setExtraction(null); setConfirmedPartial(false); setReferencesResolved(false); setReferencesReviewed(false); setError(null) }} /></label>
-      <Button loading={busy === 'parse'} disabled={!!busy || !file || !limits.data} onClick={() => void perform('parse', async () => {
-        const invalid = validatePdf(file, limits.data!.manuscript_max_bytes); if (invalid) throw new Error(invalid)
-        setParsed(await parseManuscript(file!)); setExtraction(null); setReferencesResolved(false); setReferencesReviewed(false)
-      })}>Parse manuscript</Button>
-    </Panel>
-    {error && <p role="alert" className="rounded-lg border border-danger/30 p-4 text-danger">{error}</p>}
-    {parsed && <Panel className="space-y-4">
-      <h2 className="text-lg font-semibold">2. Resolve and review references</h2>
-      <h3>{parsed.parsed.manuscript.title ?? 'Untitled manuscript'}</h3>
-      <Badge variant="primary">Parse: {parsed.status}</Badge>
-      <p>{parsed.parsed.paragraphs.length} paragraphs · {parsed.parsed.references.length} references · {parsed.parsed.citation_callouts.length} citation callouts</p>
-      {parsed.diagnostics.map((d, i) => <p key={i} className="text-sm text-warning">{d.code}: {d.safe_message}</p>)}
-      <Button loading={busy === 'resolve'} disabled={!!busy || referencesResolved} onClick={() => void perform('resolve', async () => {
-        const enriched = await resolveReferences(parsed)
-        setParsed(enriched); setExtraction(null); setConfirmedPartial(false); setReferencesResolved(true); setReferencesReviewed(false)
-      })}>Resolve references</Button>
-      {referencesResolved && <><ReferenceReview references={parsed.parsed.references} /><Button disabled={!!busy || referencesReviewed} onClick={() => setReferencesReviewed(true)}>Continue with reviewed references</Button><p className="text-sm text-text-secondary">Unresolved identities may remain as coverage gaps. Confirmed DOI sources can continue.</p></>}
+  function replace(next: File | null = null) {
+    if (working) return
+    setFile(next); setParsed(null); setExtraction(null); setReferencesResolved(false); setReferencesReviewed(false)
+    setClaimsReviewed(false); setConfirmedPartial(false); setSourceUploads({}); setError(null); setStage('upload')
+  }
+  async function extract() {
+    if (action.current || Object.values(sourceUploads).some(Boolean) || !parsed || !referencesReviewed) return
+    setExtraction(null); setClaimsReviewed(false); setConfirmedPartial(false)
+    await perform('extract', async () => setExtraction(await extractClaims(parsed)))
+  }
+  async function startVerification() {
+    if (!parsed || !extraction || !referencesReviewed || !claimsReviewed || !ready || (extraction.status === 'partial' && !confirmedPartial)) return
+    await perform('create', async () => {
+      const job = await createVerificationJob(buildJobCreateRequest(parsed, extraction))
+      try { localStorage.setItem('researchguard-recent-jobs', JSON.stringify([job.job_id, ...recent.filter(id => id !== job.job_id)].slice(0, 8))) } catch { /* Backend owns the report. */ }
+      navigate(wholePaperJobPath(job.job_id), { state: { manuscriptFileName: file?.name } })
+    })
+  }
+  return <div className="min-w-0 space-y-5">
+    <AppHeader title="Whole-paper verification" description="Prepare your manuscript, review its citations, and inspect evidence-backed results." />
+    <WorkflowStepper current={stage} completed={completed} allowed={allowed} busy={working} onSelect={next => { if (!working && allowed.includes(next)) { setStage(next); setError(null) } }} />
+    {parsed && <div className="flex min-w-0 flex-wrap items-center justify-between gap-3 text-sm">
+      <div className="min-w-0"><p className="break-all font-medium">{file?.name ?? 'Parsed manuscript'}</p><p className="text-xs text-text-muted">Parsed · {parsed.parsed.references.length} references</p></div>
+      <Button variant="ghost" size="sm" disabled={working} onClick={() => replace()}>Replace PDF</Button>
+    </div>}
+    {error && <p role="alert" className="rounded-lg border border-danger/30 p-3 text-sm text-danger">{error}</p>}
+    {stage === 'upload' && <Panel className="space-y-4">
+      <h2 className="text-lg font-semibold">Upload Manuscript</h2>
+      {parsed ? <><Badge variant="success">Parsed</Badge><p className="text-sm text-text-secondary">{file?.name} · {parsed.parsed.references.length} references</p><DiagnosticDetails records={parsed.diagnostics} label="parsing diagnostics" /><Button onClick={() => setStage('references')}>Review References</Button></> : <>
+        <PdfPicker label="Manuscript PDF" file={file} disabled={working} onChange={replace} />
+        {limits.isPending ? <p className="text-xs text-text-muted">Reading PDF limit…</p> : limits.error ? <p role="alert" className="text-sm">{wholePaperError(limits.error)} <Button size="sm" variant="outline" onClick={() => void limits.refetch()}>Reconnect</Button></p> : <p className="text-xs text-text-muted">PDF limit: {((limits.data?.manuscript_max_bytes ?? 0) / 1024 / 1024).toFixed(1)} MB</p>}
+        <Button loading={busy === 'parse'} disabled={working || !file || !limits.data} onClick={() => void perform('parse', async () => {
+          const invalid = validatePdf(file, limits.data!.manuscript_max_bytes); if (invalid) throw new Error(invalid)
+          const result = await parseManuscript(file!); setParsed(result); setStage('references')
+        })}>{busy === 'parse' ? 'Parsing manuscript…' : 'Parse manuscript'}</Button>
+      </>}
     </Panel>}
-    {parsed && referencesReviewed && <Panel className="space-y-4">
-      <h2 className="text-lg font-semibold">3. Extract citation claims</h2>
-      <p className="text-sm text-warning">Claim extraction calls the configured external LLM and may incur API fees. Extraction quality requires your review.</p>
-      <Button loading={busy === 'extract'} disabled={!!busy} onClick={() => void perform('extract', async () => { setExtraction(await extractClaims(parsed)); setConfirmedPartial(false) })}>Extract claims</Button>
+    {stage === 'references' && parsed && <Panel className="space-y-4">
+      <div className="space-y-2"><h2 className="text-lg font-semibold">Review References</h2>
+        {parsed.status === 'partial' && <p className="text-sm text-warning">Parsing completed with warnings</p>}
+        <DiagnosticDetails records={parsed.diagnostics} label="parsing diagnostics"><p className="break-words text-xs">Original parsed title (not independently verified): {parsed.parsed.manuscript.title ?? 'Unavailable'}</p></DiagnosticDetails>
+      </div>
+      {!referencesResolved ? <><p className="text-sm text-text-secondary">{parsed.parsed.references.length} references found. Resolve their identities before review.</p><Button disabled={working} loading={busy === 'resolve'} onClick={() => void perform('resolve', async () => {
+        setParsed(await resolveReferences(parsed)); setReferencesResolved(true); setReferencesReviewed(false); setClaimsReviewed(false); setExtraction(null); setConfirmedPartial(false)
+      })}>Resolve references</Button></> : <>
+        <ReferenceReview references={parsed.parsed.references} allowSources onSourceBusy={(id, value) => setSourceUploads(old => ({ ...old, [id]: value }))} />
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4"><p className="text-xs text-text-muted">Continuing confirms your reference review. Source uploads are optional.</p><Button disabled={working} onClick={() => { setReferencesReviewed(true); setStage('claims') }}>Continue to Claims</Button></div>
+      </>}
     </Panel>}
-    {parsed && extraction && <>
-      <ClaimExtractionPreview parsed={parsed.parsed} extraction={extraction} />
-      <Panel className="space-y-4">
-        <h2 className="text-lg font-semibold">4. Start verification</h2>
-        <p>{pairs} executable Claim–Reference pairs. Ambiguous and unresolved claims remain coverage gaps.</p>
-        <p className="text-sm text-warning">Verification may call external LLM, embedding and retrieval services and incur API fees. Completed processing does not mean the claim is supported.</p>
-        {extraction.status === 'partial' && <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={confirmedPartial} disabled={!!busy} onChange={e => setConfirmedPartial(e.target.checked)} />I reviewed the extraction coverage gaps and want to continue.</label>}
-        {pairs === 0 && <p className="text-warning">No executable pairs. Review the manuscript and extraction diagnostics.</p>}
-        <Button loading={busy === 'create'} disabled={!!busy || pairs === 0 || !['completed', 'partial'].includes(extraction.status) || (extraction.status === 'partial' && !confirmedPartial)} onClick={() => void perform('create', async () => {
-          const job = await createVerificationJob(buildJobCreateRequest(parsed, extraction))
-          try { localStorage.setItem('researchguard-recent-jobs', JSON.stringify([job.job_id, ...recent.filter(id => id !== job.job_id)].slice(0, 8))) } catch { /* Job persistence belongs to the backend. */ }
-          navigate(wholePaperJobPath(job.job_id))
-        })}>Start whole-paper verification</Button>
-      </Panel>
-    </>}
-    {recent.length > 0 && <Panel><h2 className="mb-3 font-semibold">Recent local jobs</h2>{recent.map(id => <Link key={id} className="block break-all text-sm text-primary hover:underline" to={wholePaperJobPath(id)}>{id}</Link>)}</Panel>}
+    {stage === 'claims' && parsed && referencesReviewed && <Panel className="space-y-4">
+      {!extraction ? <><h2 className="text-lg font-semibold">Review Claims</h2><p className="text-sm text-text-secondary">Extract citation claims for review. This calls your configured model and may incur API fees.</p><Button loading={busy === 'extract'} disabled={working} onClick={() => void extract()}>{busy === 'extract' ? 'Extracting claims…' : 'Extract claims'}</Button></> : <>
+        <ClaimExtractionPreview parsed={parsed.parsed} extraction={extraction} />
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4"><Button variant="ghost" size="sm" disabled={working} onClick={() => void extract()}>Extract again · API fees may apply</Button><Button disabled={working || !ready} onClick={() => { setClaimsReviewed(true); setStage('verification') }}>Continue to Verification</Button></div>
+      </>}
+    </Panel>}
+    {stage === 'verification' && parsed && extraction && claimsReviewed && <Panel className="space-y-4">
+      <h2 className="text-lg font-semibold">Start Verification</h2>
+      <p className="font-medium">{pairs} Claim–Reference pairs ready for verification</p>
+      <p className="text-sm text-text-secondary">{extraction.claims.filter(claim => claim.attribution_status !== 'resolved' || !claim.reference_ids.length).length} claims excluded from executable pairs · {extraction.claims.filter(claim => claim.attribution_status === 'ambiguous').length} ambiguous · {extraction.claims.filter(claim => claim.attribution_status === 'unresolved').length} unresolved</p>
+      {extraction.status === 'partial' && <label className="flex items-start gap-2 text-sm"><input type="checkbox" className="mt-1 shrink-0" checked={confirmedPartial} disabled={working} onChange={event => setConfirmedPartial(event.target.checked)} />I reviewed the extraction coverage gaps and want to continue.</label>}
+      <p className="text-sm text-warning">Verification may call external LLM, embedding and retrieval services and incur API fees. Processing completion does not mean scientific support.</p>
+      <Button disabled={working || !ready || (extraction.status === 'partial' && !confirmedPartial)} loading={busy === 'create'} onClick={() => void startVerification()}>Start Verification</Button>
+    </Panel>}
+    <RecentLocalJobs ids={recent} />
   </div>
 }

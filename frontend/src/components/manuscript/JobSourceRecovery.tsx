@@ -10,8 +10,9 @@ import { extractDoi } from '@/lib/doi'
 import { ApiResponseError } from '@/services/api'
 import type { Reference } from '@/types/manuscript'
 import type { JobTask, VerificationJob } from '@/types/verification-job'
+import { PdfPicker } from './PdfPicker'
 
-type Props = { job: VerificationJob; refresh: () => Promise<VerificationJob>; acceptSnapshot: (job: VerificationJob) => void }
+type Props = { job: VerificationJob; refresh: () => Promise<VerificationJob>; acceptSnapshot: (job: VerificationJob) => void; referenceIds?: string[] }
 function doiOf(ref?: Reference): string | null {
   if (!ref?.doi) return null
   const canonical = ref.doi.trim().replace(/^doi:\s*/i, '').replace(/^https?:\/\/(?:dx\.)?doi\.org\/\s*/i, '').trim().replace(/[.,;]+$/, '')
@@ -43,11 +44,11 @@ function SourceRecovery({ job, doi, refresh, acceptSnapshot }: Props & { doi: st
     } finally { working.current = false; setBusy(false) }
   }
   return <Panel className="space-y-3">
-    <h3 className="font-medium">Recover cited source</h3>
+    <h3 className="font-medium">Source Required</h3>
     <p className="text-sm">{refs[0]?.title ?? refs[0]?.raw_text ?? doi}</p>
     <p className="text-sm text-text-muted">DOI: {doi} · {refs.length} recoverable reference IDs</p>
     <p className="text-sm text-text-secondary">Upload the matching reference PDF. The current job and completed results are preserved.</p>
-    <label className="block text-sm">Source PDF for {doi}<input className="mt-2 block w-full" type="file" accept="application/pdf,.pdf" disabled={busy} onChange={e => { setFile(e.target.files?.[0] ?? null); setUploaded(null); setMessage(null) }} /></label>
+    <PdfPicker label={'Source PDF for ' + doi} file={file} disabled={busy} onChange={value => { setFile(value); setUploaded(null); setMessage(null) }} />
     {limits.data && <p className="text-xs text-text-muted">Source limit: {(limits.data.source_max_bytes / 1024 / 1024).toFixed(1)} MB</p>}
     {limits.error && <p role="alert">{wholePaperError(limits.error)}</p>}
     <Button variant="outline" disabled={busy || !file || !limits.data} onClick={() => void perform(async () => {
@@ -57,9 +58,10 @@ function SourceRecovery({ job, doi, refresh, acceptSnapshot }: Props & { doi: st
       const latest = await refresh()
       setUploaded({ hash: result.raw_content_sha256, revision: latest.revision, referenceIds: eligibleReferences(latest, doi).map(r => r.id) })
       setMessage('Source saved. Review the reference selection, then confirm resume.')
-    })}>{busy ? 'Working…' : 'Upload source PDF'}</Button>
+    })}>{busy ? 'Working…' : 'Upload PDF'}</Button>
     {uploaded && <div className="space-y-3">
       <p className="text-xs text-text-muted">Reviewed revision: {uploaded.revision}</p>
+      <details className="text-xs text-text-muted"><summary className="cursor-pointer">Accepted source details</summary><p className="break-all">Content hash: {uploaded.hash}</p></details>
       {refs.map(ref => <label key={ref.id} className="flex items-center gap-2 text-sm"><input type="checkbox" disabled={busy} checked={uploaded.referenceIds.includes(ref.id)} onChange={e => setUploaded({ ...uploaded, referenceIds: e.target.checked ? [...uploaded.referenceIds, ref.id] : uploaded.referenceIds.filter(id => id !== ref.id) })} />Resume reference {ref.id}</label>)}
       <p className="text-sm text-warning">Resuming these references may call paid verification and embedding APIs.</p>
       <Button disabled={busy || uploaded.referenceIds.length === 0} onClick={() => void perform(async () => {
@@ -73,7 +75,7 @@ function SourceRecovery({ job, doi, refresh, acceptSnapshot }: Props & { doi: st
         if (!selected.length) throw new Error('These references are no longer recoverable in the current state.')
         const resumed = await resumeVerificationJob(job.job_id, { expected_revision: latest.revision, reference_ids: selected, source_hashes: Object.fromEntries(selected.map(id => [id, uploaded.hash])), retry_failed: selected.some(id => latest.tasks.some(t => t.reference_id === id && t.state === 'failed')) })
         acceptSnapshot(resumed); setUploaded(null); setFile(null); setMessage('Resume accepted for the selected references.')
-      })}>Resume selected references</Button>
+      })}>Resume Verification</Button>
     </div>}
     {message && <p role="status" className="text-sm text-warning">{message}</p>}
   </Panel>
@@ -104,7 +106,7 @@ function UrlSourceRecovery({ job, referenceId, refresh, acceptSnapshot }: Props 
     finally { active.current = false; setBusy(false) }
   }
   return <Panel className="space-y-3">
-    <h3 className="font-medium">Recover URL source</h3><p>{ref?.title ?? referenceId}</p>
+    <h3 className="font-medium">Source Required · URL</h3><p>{ref?.title ?? referenceId}</p>
     <p className="break-all text-sm">{ref?.resolution?.source_url ?? ref?.url}</p>
     <p className="text-sm">Fetch the official document and validate its identity. This step does not run scientific verification.</p>
     <Button disabled={busy} variant="outline" onClick={() => void acquireOrResume(false)}>Fetch URL source</Button>
@@ -114,7 +116,7 @@ function UrlSourceRecovery({ job, referenceId, refresh, acceptSnapshot }: Props 
 }
 
 export function JobSourceRecovery(props: Props) {
-  const { job, refresh, acceptSnapshot } = props
+  const { job, refresh, acceptSnapshot, referenceIds } = props
   const groups = [...new Set(job.references.filter(r => job.tasks.some(t => t.reference_id === r.id && needsSource(t))).map(doiOf).filter((doi): doi is string => doi !== null))]
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -133,8 +135,8 @@ export function JobSourceRecovery(props: Props) {
     finally { active.current = false; setBusy(false) }
   }
   return <div className="space-y-4">
-    {groups.map(doi => <SourceRecovery key={job.job_id + doi} {...props} doi={doi} />)}
-    {job.references.filter(r => !r.doi && (r.resolution?.source_url || r.url) && job.tasks.some(t => t.reference_id === r.id && needsSource(t))).map(r => <UrlSourceRecovery key={r.id} {...props} referenceId={r.id} />)}
-    {processingRefs.length > 0 && <Panel className="space-y-3"><h2 className="font-semibold">Continue or retry processing</h2><p className="text-sm text-warning">This retries eligible unfinished tasks using their pinned sources. It may incur API fees; completed pairs are not rerun.</p>{processingRefs.map(id => <Button key={id} className="mr-2" variant="outline" disabled={busy} onClick={() => void retry(id)}>Retry reference {id}</Button>)}{message && <p role="alert" className="text-warning">{message}</p>}</Panel>}
+    {groups.map(doi => <div key={job.job_id + doi} hidden={!!referenceIds && !job.references.some(ref => referenceIds.includes(ref.id) && doiOf(ref) === doi)}><SourceRecovery {...props} doi={doi} /></div>)}
+    {job.references.filter(r => !r.doi && (r.resolution?.source_url || r.url) && job.tasks.some(t => t.reference_id === r.id && needsSource(t))).map(r => <div key={r.id} hidden={!!referenceIds && !referenceIds.includes(r.id)}><UrlSourceRecovery {...props} referenceId={r.id} /></div>)}
+    {processingRefs.some(id => !referenceIds || referenceIds.includes(id)) && <Panel className="space-y-3"><h2 className="font-semibold">Continue or retry processing</h2><p className="text-sm text-warning">This retries eligible unfinished tasks using their pinned sources. It may incur API fees; completed pairs are not rerun.</p>{processingRefs.filter(id => !referenceIds || referenceIds.includes(id)).map(id => <Button key={id} className="mr-2" variant="outline" disabled={busy} onClick={() => void retry(id)}>Retry reference {id}</Button>)}{message && <p role="alert" className="text-warning">{message}</p>}</Panel>}
   </div>
 }
