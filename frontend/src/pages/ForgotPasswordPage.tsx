@@ -44,7 +44,7 @@ export default function ForgotPasswordPage() {
     }
   }
 
-  if (isLocalDemo) return <Navigate to={ROUTES.APP_HOME} replace />
+  if (isLocalDemo) return <Navigate to={ROUTES.APP_MANUSCRIPTS} replace />
 
   if (submitted) {
     return (

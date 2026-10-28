@@ -50,7 +50,7 @@ export function GuestRoute() {
   }
 
   if (isAuthenticated) {
-    return <Navigate to={isLocalDemo ? ROUTES.APP_HOME : redirect} replace />
+    return <Navigate to={isLocalDemo ? ROUTES.APP_MANUSCRIPTS : redirect} replace />
   }
 
   return <Outlet />

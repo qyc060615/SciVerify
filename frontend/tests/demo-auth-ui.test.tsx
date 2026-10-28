@@ -65,6 +65,7 @@ function AuthStateProbe() {
 
 function mountRoute(path: string) {
   currentRouter = createMemoryRouter([
+    { path: '/', element: <><LandingNavbar /><LandingHero /><LandingCTA /></> },
     { element: <GuestRoute />, children: [
       { path: '/login', element: <LoginPage /> },
       { path: '/register', element: <RegisterPage /> },
@@ -73,6 +74,7 @@ function mountRoute(path: string) {
     { path: '/reset-password', element: <ResetPasswordPage /> },
     { element: <ProtectedRoute />, children: [{ element: <AppLayout />, children: [
       { path: '/app/home', element: <h1>Workspace ready</h1> },
+      { path: '/app/manuscripts', element: <h1>Whole-paper workspace ready</h1> },
       { path: '/app/verify', element: <VerifyPage /> },
       { path: '/app/verify/:verificationId', element: <VerifyPage /> },
       { path: '/app/history', element: <HistoryPage /> },
@@ -126,8 +128,8 @@ describe('Demo authentication and account UI', () => {
     const update = vi.spyOn(authService, 'updatePassword')
     const signOut = vi.spyOn(authService, 'signOut')
     const { router } = mountRoute(path)
-    await screen.findByRole('heading', { name: 'Workspace ready' })
-    expect(router.state.location.pathname).toBe('/app/home')
+    await screen.findByRole('heading', { name: 'Whole-paper workspace ready' })
+    expect(router.state.location.pathname).toBe('/app/manuscripts')
     expect(reset).not.toHaveBeenCalled()
     expect(update).not.toHaveBeenCalled()
     expect(signOut).not.toHaveBeenCalled()
@@ -135,11 +137,27 @@ describe('Demo authentication and account UI', () => {
 
   it('landing primary links enter Demo without a registration detour', () => {
     render(<MemoryRouter><AuthProvider><LandingNavbar /><LandingHero /><LandingCTA /></AuthProvider></MemoryRouter>)
-    expect(screen.getByRole('link', { name: 'Start verifying' }).getAttribute('href')).toBe('/app/home')
+    expect(screen.getByRole('link', { name: 'Start verifying' }).getAttribute('href')).toBe('/app/manuscripts')
     for (const link of screen.getAllByRole('link', { name: 'Enter Local Demo' })) {
-      expect(link.getAttribute('href')).toBe('/app/home')
+      expect(link.getAttribute('href')).toBe('/app/manuscripts')
     }
     expect(screen.queryByRole('link', { name: 'Sign in' })).toBeNull()
+  })
+
+  it.each(['Start verifying', 'Enter Local Demo'])('clicking landing %s opens the whole-paper workspace', async name => {
+    const { router } = mountRoute('/')
+    fireEvent.click(screen.getAllByRole('link', { name })[0])
+    await screen.findByRole('heading', { name: 'Whole-paper workspace ready' })
+    expect(router.state.location.pathname).toBe('/app/manuscripts')
+  })
+
+  it('mobile landing menu enters the whole-paper workspace', async () => {
+    const { router } = mountRoute('/')
+    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }))
+    const links = screen.getAllByRole('link', { name: 'Enter Local Demo' })
+    fireEvent.click(links[links.length - 2])
+    await screen.findByRole('heading', { name: 'Whole-paper workspace ready' })
+    expect(router.state.location.pathname).toBe('/app/manuscripts')
   })
 
   it('settings/sidebar expose only the local read-only identity, without logout/password actions', () => {

@@ -11,6 +11,7 @@ export const ROUTES = {
   APP: '/app',
   APP_HOME: '/app/home',
   APP_VERIFY: '/app/verify',
+  APP_REPOSITORY: '/app/repository',
   APP_HISTORY: '/app/history',
   APP_SETTINGS: '/app/settings',
   APP_MANUSCRIPTS: '/app/manuscripts',

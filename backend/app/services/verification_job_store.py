@@ -2,6 +2,7 @@
 from dataclasses import dataclass
 import hashlib
 import json
+import logging
 import os
 from pathlib import Path
 import re
@@ -185,6 +186,12 @@ class LocalJobStore:
                 os.replace(name, target)
             finally:
                 Path(name).unlink(missing_ok=True)
+            # A derived directory must never change the committed job's outcome.
+            try:
+                from app.services.task_literature import write_task_literature
+                write_task_literature(snapshot, self.root)
+            except (OSError, ValueError):
+                logging.getLogger(__name__).warning("task_literature_directory_write_failed job_id=%s", snapshot.job_id)
             return snapshot
         except (ValueError, TypeError, UnicodeError, RecursionError):
             raise JobError("JOB_SNAPSHOT_INVALID", 500) from None

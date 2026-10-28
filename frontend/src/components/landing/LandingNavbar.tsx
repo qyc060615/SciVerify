@@ -44,7 +44,7 @@ export function LandingNavbar() {
 
         <div className="hidden items-center gap-3 md:flex">
           {isLocalDemo || (!initializing && isAuthenticated) ? (
-            <Link to={ROUTES.APP_HOME}>
+            <Link to={isLocalDemo ? ROUTES.APP_MANUSCRIPTS : ROUTES.APP_HOME}>
               <Button size="sm">{isLocalDemo ? 'Enter Local Demo' : 'Workspace'}</Button>
             </Link>
           ) : (
@@ -90,7 +90,7 @@ export function LandingNavbar() {
           ))}
           <div className="mt-3 flex flex-col gap-2 border-t border-border pt-4">
             {isLocalDemo || (!initializing && isAuthenticated) ? (
-              <Link to={ROUTES.APP_HOME} onClick={() => setOpen(false)}>
+              <Link to={isLocalDemo ? ROUTES.APP_MANUSCRIPTS : ROUTES.APP_HOME} onClick={() => setOpen(false)}>
                 <Button className="w-full">{isLocalDemo ? 'Enter Local Demo' : 'Workspace'}</Button>
               </Link>
             ) : (

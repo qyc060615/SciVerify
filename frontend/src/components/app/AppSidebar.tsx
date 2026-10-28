@@ -1,12 +1,11 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import {
   History,
-  LayoutDashboard,
+  Library,
   LogOut,
   Menu,
   Settings,
   ShieldCheck,
-  Sparkles,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useState } from 'react'
@@ -21,8 +20,8 @@ import { Drawer } from '@/components/ui/Drawer'
 import type { LucideIcon } from 'lucide-react'
 
 const workspaceItems = [
-  { label: 'Dashboard', to: ROUTES.APP_HOME, icon: LayoutDashboard },
-  { label: 'New Verification', to: ROUTES.APP_VERIFY, icon: Sparkles },
+  { label: 'Whole-paper Verification', to: ROUTES.APP_MANUSCRIPTS, icon: ShieldCheck },
+  { label: 'Repository', to: ROUTES.APP_REPOSITORY, icon: Library },
   { label: 'History', to: ROUTES.APP_HISTORY, icon: History },
 ]
 
@@ -48,12 +47,13 @@ function NavSection({
       </p>
       <div className="flex flex-col gap-0.5">
         {items.map((item) => {
-          const active = location.pathname === item.to || (item.to === ROUTES.APP_MANUSCRIPTS && location.pathname.startsWith(item.to + '/'))
+          const active = location.pathname === item.to || location.pathname.startsWith(item.to + '/')
           const Icon = item.icon
 
           return (
             <Link
               key={item.to}
+              aria-current={active ? 'page' : undefined}
               to={item.to}
               onClick={onNavigate}
               className={cn(
@@ -134,7 +134,7 @@ export function AppSidebar({
   return (
     <div className={cn('flex h-full flex-col', mobile ? 'p-2' : 'p-4')}>
       <Link
-        to={ROUTES.APP_HOME}
+        to={isLocalDemoMode() ? ROUTES.APP_MANUSCRIPTS : ROUTES.APP_HOME}
         onClick={onNavigate}
         className="mb-8 flex items-center gap-2.5 text-text-primary"
       >
@@ -148,7 +148,7 @@ export function AppSidebar({
       </Link>
 
       <div className="flex flex-1 flex-col gap-6">
-        <NavSection title="Workspace" items={isLocalDemoMode() ? [...workspaceItems, { label: 'Whole-paper Verification', to: ROUTES.APP_MANUSCRIPTS, icon: ShieldCheck }] : workspaceItems} onNavigate={onNavigate} />
+        <NavSection title="Workspace" items={isLocalDemoMode() ? workspaceItems : workspaceItems.filter(item => item.to === ROUTES.APP_HISTORY)} onNavigate={onNavigate} />
         <NavSection title="Account" items={accountItems} onNavigate={onNavigate} />
       </div>
 

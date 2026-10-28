@@ -10,6 +10,8 @@ import ForgotPasswordPage from '@/pages/ForgotPasswordPage'
 import ResetPasswordPage from '@/pages/ResetPasswordPage'
 import AppHomePage from '@/pages/AppHomePage'
 import VerifyPage from '@/pages/VerifyPage'
+import RepositoryPage from '@/pages/RepositoryPage'
+import { isLocalDemoMode } from '@/lib/demo-mode'
 import HistoryPage from '@/pages/HistoryPage'
 import SettingsPage from '@/pages/SettingsPage'
 import { ROUTES } from '@/constants'
@@ -62,13 +64,14 @@ export const router = createBrowserRouter([
           {
             element: <WholePaperRoute />,
             children: [
+              { path: 'repository', element: <RepositoryPage /> },
               { path: 'manuscripts', element: <WholePaperVerifyPage /> },
               { path: 'manuscripts/jobs/:jobId', element: <WholePaperJobPage /> },
             ],
           },
           {
             index: true,
-            element: <Navigate to={ROUTES.APP_HOME} replace />,
+            element: <Navigate to={isLocalDemoMode() ? ROUTES.APP_MANUSCRIPTS : ROUTES.APP_HOME} replace />,
           },
           {
             path: 'home',

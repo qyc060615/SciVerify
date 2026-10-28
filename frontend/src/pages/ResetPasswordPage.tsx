@@ -51,7 +51,7 @@ export default function ResetPasswordPage() {
     }
   }
 
-  if (isLocalDemo) return <Navigate to={ROUTES.APP_HOME} replace />
+  if (isLocalDemo) return <Navigate to={ROUTES.APP_MANUSCRIPTS} replace />
 
   if (initializing) {
     return (
