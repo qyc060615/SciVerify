@@ -1,6 +1,11 @@
 import { ApiResponseError } from './api'
 
 const messages: Record<string, string> = {
+  GROBID_UNAVAILABLE: 'Cannot connect to GROBID. Start the parser and publish its port to the host (default: 8070).',
+  GROBID_TIMEOUT: 'GROBID timed out while parsing this PDF. Check the parser and try again.',
+  GROBID_BUSY: 'GROBID is busy. Wait for the current parsing request to finish and try again.',
+  GROBID_CONFIGURATION_ERROR: 'GROBID configuration is invalid. Check its Base URL and parser limits.',
+  MANUSCRIPT_PARSE_FAILED: 'GROBID could not parse this manuscript. Check the parser and use a PDF with extractable text.',
   JOBS_DISABLED: 'Whole-paper jobs are disabled. Enable RESEARCHGUARD_JOBS_ENABLED on your local backend.',
   JOB_NOT_FOUND: 'This job was not found on the local backend.',
   JOBS_LOCAL_ONLY: 'Whole-paper jobs are available only from a local loopback connection.',
