@@ -6,10 +6,11 @@ import { ApiResponseError } from '@/services/api'
 import { jobFixture, jobId } from './fixtures/job'
 import type { VerificationJob } from '@/types/verification-job'
 
-const actions = vi.hoisted(() => ({ upload: vi.fn(), resume: vi.fn(), limits: vi.fn(), acquire: vi.fn() }))
+const actions = vi.hoisted(() => ({ upload: vi.fn(), resume: vi.fn(), limits: vi.fn(), check: vi.fn(), acquire: vi.fn() }))
 vi.mock('@/services/verificationService', () => ({ uploadManualSource: actions.upload }))
 vi.mock('@/services/verificationJobService', () => ({ resumeVerificationJob: actions.resume, acquireJobSource: actions.acquire }))
 vi.mock('@/services/manuscriptService', async original => ({ ...await original<object>(), getUploadLimits: actions.limits }))
+vi.mock('@/services/sourceService', async original => ({ ...await original<object>(), checkReferenceSource: actions.check }))
 const hash = 'd'.repeat(64)
 function recoveryJob() {
   const job = jobFixture()
@@ -25,12 +26,11 @@ function renderRecovery(job = recoveryJob()) {
 async function upload() {
   const input = await screen.findByLabelText('Source PDF for 10.1234/source')
   fireEvent.change(input, { target: { files: [new File(['%PDF-source'], 'source.pdf', { type: 'application/pdf' })] } })
-  await waitFor(() => expect((screen.getByRole('button', { name: 'Upload PDF' }) as HTMLButtonElement).disabled).toBe(false))
-  fireEvent.click(screen.getByRole('button', { name: 'Upload PDF' }))
   await screen.findByRole('button', { name: 'Resume Verification' })
 }
 beforeEach(() => {
   vi.clearAllMocks(); actions.limits.mockResolvedValue({ manuscript_max_bytes: 100, source_max_bytes: 100 })
+  actions.check.mockResolvedValue({ state: 'available', format: 'pdf', raw_content_sha256: hash })
   actions.upload.mockResolvedValue({ status: 'accepted', doi: '10.1234/source', raw_content_sha256: hash, identity_match: 'doi' })
   actions.resume.mockResolvedValue({ ...recoveryJob(), status: 'running', revision: 7 })
 })
@@ -71,11 +71,11 @@ it('shows a pinned source hash conflict without automatic retries', async () => 
 })
 it.each([null, 'invalid', 'See 10.1234/source'])('does not offer upload for a missing or invalid DOI', doi => {
   const job = jobFixture(); job.references = job.references.map(r => r.id === 'r4' ? { ...r, doi } : r)
-  renderRecovery(job); expect(screen.queryByRole('button', { name: 'Upload PDF' })).toBeNull()
+  renderRecovery(job); expect(screen.queryByRole('button', { name: 'Upload file' })).toBeNull()
 })
 it('uses explicit retry_failed for verifier failure rather than pretending a PDF is missing', async () => {
   const job: VerificationJob = jobFixture(); job.tasks = [ { ...job.tasks[0], state: 'failed', resume_available: true, reason_code: 'VERIFIER_EXECUTION_FAILURE', pair_outcome: null } ]
-  renderRecovery(job); expect(screen.queryByRole('button', { name: 'Upload PDF' })).toBeNull()
+  renderRecovery(job); expect(screen.queryByRole('button', { name: 'Upload file' })).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Retry reference r3' }))
   await waitFor(() => expect(actions.resume).toHaveBeenCalledWith(jobId, { expected_revision: 6, reference_ids: ['r3'], retry_failed: true }))
 })
@@ -84,7 +84,7 @@ it('acquires a URL document first and requires separate explicit paid resume con
   const job = recoveryJob(); job.references = job.references.map(r => r.id === 'r4' ? { ...r, doi: null, url: 'https://www.fda.gov/media/123/download' } : r)
   actions.acquire.mockResolvedValue({ status: 'accepted', raw_content_sha256: hash, source: {} })
   const { acceptSnapshot } = renderRecovery(job)
-  expect(screen.queryByRole('button', { name: 'Upload PDF' })).toBeNull()
+  expect(screen.queryByRole('button', { name: 'Upload file' })).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Fetch URL source' }))
   await screen.findByRole('button', { name: 'Confirm resume URL reference' })
   expect(actions.acquire).toHaveBeenCalledWith(jobId, 'r4', 6)

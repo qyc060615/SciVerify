@@ -14,22 +14,22 @@ export default function AppLayout() {
   const historyWarning = useVerificationStore((state) => state.warning)
 
   return (
-    <div className="min-h-screen bg-background text-text-primary">
+    <div className="h-dvh overflow-hidden bg-background text-text-primary">
       <HistoryHydrator />
-      <div className="flex min-h-screen">
+      <div className="flex h-full min-h-0">
         <aside className="hidden w-64 shrink-0 border-r border-border bg-surface/95 lg:block">
           <AppSidebar />
         </aside>
 
-        <div className="flex min-w-0 flex-1 flex-col">
-          <div className="flex items-center border-b border-border px-4 py-3 lg:hidden">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <div className="flex shrink-0 items-center border-b border-border px-4 py-3 lg:hidden">
             <AppMobileMenuButton onClick={() => setMobileOpen(true)} />
             <span className="ml-3 text-sm font-medium text-text-primary">
               SciVerify Workspace
             </span>
           </div>
 
-          <main className="mx-auto w-full max-w-6xl flex-1 overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+          <main className="mx-auto w-full max-w-6xl min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
             {historyWarning ? (
               <p role="status" className="mb-4 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-text-secondary">
                 {historyWarning}

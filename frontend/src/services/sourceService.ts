@@ -42,6 +42,15 @@ export function sourceAvailable(source?: PreparedSource) {
   return source?.state === 'available' && /^[a-f0-9]{64}$/.test(source.raw_content_sha256 ?? '') && ['pdf', 'html'].includes(source.format ?? '')
 }
 
+// Only a completed acquisition failure or explicit identity conflict permits repair.
+// Candidate/version warnings alone do not establish that retrieval failed.
+export function sourceNeedsUpload(source?: PreparedSource) {
+  if (!source) return false
+  if (source.identity === 'CONFLICT' || source.reason_code === 'SOURCE_IDENTITY_CONFLICT') return true
+  if (sourceAvailable(source)) return false
+  return ['unavailable', 'failed'].includes(source.state) || source.state === 'available'
+}
+
 export async function checkReferenceSource(reference: Reference, signal?: AbortSignal): Promise<PreparedSource> {
   const result = (await apiClient.post<PreparedSource>('/api/sources/prepare', { reference, retrieve: false }, { signal, timeout: 120_000 })).data
   if (result.reference_id !== reference.id) throw new Error('The source check returned another reference.')

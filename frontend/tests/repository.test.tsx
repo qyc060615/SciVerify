@@ -68,7 +68,7 @@ describe('Workspace navigation', () => {
     expect(screen.queryByRole('link', { name: 'Dashboard' })).toBeNull()
     expect(screen.queryByRole('link', { name: 'New Verification' })).toBeNull()
     expect(screen.getByRole('link', { name: 'Whole-paper Verification' }).getAttribute('aria-current')).toBe('page')
-    expect(screen.getByRole('link', { name: /SciVerify/ }).getAttribute('href')).toBe('/app/manuscripts')
+    expect(screen.getByRole('link', { name: /ResearchGuard/ }).getAttribute('href')).toBe('/app/manuscripts')
     fireEvent.click(screen.getByRole('link', { name: 'Repository' }))
     if (mobile) expect(close).toHaveBeenCalledOnce()
     expect(screen.getByRole('link', { name: 'Repository' }).getAttribute('aria-current')).toBe('page')
@@ -76,7 +76,7 @@ describe('Workspace navigation', () => {
   it('preserves the non-demo home destination and local-only feature gates', () => {
     vi.stubEnv('VITE_LOCAL_DEMO_MODE', 'false')
     render(<MemoryRouter><AppSidebar /></MemoryRouter>)
-    expect(screen.getByRole('link', { name: /SciVerify/ }).getAttribute('href')).toBe('/app/home')
+    expect(screen.getByRole('link', { name: /ResearchGuard/ }).getAttribute('href')).toBe('/app/home')
     expect(screen.queryByRole('link', { name: 'Repository' })).toBeNull()
     expect(screen.getByRole('link', { name: 'History' }).getAttribute('href')).toBe('/app/history')
   })

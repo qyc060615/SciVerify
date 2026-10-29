@@ -30,6 +30,8 @@ beforeEach(() => {
     { id: 'backend', label: 'FastAPI Backend', state: 'ok', message: 'API responded.', scope: 'HTTP only' },
     { id: 'grobid', label: 'GROBID Parser', state: 'failed', message: 'Parser is unavailable.', scope: 'Health check' },
     { id: 'llm', label: 'LLM Provider', state: 'unknown', message: 'Not checked.', scope: 'No inference' },
+    { id: 'paperqa', label: 'PaperQA2 Model', state: 'unknown', message: 'Not checked.', scope: 'No inference' },
+    { id: 'embedding', label: 'Embedding Provider', state: 'unknown', message: 'Not checked.', scope: 'No inference' },
   ])
 })
 afterEach(() => { cleanup(); vi.restoreAllMocks() })
@@ -72,7 +74,10 @@ describe('System status stays compact and explicit', () => {
     await screen.findByText('FastAPI Backend')
     expect(screen.getByRole('img', { name: 'Passed' })).toBeTruthy()
     expect(screen.getByRole('img', { name: 'Failed' })).toBeTruthy()
-    expect(screen.getByRole('img', { name: 'Not checked' })).toBeTruthy()
+    expect(screen.queryByText('LLM Provider')).toBeNull()
+    expect(screen.queryByText('PaperQA2 Model')).toBeNull()
+    expect(screen.queryByText('Embedding Provider')).toBeNull()
+    expect(screen.queryByRole('img', { name: 'Not checked' })).toBeNull()
     expect(service.refreshSystemStatus).not.toHaveBeenCalled()
     fireEvent.click(screen.getByRole('button', { name: 'Refresh', exact: true }))
     await waitFor(() => expect(service.refreshSystemStatus).toHaveBeenCalledWith('local-test-token'))
@@ -88,7 +93,7 @@ it('does not keep green statuses after a failed refresh', async () => {
   fireEvent.click(screen.getByRole('button', { name: 'Refresh', exact: true }))
   await screen.findByRole('alert')
   expect(screen.queryByRole('img', { name: 'Passed' })).toBeNull()
-  expect(screen.getAllByRole('img', { name: 'Not checked' })).toHaveLength(3)
+  expect(screen.getAllByRole('img', { name: 'Not checked' })).toHaveLength(2)
 })
 
 describe('Real configuration form interactions with offline service fixtures', () => {

@@ -27,7 +27,7 @@ export function LandingNavbar() {
           <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface-elevated">
             <ShieldCheck className="h-4 w-4 text-primary" />
           </span>
-          <span className="text-base font-semibold tracking-tight">SciVerify</span>
+          <span className="text-base font-semibold tracking-tight">ResearchGuard</span>
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">

@@ -223,7 +223,7 @@ def test_each_public_service_probe_checks_its_actual_response_schema(api, monkey
     response = api.post('/api/settings/connections/' + id + '/test', headers=headers,
                         json={'values': row(data, id)['values']})
     assert response.status_code == 200 and response.json()['state'] == 'ok'
-    assert len(requests) == (2 if id == 'semantic_scholar' else 1)
+    assert len(requests) == 1
 
 
 def test_test_of_pending_model_cannot_mark_active_model_as_passed(api, monkeypatch):
@@ -263,3 +263,40 @@ def test_non_text_model_payload_cannot_report_success(api, monkeypatch):
     data, headers = config(api)
     response = api.post('/api/settings/connections/llm/test', headers=headers, json={'values': row(data)['values'], 'allow_paid': True})
     assert response.json()['state'] == 'failed'
+
+
+@pytest.mark.parametrize('id', ['openalex', 'semantic_scholar'])
+@pytest.mark.parametrize('status', [200, 301, 401, 403, 429, 503])
+def test_discovery_sites_need_only_a_real_https_response(api, monkeypatch, id, status):
+    requests = []
+    def handler(request):
+        requests.append(request)
+        assert request.url.scheme == 'https'
+        return httpx.Response(status, text='Not a metadata JSON response')
+    transport(monkeypatch, handler)
+    data, headers = config(api)
+    response = api.post('/api/settings/connections/' + id + '/test', headers=headers,
+                        json={'values': row(data, id)['values']})
+    assert response.json()['state'] == 'ok'
+    assert response.json()['message'] == 'Reachable'
+    assert 'not API readiness' in response.json()['scope']
+    assert len(requests) == 1
+
+
+@pytest.mark.parametrize('id', ['openalex', 'semantic_scholar'])
+@pytest.mark.parametrize('failure', [httpx.ConnectError, httpx.ConnectTimeout, httpx.RemoteProtocolError])
+def test_discovery_site_transport_failures_are_not_reachable(api, monkeypatch, id, failure):
+    def handler(request):
+        raise failure('Private network diagnostic', request=request)
+    transport(monkeypatch, handler)
+    data, headers = config(api)
+    response = api.post('/api/settings/connections/' + id + '/test', headers=headers,
+                        json={'values': row(data, id)['values']})
+    assert response.json()['state'] == 'failed'
+    assert 'Private network diagnostic' not in response.text
+
+
+def test_reachability_does_not_allow_plain_http_or_private_addresses():
+    for value in ['http://api.openalex.org', 'https://127.0.0.1', 'https://192.168.1.1']:
+        result = checks.probe('openalex', {'base_url': value})
+        assert result['state'] == 'failed'

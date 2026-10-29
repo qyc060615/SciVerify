@@ -96,7 +96,7 @@ function UserSection({ onNavigate }: { onNavigate?: () => void }) {
   }
 
   return (
-    <div className="mt-auto border-t border-border pt-4">
+    <div className="mt-auto shrink-0 border-t border-border pt-4">
       <div className="mb-3 flex items-center gap-3 rounded-lg border border-border/80 bg-surface-elevated/60 p-3">
         <Avatar name={displayName} size="sm" />
         <div className="min-w-0">
@@ -132,22 +132,22 @@ export function AppSidebar({
   onNavigate?: () => void
 }) {
   return (
-    <div className={cn('flex h-full flex-col', mobile ? 'p-2' : 'p-4')}>
+    <div className={cn('flex h-full min-h-0 flex-col', mobile ? 'p-2' : 'p-4')}>
       <Link
         to={isLocalDemoMode() ? ROUTES.APP_MANUSCRIPTS : ROUTES.APP_HOME}
         onClick={onNavigate}
-        className="mb-8 flex items-center gap-2.5 text-text-primary"
+        className="mb-8 flex shrink-0 items-center gap-2.5 text-text-primary"
       >
-        <span className="flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-surface-elevated">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-elevated">
           <ShieldCheck className="h-4 w-4 text-primary" />
         </span>
         <div>
-          <span className="block font-semibold tracking-tight">SciVerify</span>
+          <span className="block font-semibold tracking-tight">ResearchGuard</span>
           <span className="block text-[11px] text-text-muted">Research workspace</span>
         </div>
       </Link>
 
-      <div className="flex flex-1 flex-col gap-6">
+      <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto pb-4">
         <NavSection title="Workspace" items={isLocalDemoMode() ? workspaceItems : workspaceItems.filter(item => item.to === ROUTES.APP_HISTORY)} onNavigate={onNavigate} />
         <NavSection title="Account" items={accountItems} onNavigate={onNavigate} />
       </div>

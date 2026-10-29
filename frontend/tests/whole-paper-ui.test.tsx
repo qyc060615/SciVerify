@@ -63,7 +63,7 @@ describe('whole-paper upload and review', () => {
     await screen.findByText('Review Claims')
     expect(services.extract).toHaveBeenCalledWith(fixture.parse_response)
     fireEvent.click(screen.getByRole('button', { name: 'Continue to Verification' }))
-    expect(screen.getByText(/may call external LLM/)).toBeTruthy()
+    expect(screen.queryByText(/may call external LLM/)).toBeNull()
     const start = screen.getByRole('button', { name: 'Start Verification' })
     fireEvent.click(start); fireEvent.click(start)
     await screen.findByText('Verification overview')
@@ -350,12 +350,14 @@ it('many reference results use a neutral count and keep all independent explanat
   expect(document.querySelector('[class*="overflow-y-auto"]')).toBeNull()
 })
 
-it('a claim without executable pairs shows an attribution reason and no scientific conclusion', () => {
+it('a claim without actual tasks stays in folded coverage and outside the report body', () => {
   const job = structuredClone(jobFixture())
   job.tasks = []; job.claims[0].attribution_status = 'ambiguous'
   renderReport(job)
-  expect(screen.getByLabelText('Pair verdicts').textContent).toBe('Needs Attention')
-  expect(screen.getByText('Citation attribution is ambiguous.')).toBeTruthy()
+  expect(screen.queryByTestId('claim-result')).toBeNull()
+  expect(screen.queryByText('Needs Attention')).toBeNull()
+  expect(screen.getByText('1 claims excluded from verification')).toBeTruthy()
+  expect(screen.getByText('Attribution: ambiguous').closest('details')?.open).toBe(false)
   expect(screen.queryByText(/Confidence:/)).toBeNull()
 })
 
@@ -415,4 +417,31 @@ it('allows continuing to Claims while a source is unfinished and cancels its UI 
   await screen.findByRole('button', { name: 'Extract claims' })
   expect(pending?.aborted).toBe(true)
   expect(services.create).not.toHaveBeenCalled()
+})
+
+
+it('uses actual tasks, preserves extraction order and original numbers even with mixed attribution', () => {
+  const job = structuredClone(jobFixture())
+  const original = job.claims[0]
+  job.claims = [
+    { ...original, id: 'excluded-first', text: 'No task despite resolved attribution.', attribution_status: 'resolved' },
+    { ...original, id: 'has-pair', text: 'Ambiguous claim with a real planned pair.', attribution_status: 'ambiguous' },
+    { ...original, id: 'excluded-last', text: 'Unresolved and excluded.', attribution_status: 'unresolved' },
+    { ...original, id: 'has-pending', text: 'Pending claim still belongs in report.' },
+  ]
+  job.tasks = [
+    { ...job.tasks[1], claim_id: 'has-pair', state: 'blocked_source' },
+    { ...job.tasks[0], claim_id: 'has-pending', state: 'pending' },
+  ]
+  renderReport(job)
+  const cards = screen.getAllByTestId('claim-result')
+  expect(cards).toHaveLength(2)
+  expect(cards[0].textContent).toContain('Claim 02')
+  expect(cards[0].textContent).toContain('Ambiguous claim with a real planned pair.')
+  expect(cards[1].textContent).toContain('Claim 04')
+  expect(cards[1].textContent).toContain('Pending claim still belongs in report.')
+  expect(screen.getByText('2 claims excluded from verification')).toBeTruthy()
+  expect(screen.getByText('2 claims · 1/2 pairs processed')).toBeTruthy()
+  expect(screen.queryByText('Needs Attention')).toBeNull()
+  expect(screen.getByText(/No task despite resolved attribution/).closest('details')?.open).toBe(false)
 })

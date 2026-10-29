@@ -48,6 +48,16 @@ def _request(client, method, url, **kwargs):
             raise CheckFailure('The service returned an unexpected response.') from None
 
 
+def _reachable(client, url):
+    # Read headers only. TLS verification and the public transport's SSRF checks
+    # remain enabled; any final HTTP response proves endpoint reachability.
+    if urlsplit(url).scheme != 'https':
+        raise CheckFailure('A secure HTTPS endpoint is required.')
+    with client.stream('GET', url) as response:
+        if not 200 <= response.status_code <= 599:
+            raise CheckFailure('No valid HTTP response was received.')
+
+
 def probe(id, row):
     """Return semantic check descriptions only, never provider bodies or exception text."""
     spec = CATALOG[id]
@@ -63,6 +73,8 @@ def probe(id, row):
             return result('unknown', 'Set a Base URL and Model ID before testing.')
     try:
         base = validate_url(row['base_url'])
+        if id in {'openalex', 'semantic_scholar'} and (urlsplit(base).scheme != 'https' or loopback(urlsplit(base).hostname)):
+            raise CheckFailure('A public HTTPS endpoint is required.')
         with client_for(base) as client:
             headers = {'Accept': 'application/json'}
             if row.get('_key'):
@@ -92,20 +104,10 @@ def probe(id, row):
                 data = _request(client, 'GET', base + '/works', params={'rows': 1}, headers={'User-Agent': row['user_agent']})
                 if not isinstance(data.get('message', {}).get('items'), list):
                     raise CheckFailure('Crossref metadata response was not recognized.')
-            elif id == 'openalex':
-                data = _request(client, 'GET', base + '/works', params={'per_page': 1}, headers=headers)
-                if not isinstance(data.get('results'), list):
-                    raise CheckFailure('OpenAlex metadata response was not recognized.')
-                scope = 'One metadata query; optional key checked for metadata search, not every retrieval path.'
-            elif id == 'semantic_scholar':
-                doi = 'DOI:10.1038/nature12373'
-                data = _request(client, 'GET', base + '/paper/' + doi)
-                other = validate_url(row['retrieval_base_url'])
-                with client_for(other) as graph:
-                    full = _request(graph, 'GET', other + '/paper/' + doi, params={'fields': 'title'})
-                if not data.get('title') or not full.get('title'):
-                    raise CheckFailure('The resolver or Graph metadata response was not recognized.')
-                scope = 'Both legacy resolver and Graph endpoints returned paper metadata.'
+            elif id in {'openalex', 'semantic_scholar'}:
+                _reachable(client, base)
+                scope = 'HTTPS reachability only; not API readiness or search success.'
+                return result('ok', 'Reachable')
             elif id == 'europe_pmc':
                 data = _request(client, 'GET', base + '/search', params={'query': 'EXT_ID:23925245', 'format': 'json', 'pageSize': 1})
                 if 'resultList' not in data:

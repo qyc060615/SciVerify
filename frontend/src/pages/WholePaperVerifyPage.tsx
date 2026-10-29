@@ -94,7 +94,7 @@ export default function WholePaperVerifyPage() {
       </>}
     </Panel>}
     {stage === 'claims' && parsed && referencesReviewed && <Panel className="space-y-4">
-      {!extraction ? <><h2 className="text-lg font-semibold">Review Claims</h2><p className="text-sm text-text-secondary">Extract citation claims for review. This calls your configured model and may incur API fees.</p><Button loading={busy === 'extract'} disabled={working} onClick={() => void extract()}>{busy === 'extract' ? 'Extracting claims…' : 'Extract claims'}</Button></> : <>
+      {!extraction ? <><h2 className="text-lg font-semibold">Review Claims</h2><Button loading={busy === 'extract'} disabled={working} onClick={() => void extract()}>{busy === 'extract' ? 'Extracting claims…' : 'Extract claims'}</Button></> : <>
         <ClaimExtractionPreview parsed={parsed.parsed} extraction={extraction} />
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4"><Button variant="ghost" size="sm" disabled={working} onClick={() => void extract()}>Extract again · API fees may apply</Button><Button disabled={working || !ready} onClick={() => { setClaimsReviewed(true); setStage('verification') }}>Continue to Verification</Button></div>
       </>}
@@ -102,9 +102,7 @@ export default function WholePaperVerifyPage() {
     {stage === 'verification' && parsed && extraction && claimsReviewed && <Panel className="space-y-4">
       <h2 className="text-lg font-semibold">Start Verification</h2>
       <p className="font-medium">{pairs} Claim–Reference pairs ready</p>
-      {extraction.claims.some(claim => claim.attribution_status !== 'resolved' || !claim.reference_ids.length) && <p className="text-sm text-warning">{extraction.claims.filter(claim => claim.attribution_status !== 'resolved' || !claim.reference_ids.length).length} claims need attention</p>}
       {extraction.status === 'partial' && <label className="flex items-start gap-2 text-sm"><input type="checkbox" className="mt-1 shrink-0" checked={confirmedPartial} disabled={working} onChange={event => setConfirmedPartial(event.target.checked)} />I reviewed the extraction coverage gaps and want to continue.</label>}
-      <p className="text-sm text-warning">Verification may call external LLM, embedding and retrieval services and incur API fees. Processing completion does not mean scientific support.</p>
       <Button disabled={working || !ready || (extraction.status === 'partial' && !confirmedPartial)} loading={busy === 'create'} onClick={() => void startVerification()}>Start Verification</Button>
     </Panel>}
     <RecentLocalJobs ids={recent} />

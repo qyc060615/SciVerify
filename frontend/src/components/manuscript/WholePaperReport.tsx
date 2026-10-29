@@ -65,6 +65,8 @@ function PairCard({ task, job }: { task: JobTask; job: VerificationJob }) {
 
 export function WholePaperReport({ job, fileLabel, recovery }: { job: VerificationJob; fileLabel?: string; recovery?: (referenceIds: string[]) => ReactNode }) {
   const coverage = job.coverage
+  const plannedClaims = new Set(job.tasks.map(task => task.claim_id))
+  const excluded = job.claims.filter(claim => !plannedClaims.has(claim.id))
   const recoveryPanel = useRef<HTMLDetailsElement>(null)
   const [selectedReferences, setSelectedReferences] = useState<string[] | null>(null)
   const [showReferences, setShowReferences] = useState(false)
@@ -80,7 +82,7 @@ export function WholePaperReport({ job, fileLabel, recovery }: { job: Verificati
     <Panel className="space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="font-semibold">Verification overview</h2><Badge variant={job.status === 'running' ? 'primary' : job.status === 'failed' ? 'danger' : 'default'}>{job.status.replaceAll('_', ' ')}</Badge></div>
       <p className="break-words text-sm [overflow-wrap:anywhere]">{fileLabel || 'Saved job ' + job.job_id.slice(0, 16) + '…'}</p>
-      <p className="text-sm">{job.claims.length} claims · {coverage.completed_pairs}/{coverage.total_pairs} pairs processed</p>
+      <p className="text-sm">{job.claims.length - excluded.length} claims · {coverage.completed_pairs}/{coverage.total_pairs} pairs processed</p>
       {coverage.total_pairs > 0 ? <progress className="h-1.5 w-full accent-primary" value={coverage.completed_pairs} max={coverage.total_pairs} aria-label="Completed Claim–Reference pairs" /> : <p className="text-sm">No executable pairs. Completion percentage is not applicable.</p>}
       {coverage.total_pairs > 0 && <p className="text-xs text-text-muted">Processing progress does not indicate scientific support.</p>}
       {!coverage.coverage_complete && (coverage.ambiguous_claims + coverage.unresolved_claims + coverage.failed_extraction_contexts + coverage.skipped_extraction_contexts > 0) && <p className="text-xs text-warning">Extraction or attribution coverage is incomplete. Review affected claims and diagnostics.</p>}
@@ -88,8 +90,15 @@ export function WholePaperReport({ job, fileLabel, recovery }: { job: Verificati
       {job.runtime_error_code && <p role="alert" className="text-sm text-warning">The worker could not finish this step. Committed results remain visible.</p>}
     </Panel>
     {recovery && recoverable.length > 0 && <details ref={recoveryPanel} className="min-w-0 rounded-xl border border-border p-4"><summary className="cursor-pointer text-sm text-primary" onClick={() => setSelectedReferences(null)}>Source recovery</summary><div className="mt-3">{recovery(selectedReferences ?? recoverable)}</div></details>}
+    {excluded.length > 0 && <div className="space-y-2 text-sm">
+      <p>{excluded.length} claims excluded from verification</p>
+      <details className="text-xs text-text-secondary"><summary className="cursor-pointer text-primary">Coverage Details</summary><div className="mt-2 space-y-2">
+        {excluded.map(claim => <div key={claim.id}><p>Claim {String(job.claims.indexOf(claim) + 1).padStart(2, '0')} · {claim.text}</p><p>{job.attribution_blocked.find(item => item.claim_id === claim.id)?.reason_code ?? 'No executable reference pairs were recorded.'}</p><p>Attribution: {claim.attribution_status ?? 'unknown'}</p></div>)}
+      </div></details>
+    </div>}
     <div className="space-y-3" aria-label="Claim results">
       {job.claims.map((claim, index) => {
+        if (!plannedClaims.has(claim.id)) return null
         const tasks = job.tasks.filter(task => task.claim_id === claim.id)
         const paragraph = job.paragraphs.find(item => item.id === claim.paragraph_id)
         const single = tasks.length === 1 ? tasks[0] : undefined
@@ -99,12 +108,11 @@ export function WholePaperReport({ job, fileLabel, recovery }: { job: Verificati
         return <article key={claim.id} className="min-w-0 space-y-2 rounded-xl border border-border bg-surface px-4 py-3" data-testid="claim-result">
           <div className="flex flex-wrap items-start justify-between gap-2"><h2 className="text-xs font-semibold text-text-muted">Claim {String(index + 1).padStart(2, '0')}</h2>
             <div className="flex min-w-0 flex-wrap justify-end gap-1.5" aria-label="Pair verdicts">
-              {!tasks.length ? <Badge variant="warning">Needs Attention</Badge> : tasks.length > 3 ? <Badge>{tasks.length} reference results</Badge> : tasks.map(task => <PairStatus key={task.task_key} task={task} prefix={multipleReferences ? 'R' + (job.references.findIndex(ref => ref.id === task.reference_id) + 1) + ': ' : ''} />)}
+              {tasks.length > 3 ? <Badge>{tasks.length} reference results</Badge> : tasks.map(task => <PairStatus key={task.task_key} task={task} prefix={multipleReferences ? 'R' + (job.references.findIndex(ref => ref.id === task.reference_id) + 1) + ': ' : ''} />)}
             </div>
           </div>
           <p className="break-words text-sm font-medium leading-relaxed [overflow-wrap:anywhere]">{claim.text}</p>
           {opinion && <p className="line-clamp-2 whitespace-pre-wrap break-words text-sm text-text-secondary [overflow-wrap:anywhere]">{opinion}</p>}
-          {!tasks.length && <p className="text-sm text-text-secondary">{claim.attribution_status === 'ambiguous' ? 'Citation attribution is ambiguous.' : claim.attribution_status === 'unresolved' ? 'Citation attribution is unresolved.' : 'No executable reference pairs were recorded.'}</p>}
           {tasks.some(task => task.state === 'blocked_source') && <p className="text-sm text-text-secondary">Source Required{recovery && tasks.some(task => recoverable.includes(task.reference_id)) && <> · <button type="button" className="text-primary underline" onClick={() => showRecovery(tasks.filter(task => recoverable.includes(task.reference_id)).map(task => task.reference_id))}>Add or recover source</button></>}</p>}
           <details className="min-w-0 text-sm text-text-secondary"><summary className="cursor-pointer text-xs text-primary">More details</summary><div className="mt-3 space-y-3">
             {tasks.map(task => <PairCard key={task.task_key} task={task} job={job} />)}
@@ -112,7 +120,7 @@ export function WholePaperReport({ job, fileLabel, recovery }: { job: Verificati
           </div></details>
         </article>
       })}
-      {!job.claims.length && <p className="text-sm text-text-muted">No accepted claims in this snapshot.</p>}
+      {plannedClaims.size === 0 && <p className="text-sm text-text-muted">No executable claims in this snapshot.</p>}
     </div>
     <details className="min-w-0 rounded-xl border border-border bg-surface p-4 text-xs text-text-muted"><summary className="cursor-pointer text-sm">Technical Details &amp; Diagnostics</summary>
       <div className="mt-3 space-y-3 break-words [overflow-wrap:anywhere]"><p>Job ID: {job.job_id} · Revision: {job.revision}</p><p>Recorded manuscript title (not independently verified): {job.manuscript_title ?? 'Unavailable'}</p><p>Manuscript ID: {job.manuscript_id}</p><p>Input fingerprint: {job.extraction_metadata.input_fingerprint}</p><p>Worker diagnostic: {job.runtime_error_code ?? 'None'}</p>

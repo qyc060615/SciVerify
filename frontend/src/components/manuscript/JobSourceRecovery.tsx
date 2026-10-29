@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/Button'
 import { Panel } from '@/components/ui/Card'
 import { getUploadLimits, validatePdf } from '@/services/manuscriptService'
@@ -9,7 +9,7 @@ import { wholePaperError } from '@/services/wholePaperErrors'
 import { sourceDoi as doiOf, needsSource } from '@/services/sourceRecovery'
 import { ApiResponseError } from '@/services/api'
 import type { VerificationJob } from '@/types/verification-job'
-import { PdfPicker } from './PdfPicker'
+import { checkReferenceSource, sourceAvailable, sourceNeedsUpload } from '@/services/sourceService'
 
 type Props = { job: VerificationJob; refresh: () => Promise<VerificationJob>; acceptSnapshot: (job: VerificationJob) => void; referenceIds?: string[] }
 function eligibleReferences(job: VerificationJob, doi: string) {
@@ -17,7 +17,8 @@ function eligibleReferences(job: VerificationJob, doi: string) {
 }
 function SourceRecovery({ job, doi, refresh, acceptSnapshot }: Props & { doi: string }) {
   const limits = useQuery({ queryKey: ['manuscript-upload-limits'], queryFn: ({ signal }) => getUploadLimits(signal), retry: false })
-  const [file, setFile] = useState<File | null>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const client = useQueryClient()
   const [uploaded, setUploaded] = useState<{ hash: string; revision: number; referenceIds: string[] } | null>(null)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -38,17 +39,28 @@ function SourceRecovery({ job, doi, refresh, acceptSnapshot }: Props & { doi: st
     <p className="text-sm">{refs[0]?.title ?? refs[0]?.raw_text ?? doi}</p>
     <p className="text-sm text-text-muted">DOI: {doi} · {refs.length} recoverable reference IDs</p>
     <p className="text-sm text-text-secondary">Upload the matching reference PDF. The current job and completed results are preserved.</p>
-    <PdfPicker label={'Source PDF for ' + doi} file={file} disabled={busy} onChange={value => { setFile(value); setUploaded(null); setMessage(null) }} />
+    <input ref={inputRef} type="file" accept=".pdf,application/pdf" onClick={event => event.stopPropagation()} hidden aria-label={'Source PDF for ' + doi} disabled={busy} onChange={event => {
+      const file = event.currentTarget.files?.[0]
+      event.currentTarget.value = ''
+      if (!file) return
+      setUploaded(null)
+      void perform(async () => {
+        const uploadLimits = limits.data ?? await getUploadLimits()
+        const invalid = validatePdf(file, uploadLimits.source_max_bytes); if (invalid) throw new Error(invalid)
+        const result = await uploadManualSource(doi, file)
+        if (result?.status !== 'accepted' || result.doi !== doi || !/^[0-9a-f]{64}$/.test(result.raw_content_sha256)) throw new Error('The upload did not return a valid accepted source hash.')
+        const checked = await checkReferenceSource(refs[0])
+        if (!sourceAvailable(checked) || sourceNeedsUpload(checked) || checked.raw_content_sha256 !== result.raw_content_sha256) throw new Error('Upload accepted, but the matching saved file could not be confirmed.')
+        void client.invalidateQueries({ queryKey: ['reference-source'] })
+        void client.invalidateQueries({ queryKey: ['local-literature-repository'] })
+        const latest = await refresh()
+        setUploaded({ hash: result.raw_content_sha256, revision: latest.revision, referenceIds: eligibleReferences(latest, doi).map(r => r.id) })
+        setMessage('Source saved. Review the reference selection, then confirm resume.')
+      })
+    }} />
     {limits.data && <p className="text-xs text-text-muted">Source limit: {(limits.data.source_max_bytes / 1024 / 1024).toFixed(1)} MB</p>}
     {limits.error && <p role="alert">{wholePaperError(limits.error)}</p>}
-    <Button variant="outline" disabled={busy || !file || !limits.data} onClick={() => void perform(async () => {
-      const invalid = validatePdf(file, limits.data!.source_max_bytes); if (invalid) throw new Error(invalid)
-      const result = await uploadManualSource(doi, file!)
-      if (result?.status !== 'accepted' || result.doi !== doi || !/^[0-9a-f]{64}$/.test(result.raw_content_sha256)) throw new Error('The upload did not return a valid accepted source hash.')
-      const latest = await refresh()
-      setUploaded({ hash: result.raw_content_sha256, revision: latest.revision, referenceIds: eligibleReferences(latest, doi).map(r => r.id) })
-      setMessage('Source saved. Review the reference selection, then confirm resume.')
-    })}>{busy ? 'Working…' : 'Upload PDF'}</Button>
+    {!uploaded && <Button type="button" variant="outline" disabled={busy} onClick={event => { event.preventDefault(); event.stopPropagation(); inputRef.current?.click() }}>Upload file</Button>}
     {uploaded && <div className="space-y-3">
       <p className="text-xs text-text-muted">Reviewed revision: {uploaded.revision}</p>
       <details className="text-xs text-text-muted"><summary className="cursor-pointer">Accepted source details</summary><p className="break-all">Content hash: {uploaded.hash}</p></details>
@@ -64,7 +76,7 @@ function SourceRecovery({ job, doi, refresh, acceptSnapshot }: Props & { doi: st
         const selected = uploaded.referenceIds.filter(id => eligible.has(id))
         if (!selected.length) throw new Error('These references are no longer recoverable in the current state.')
         const resumed = await resumeVerificationJob(job.job_id, { expected_revision: latest.revision, reference_ids: selected, source_hashes: Object.fromEntries(selected.map(id => [id, uploaded.hash])), retry_failed: selected.some(id => latest.tasks.some(t => t.reference_id === id && t.state === 'failed')) })
-        acceptSnapshot(resumed); setUploaded(null); setFile(null); setMessage('Resume accepted for the selected references.')
+        acceptSnapshot(resumed); setUploaded(null); setMessage('Resume accepted for the selected references.')
       })}>Resume Verification</Button>
     </div>}
     {message && <p role="status" className="text-sm text-warning">{message}</p>}
