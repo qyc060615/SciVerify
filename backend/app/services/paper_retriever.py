@@ -33,6 +33,7 @@ from app.services.evidence_chunker import chunk_sections
 from app.utils.doi import normalize_doi
 from app.services.source_store import AcceptedSourceArtifact, LocalSourceStore
 from app.services.source_identity import SourceIdentity, qualify_source_identity
+from app.services.source_requests import single_source
 from app.services.full_text_qualifier import (
     discover_direct_full_text_links,
     is_full_text_document,
@@ -89,15 +90,19 @@ class FullTextCandidate:
     source_type: str = "unknown"
 
 
+@single_source(lambda doi, *args, **kwargs: 'doi:' + normalize_doi(doi))
 def retrieve_paper(
     doi: str,
     client: httpx.Client | None = None,
-    *, candidate_urls: tuple[str, ...] = (),
+    *, candidate_urls: tuple[str, ...] = (), cache_only: bool = False,
 ) -> RetrievePaperResponse:
     """Retrieve paper metadata and, when available, parsed evidence chunks."""
     normalized = normalize_doi(doi)
     store = LocalSourceStore()
     artifact = store.get(normalized)
+    if artifact is not None and (not artifact.paper.full_text_available or artifact.paper.full_text_format != artifact.format):
+        logger.warning("source_cache_rejected doi=%s reason=not_full_text", normalized)
+        artifact = None
     if artifact is not None:
         identity = (SourceIdentity("confirmed", "MANUAL_UPLOAD_ACCEPTED") if artifact.origin == "manual"
                     else qualify_source_identity(artifact.content, artifact.format, artifact.paper))
@@ -119,6 +124,10 @@ def retrieve_paper(
         except DocumentParseError:
             if not is_full_text_document(artifact.content, artifact.format):
                 logger.warning("source_cache_rejected doi=%s reason=not_full_text", normalized)
+    if cache_only:
+        return RetrievePaperResponse(status=PaperRetrievalStatus.FULL_TEXT_UNAVAILABLE,
+            paper=PaperMetadata(paper_id=normalized, doi=normalized),
+            source=PaperSource(provider='local_cache'), detail='SOURCE_NOT_CACHED')
     logger.info("source_cache_miss doi=%s", normalized)
     owns_client = client is None
     http_client = client or httpx.Client(

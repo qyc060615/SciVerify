@@ -3,15 +3,61 @@ from __future__ import annotations
 from anyio import to_thread
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, Request, Response
 import ipaddress
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
+from pydantic import ValidationError
 from typing import Literal
 
 from app.config import source_max_size
 from app.services.manual_source import accept_manual_pdf, ManualSourceError
 from app.utils.doi import InvalidDOIError
 from app.researchguard.source_locator import SourceLocator
+from app.researchguard.domain import Reference
 
 router = APIRouter(prefix="/api/sources", tags=["sources"])
+
+
+class PrepareSourceRequest(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    reference: Reference
+    retrieve: bool = False
+
+
+@router.post('/prepare')
+async def prepare_source(payload: PrepareSourceRequest, request: Request, response: Response):
+    """Validate local reuse, or acquire a cited source, without a Job or model call."""
+    from functools import partial
+    from app.services.source_preparation import prepare_reference
+    peer = request.client.host if request.client else ''
+    try:
+        local = ipaddress.ip_address(peer).is_loopback
+    except ValueError:
+        local = peer == 'testclient'
+    if not local:
+        raise HTTPException(403, detail={'code': 'SOURCES_LOCAL_ONLY'})
+    response.headers['Cache-Control'] = 'no-store'
+    return await to_thread.run_sync(partial(prepare_reference, payload.reference, retrieve=payload.retrieve))
+
+
+@router.post('/manual-reference')
+async def upload_reference_source(request: Request, reference: str = Form(...), file: UploadFile = File(...)):
+    from app.services.manual_source import accept_reference_pdf
+    try:
+        peer = request.client.host if request.client else ''
+        if peer != 'testclient' and not ipaddress.ip_address(peer).is_loopback:
+            raise HTTPException(403, detail={'code': 'SOURCES_LOCAL_ONLY'})
+        if len(reference.encode('utf-8')) > 100_000:
+            raise HTTPException(413, detail={'code': 'REFERENCE_TOO_LARGE'})
+        parsed = Reference.model_validate_json(reference)
+        content = await file.read(source_max_size() + 1)
+        return await to_thread.run_sync(accept_reference_pdf, parsed, content)
+    except ValidationError:
+        raise HTTPException(422, detail={'code': 'REFERENCE_INVALID'}) from None
+    except ManualSourceError as exc:
+        raise HTTPException(exc.status_code, detail={'code': exc.code, 'message': str(exc)}) from exc
+    except ValueError:
+        raise HTTPException(422, detail={'code': 'SOURCE_IDENTITY_OR_URL_INVALID'}) from None
+    finally:
+        await file.close()
 
 
 @router.post('/status')

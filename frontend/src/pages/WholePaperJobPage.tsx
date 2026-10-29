@@ -27,7 +27,7 @@ export default function WholePaperJobPage() {
   return <div className="min-w-0 space-y-5">
     <AppHeader title="Verification Report" description={fileLabel ?? 'Evidence and processing results from your saved local task.'} actions={<Link className="text-sm text-primary" to={ROUTES.APP_MANUSCRIPTS}>New manuscript</Link>} />
     <WorkflowStepper current={stage} completed={job.data ? ['upload', 'references', 'claims', 'verification'] : []} allowed={job.data ? ['upload', 'references', 'claims', 'verification', 'report'] : ['report']} onSelect={next => setView({ id: jobId, stage: next })} />
-    <p className="text-xs text-text-muted">{job.connection}{job.data ? ' · ' + job.data.status.replaceAll('_', ' ') : ''}</p>
+    {job.connection === 'Polling fallback' && <p className="text-xs text-text-muted">Live connection unavailable; checking for updates automatically.</p>}
     {job.isPending && <Panel><Spinner /> Reading saved job…</Panel>}
     {job.error && <Panel><p role="alert" className="text-warning">{wholePaperError(job.error)}</p><Button className="mt-3" variant="outline" onClick={() => void job.refetch()}>Reconnect</Button></Panel>}
     {job.data && <>

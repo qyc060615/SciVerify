@@ -100,3 +100,53 @@ def accept_manual_pdf(doi: str, content: bytes) -> dict:
     logger.info("manual_source_accepted doi=%s match=%s", normalized, match)
     return {"status": "accepted", "doi": normalized,
             "raw_content_sha256": artifact.raw_content_sha256, "identity_match": match}
+
+
+def accept_reference_pdf(reference, content: bytes) -> dict:
+    """URL-only PDF association requires a substantive body and a strong title match."""
+    from app.services.source_locator import reference_locator
+    from app.services.source_acquisition import inspect_institutional, _url_association
+    from app.services.source_identity import _title_relation
+    from app.services.document_retriever import RetrievedDocument
+    from app.researchguard.source_locator import SourceProvenance
+    from app.schemas.paper import PaperMetadata
+    locator = reference_locator(reference)
+    if locator is None or locator.kind != 'url':
+        raise ManualSourceError('SOURCE_URL_REQUIRED', 'A cited public URL is required.')
+    if reference.resolution and reference.resolution.status != 'non_doi_source':
+        raise ManualSourceError('SOURCE_IDENTITY_UNRESOLVED', 'Resolve the reference identity before uploading.')
+    if len(content) > source_max_size():
+        raise ManualSourceError('FILE_TOO_LARGE', 'The PDF exceeds the upload limit.', 413)
+    try:
+        if not content.startswith(b'%PDF-'):
+            raise ValueError('Invalid PDF')
+        sections = parse_document(content, 'pdf')
+        document = RetrievedDocument(content, None, 'pdf', 'application/pdf', '')
+        kind, identity, title, date = inspect_institutional(document, reference, locator)
+    except Exception as exc:
+        raise ManualSourceError('INVALID_PDF', 'Upload a readable PDF with extractable text.') from exc
+    expected = _words(reference.title or '')
+    if (kind != 'INSTITUTIONAL_DOCUMENT' or identity == 'IDENTITY_CONFLICT'
+            or len(expected.split()) < 6 or len(expected) < 35
+            or _title_relation(reference.title, title) != 'match'
+            or not _url_association(reference, title, sections)):
+        raise ManualSourceError('SOURCE_MISMATCH', 'The PDF cannot be reliably matched to this cited reference.')
+    paper = PaperMetadata(paper_id=locator.key, title=title, authors=list(reference.authors),
+        year=reference.year, publication_date=date, url=locator.value,
+        full_text_available=True, full_text_format='pdf')
+    if not chunk_sections(sections, paper.paper_id):
+        raise ManualSourceError('INVALID_PDF', 'The PDF contains no usable full text.')
+    provenance = SourceProvenance(original_citation=reference.raw_text, source_url=locator.value,
+        identity='EXACT_IDENTITY', document_kind=kind, retrieved_title=title,
+        match_evidence=('MANUAL_PDF_TITLE_MATCH',), warnings=('HISTORICAL_VERSION_UNCONFIRMED',))
+    artifact = AcceptedSourceArtifact.create(locator=locator, content=content, format='pdf',
+        source_url=None, provider='manual_upload', origin='manual', paper=paper, provenance=provenance)
+    try:
+        store = LocalSourceStore()
+        store.put(artifact)
+        from app.services.source_store import verify_source_durability
+        verify_source_durability(artifact.response(), store)
+    except (OSError, ValueError) as exc:
+        raise ManualSourceError('SOURCE_STORE_FAILED', 'The matching PDF could not be confirmed in local storage.', 503) from exc
+    return {'status': 'accepted', 'reference_id': reference.id, 'locator': locator.model_dump(),
+            'raw_content_sha256': artifact.raw_content_sha256, 'identity_match': 'title'}

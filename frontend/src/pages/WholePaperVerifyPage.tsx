@@ -80,19 +80,17 @@ export default function WholePaperVerifyPage() {
         <Button loading={busy === 'parse'} disabled={working || !file || !limits.data} onClick={() => void perform('parse', async () => {
           const invalid = validatePdf(file, limits.data!.manuscript_max_bytes); if (invalid) throw new Error(invalid)
           const result = await parseManuscript(file!); setParsed(result); setStage('references')
+          setBusy('resolve'); setParsed(await resolveReferences(result)); setReferencesResolved(true)
         })}>{busy === 'parse' ? 'Parsing manuscript…' : 'Parse manuscript'}</Button>
       </>}
     </Panel>}
     {stage === 'references' && parsed && <Panel className="space-y-4">
-      <div className="space-y-2"><h2 className="text-lg font-semibold">Review References</h2>
-        {parsed.status === 'partial' && <p className="text-sm text-warning">Parsing completed with warnings</p>}
-        <DiagnosticDetails records={parsed.diagnostics} label="parsing diagnostics"><p className="break-words text-xs">Original parsed title (not independently verified): {parsed.parsed.manuscript.title ?? 'Unavailable'}</p></DiagnosticDetails>
-      </div>
+      <h2 className="text-lg font-semibold">Review References</h2>
       {!referencesResolved ? <><p className="text-sm text-text-secondary">{parsed.parsed.references.length} references found. Resolve their identities before review.</p><Button disabled={working} loading={busy === 'resolve'} onClick={() => void perform('resolve', async () => {
         setParsed(await resolveReferences(parsed)); setReferencesResolved(true); setReferencesReviewed(false); setClaimsReviewed(false); setExtraction(null); setConfirmedPartial(false)
-      })}>Resolve references</Button></> : <>
-        <ReferenceReview references={parsed.parsed.references} allowSources onSourceBusy={(id, value) => setSourceUploads(old => ({ ...old, [id]: value }))} />
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4"><p className="text-xs text-text-muted">Continuing confirms your reference review. Source uploads are optional.</p><Button disabled={working} onClick={() => { setReferencesReviewed(true); setStage('claims') }}>Continue to Claims</Button></div>
+      })}>Resolve references</Button><DiagnosticDetails records={parsed.diagnostics} heading="Warnings" /></> : <>
+        <ReferenceReview references={parsed.parsed.references} diagnostics={parsed.diagnostics} allowSources onSourceBusy={(id, value) => setSourceUploads(old => ({ ...old, [id]: value }))}><p className="break-words text-xs">Original parsed title (not independently verified): {parsed.parsed.manuscript.title ?? 'Unavailable'}</p></ReferenceReview>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4"><p className="text-xs text-text-muted">Continuing confirms your review; unfinished sources are checked during verification.</p><Button disabled={working} onClick={() => { setReferencesReviewed(true); setStage('claims') }}>Continue to Claims</Button></div>
       </>}
     </Panel>}
     {stage === 'claims' && parsed && referencesReviewed && <Panel className="space-y-4">
@@ -103,8 +101,8 @@ export default function WholePaperVerifyPage() {
     </Panel>}
     {stage === 'verification' && parsed && extraction && claimsReviewed && <Panel className="space-y-4">
       <h2 className="text-lg font-semibold">Start Verification</h2>
-      <p className="font-medium">{pairs} Claim–Reference pairs ready for verification</p>
-      <p className="text-sm text-text-secondary">{extraction.claims.filter(claim => claim.attribution_status !== 'resolved' || !claim.reference_ids.length).length} claims excluded from executable pairs · {extraction.claims.filter(claim => claim.attribution_status === 'ambiguous').length} ambiguous · {extraction.claims.filter(claim => claim.attribution_status === 'unresolved').length} unresolved</p>
+      <p className="font-medium">{pairs} Claim–Reference pairs ready</p>
+      {extraction.claims.some(claim => claim.attribution_status !== 'resolved' || !claim.reference_ids.length) && <p className="text-sm text-warning">{extraction.claims.filter(claim => claim.attribution_status !== 'resolved' || !claim.reference_ids.length).length} claims need attention</p>}
       {extraction.status === 'partial' && <label className="flex items-start gap-2 text-sm"><input type="checkbox" className="mt-1 shrink-0" checked={confirmedPartial} disabled={working} onChange={event => setConfirmedPartial(event.target.checked)} />I reviewed the extraction coverage gaps and want to continue.</label>}
       <p className="text-sm text-warning">Verification may call external LLM, embedding and retrieval services and incur API fees. Processing completion does not mean scientific support.</p>
       <Button disabled={working || !ready || (extraction.status === 'partial' && !confirmedPartial)} loading={busy === 'create'} onClick={() => void startVerification()}>Start Verification</Button>

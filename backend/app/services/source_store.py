@@ -112,7 +112,11 @@ class LocalSourceStore:
         key = self._locator_path(locator).name
         raw = directory / ('source.' + artifact.format)
         if raw.exists() and raw.read_bytes() != artifact.content:
-            raise ValueError('Immutable source content conflict')
+            # Only repair bytes that fail their own content-addressed identity.
+            # The incoming content was hash-verified above; healthy versions stay immutable.
+            if hashlib.sha256(raw.read_bytes()).hexdigest() == artifact.raw_content_sha256:
+                raise ValueError('Immutable source content conflict')
+            logger.warning('source_cache_repair hash=%s', artifact.raw_content_sha256)
         self._atomic_write(directory / ("source." + artifact.format), artifact.content)
         if not (directory / key).exists():
             self._atomic_write(directory / key, json.dumps(metadata).encode())

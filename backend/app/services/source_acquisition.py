@@ -18,6 +18,7 @@ from app.services.source_identity import _words, _title_relation
 from app.services.source_versions import identity_conflict
 from app.services.source_store import AcceptedSourceArtifact, LocalSourceStore
 from app.services.source_versions import review_version, document_version_date, document_title
+from app.services.source_requests import single_source
 
 
 def _official(url):
@@ -112,19 +113,29 @@ def _url_provenance(reference, locator, final_url, identity, title, date, digest
 
 
 
-def retrieve_url_source(reference, locator=None, *, client=None, store=None, refresh=False):
+@single_source(lambda reference, locator=None, **kwargs: getattr(locator or reference_locator(reference), 'key', 'unresolved:' + reference.id))
+def retrieve_url_source(reference, locator=None, *, client=None, store=None, refresh=False, local_only=False):
     locator = locator or reference_locator(reference)
     if locator is None or locator.kind != 'url':
         raise ValueError('URL_SOURCE_LOCATOR_REQUIRED')
     store = store or LocalSourceStore()
     artifact = store.get_locator(locator)
+    if artifact and (not artifact.paper.full_text_available or artifact.paper.full_text_format != artifact.format):
+        artifact = None
     if artifact and not refresh:
         cached = RetrievedDocument(artifact.content, None, artifact.format,
             'application/pdf' if artifact.format == 'pdf' else 'text/html', artifact.source_url or locator.value)
-        kind, identity, title, date = inspect_institutional(cached, reference, locator)
-        sections = parse_document(artifact.content, artifact.format)
+        try:
+            kind, identity, title, date = inspect_institutional(cached, reference, locator)
+            sections = parse_document(artifact.content, artifact.format)
+        except Exception:
+            # Invalid cached content gets the normal bounded acquisition fallback.
+            return retrieve_url_source(reference, locator, client=client, store=store,
+                                       refresh=True, local_only=local_only)
         if (identity == 'IDENTITY_CONFLICT' or kind in {'LANDING_PAGE', 'ABSTRACT_ONLY'}
                 or not _url_association(reference, title, sections)):
+            if not local_only:
+                return retrieve_url_source(reference, locator, client=client, store=store, refresh=True)
             return RetrievePaperResponse(status=PaperRetrievalStatus.FULL_TEXT_UNAVAILABLE,
                 paper=artifact.paper, source=PaperSource(provider='official_url', locator=locator,
                 provenance=SourceProvenance(original_citation=reference.raw_text,
@@ -133,11 +144,19 @@ def retrieve_url_source(reference, locator=None, *, client=None, store=None, ref
                     warnings=('HISTORICAL_VERSION_UNCONFIRMED',))), detail='SOURCE_' + identity)
         chunks = chunk_sections(sections, artifact.paper.paper_id, artifact.source_url)
         result = artifact.response(cache_hit=True, sections=sections, chunks=chunks)
-        result.source.provenance = _url_provenance(reference, locator, artifact.source_url or locator.value,
-            identity, title, date, artifact.raw_content_sha256,
-            artifact.provenance.retrieved_at if artifact.provenance else None)
-        result.source.identity_status = 'confirmed' if identity == 'EXACT_IDENTITY' else 'uncertain'
+        if artifact.origin == 'manual':
+            result.source.provenance = artifact.provenance
+            result.source.identity_status = 'confirmed' if artifact.provenance and artifact.provenance.identity == 'EXACT_IDENTITY' else 'uncertain'
+        else:
+            result.source.provenance = _url_provenance(reference, locator, artifact.source_url or locator.value,
+                identity, title, date, artifact.raw_content_sha256,
+                artifact.provenance.retrieved_at if artifact.provenance else None)
+            result.source.identity_status = 'confirmed' if identity == 'EXACT_IDENTITY' else 'uncertain'
         return result
+    if local_only:
+        return RetrievePaperResponse(status=PaperRetrievalStatus.FULL_TEXT_UNAVAILABLE,
+            paper=PaperMetadata(paper_id=locator.key, url=locator.value),
+            source=PaperSource(provider='local_cache', locator=locator), detail='SOURCE_NOT_CACHED')
     paper = PaperMetadata(paper_id=locator.key, doi=None, title=reference.title, authors=list(reference.authors),
                           year=reference.year, url=locator.value)
     pending = [(locator.value, None)]; seen = set(); last = 'SOURCE_UNAVAILABLE'
@@ -193,12 +212,12 @@ def retrieve_url_source(reference, locator=None, *, client=None, store=None, ref
 
 
 def retrieve_reference_source(reference, *, doi_retriever=None, client=None, candidate_urls=(),
-                              citing_publication_date=None):
+                              citing_publication_date=None, local_only=False):
     locator = reference_locator(reference)
     if locator is None:
         raise ValueError('SOURCE_LOCATOR_MISSING')
     if locator.kind == 'url':
-        result = retrieve_url_source(reference, locator, client=client)
+        result = retrieve_url_source(reference, locator, client=client, **({'local_only': True} if local_only else {}))
         if result.source.provenance:
             result.source.provenance = result.source.provenance.model_copy(update={'original_citation': reference.raw_text})
         return result
@@ -206,7 +225,7 @@ def retrieve_reference_source(reference, *, doi_retriever=None, client=None, can
         from app.services.paper_retriever import retrieve_paper
         from functools import partial
         hints = tuple(dict.fromkeys((*candidate_urls, *((reference.url,) if reference.url else ()))))[:3]
-        doi_retriever = partial(retrieve_paper, candidate_urls=hints)
+        doi_retriever = partial(retrieve_paper, candidate_urls=hints, **({'cache_only': True} if local_only else {}))
     response = doi_retriever(locator.value)
     if response.status != PaperRetrievalStatus.SUCCESS:
         return response

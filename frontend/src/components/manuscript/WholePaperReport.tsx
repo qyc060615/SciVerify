@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useRef, useState, type ReactNode } from 'react'
 import { Panel } from '@/components/ui/Card'
 import { Badge, type BadgeVariant } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -6,10 +6,20 @@ import type { DomainVerdict, JobTask, VerificationJob, EvidenceChunk } from '@/t
 import { codePointSlice } from '@/services/manuscriptBridge'
 import { ReferenceReview } from './ReferenceReview'
 import { DiagnosticDetails } from './DiagnosticDetails'
+import { recoverableReferenceIds } from '@/services/sourceRecovery'
 
 const verdicts: Record<DomainVerdict, { label: string; variant: BadgeVariant }> = {
   SUPPORTED: { label: 'Supported', variant: 'success' }, PARTIALLY_SUPPORTED: { label: 'Partially supported', variant: 'warning' },
   OVERSTATED: { label: 'Overstated', variant: 'warning' }, CONTRADICTED: { label: 'Contradicted', variant: 'danger' }, INSUFFICIENT: { label: 'Insufficient evidence', variant: 'muted' },
+}
+function pairVerdict(task: JobTask) {
+  const result = task.pair_outcome?.verification
+  return task.state === 'completed' && result?.processing_status === 'completed' && result.verdict ? verdicts[result.verdict] : undefined
+}
+function PairStatus({ task, prefix = '' }: { task: JobTask; prefix?: string }) {
+  const verdict = pairVerdict(task)
+  const label = verdict?.label ?? (task.state === 'blocked_source' ? 'Source Required' : task.state === 'failed' ? 'Processing Failed' : task.state === 'running' ? 'Processing' : 'Not Verified')
+  return <Badge variant={verdict?.variant ?? 'muted'} className={verdict && task.pair_outcome?.verification.verdict === 'OVERSTATED' ? 'border-orange-400/20 bg-orange-400/10 text-orange-400' : undefined}>{prefix}{label}</Badge>
 }
 function safeUrl(value: string | null): string | undefined {
   try { const url = new URL(value ?? ''); return ['http:', 'https:'].includes(url.protocol) && !url.username && !url.password ? url.href : undefined } catch { return undefined }
@@ -29,7 +39,6 @@ function PairCard({ task, job }: { task: JobTask; job: VerificationJob }) {
   const ref = job.references[refIndex]
   const result = task.pair_outcome?.verification
   const completed = task.state === 'completed' && result?.processing_status === 'completed'
-  const verdict = completed && result.verdict ? verdicts[result.verdict] : undefined
   const provenance = task.source_binding?.provenance
   const sourceUrl = safeUrl(provenance?.final_url ?? provenance?.source_url ?? task.source_binding?.locator?.value ?? null)
   const identities = { EXACT_IDENTITY: 'Exact', PROBABLE_SAME_WORK: 'Probable Same Work', IDENTITY_UNCERTAIN: 'Uncertain', IDENTITY_CONFLICT: 'Conflict' }
@@ -37,7 +46,7 @@ function PairCard({ task, job }: { task: JobTask; job: VerificationJob }) {
   return <article className="min-w-0 space-y-3 border-t border-border pt-4" data-testid="pair-card">
     <h3 className="break-words text-sm font-medium [overflow-wrap:anywhere]">{refIndex >= 0 ? 'R' + (refIndex + 1) + ' · ' : ''}{ref?.title ?? ref?.raw_text ?? task.reference_id}</h3>
     <p className="break-all text-xs text-text-muted">{task.source_binding?.locator?.kind === 'url' ? 'URL Source: ' + task.source_binding.locator.value : 'DOI Source: ' + (task.source_binding?.doi ?? ref?.doi ?? 'Identity not resolved')}</p>
-    <div className="flex flex-wrap items-center gap-2"><Badge>Task: {task.state.replaceAll('_', ' ')}</Badge>{verdict && <Badge variant={verdict.variant}>{verdict.label}</Badge>}{completed && typeof confidence === 'number' && Number.isFinite(confidence) && confidence >= 0 && confidence <= 1 && <span className="text-xs text-text-muted">Confidence: {(confidence * 100).toFixed(0)}%</span>}</div>
+    <div className="flex flex-wrap items-center gap-2"><PairStatus task={task} />{pairVerdict(task) && typeof confidence === 'number' && Number.isFinite(confidence) && confidence >= 0 && confidence <= 1 && <span className="text-xs text-text-muted">Confidence: {(confidence * 100).toFixed(0)}%</span>}</div>
     {!completed && <p className="text-sm text-text-secondary">{task.reason_code === 'DOI_MISSING' ? 'Reference identity is unresolved in this saved job. No scientific verdict was produced; this does not mean the claim is incorrect.' : task.state === 'blocked_source' ? 'Source Required · A matching full-text source is required. No scientific verdict was produced; this does not mean the claim is incorrect.' : task.state === 'failed' ? 'Processing failed. No scientific verdict was produced.' : 'Verification has not completed.'}</p>}
     {completed && result.explanation && <p className="break-words text-sm leading-relaxed [overflow-wrap:anywhere]">{result.explanation}</p>}
     {provenance && <p className="text-xs text-text-secondary">Identity: {identities[provenance.identity]} · {task.source_version ? 'Source version recorded' : 'No source version recorded'}</p>}
@@ -55,49 +64,62 @@ function PairCard({ task, job }: { task: JobTask; job: VerificationJob }) {
 }
 
 export function WholePaperReport({ job, fileLabel, recovery }: { job: VerificationJob; fileLabel?: string; recovery?: (referenceIds: string[]) => ReactNode }) {
-  const [selection, setSelection] = useState('')
   const coverage = job.coverage
-  const paragraphs = new Map(job.paragraphs.map(paragraph => [paragraph.id, paragraph]))
-  const claims = [...job.claims].sort((a, b) => (paragraphs.get(a.paragraph_id)?.order ?? 0) - (paragraphs.get(b.paragraph_id)?.order ?? 0) || (a.source_spans[0]?.start ?? 0) - (b.source_spans[0]?.start ?? 0))
-  const claim = claims.find(item => item.id === selection) ?? claims[0]
-  const tasks = job.tasks.filter(task => task.claim_id === claim?.id)
-  const paragraph = claim ? paragraphs.get(claim.paragraph_id) : undefined
-  const attention = job.tasks.find(task => task.resume_available && ['blocked_source', 'failed', 'pending'].includes(task.state))
+  const recoveryPanel = useRef<HTMLDetailsElement>(null)
+  const [selectedReferences, setSelectedReferences] = useState<string[] | null>(null)
+  const [showReferences, setShowReferences] = useState(false)
+  const recoverable = recoverableReferenceIds(job)
+  function showRecovery(ids: string[]) {
+    setSelectedReferences(ids)
+    if (recoveryPanel.current) {
+      recoveryPanel.current.open = true
+      recoveryPanel.current.scrollIntoView?.({ behavior: 'smooth', block: 'start' })
+    }
+  }
   return <div className="min-w-0 space-y-4">
-    <Panel className="space-y-3">
+    <Panel className="space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="font-semibold">Verification overview</h2><Badge variant={job.status === 'running' ? 'primary' : job.status === 'failed' ? 'danger' : 'default'}>{job.status.replaceAll('_', ' ')}</Badge></div>
-      <p className="break-all text-sm">{fileLabel || 'Saved job ' + job.job_id.slice(0, 16) + '…'}</p>
-      <p className="text-sm">{coverage.total_claims} claims · {coverage.total_references} references · {coverage.total_pairs} pairs</p>
-      <p className="text-xs text-text-secondary">{coverage.completed_pairs} completed · {coverage.blocked_source_pairs} blocked · {coverage.failed_pairs} failed · {coverage.pending_pairs} pending · {coverage.running_pairs} running</p>
-      {coverage.total_pairs > 0 ? <><progress className="h-2 w-full accent-primary" value={coverage.completed_pairs} max={coverage.total_pairs} aria-label="Completed Claim–Reference pairs" /><p className="text-xs text-text-muted">{coverage.completed_pairs}/{coverage.total_pairs} pairs completed. Scientific verdicts are shown per pair.</p></> : <p className="text-sm">No executable pairs. Completion percentage is not applicable.</p>}
-      {(!coverage.coverage_complete && (coverage.ambiguous_claims + coverage.unresolved_claims + coverage.failed_extraction_contexts + coverage.skipped_extraction_contexts > 0)) && <p className="text-xs text-warning">Coverage gaps: {coverage.ambiguous_claims} ambiguous claims · {coverage.unresolved_claims} unresolved claims · {coverage.failed_extraction_contexts} failed contexts · {coverage.skipped_extraction_contexts} skipped contexts.</p>}
-      {coverage.coverage_complete && <p className="text-xs text-text-secondary">Every planned pair finished processing. Review the individual verdicts below.</p>}
-      {attention && recovery && <Button size="sm" variant="outline" onClick={() => setSelection(attention.claim_id)}>Review source or processing issues</Button>}
-      {job.runtime_error_code && <div role="alert" className="text-sm text-warning">The worker could not finish this step. Committed results remain visible.<details className="mt-1 text-xs"><summary className="cursor-pointer">Worker diagnostic</summary>{job.runtime_error_code}</details></div>}
+      <p className="break-words text-sm [overflow-wrap:anywhere]">{fileLabel || 'Saved job ' + job.job_id.slice(0, 16) + '…'}</p>
+      <p className="text-sm">{job.claims.length} claims · {coverage.completed_pairs}/{coverage.total_pairs} pairs processed</p>
+      {coverage.total_pairs > 0 ? <progress className="h-1.5 w-full accent-primary" value={coverage.completed_pairs} max={coverage.total_pairs} aria-label="Completed Claim–Reference pairs" /> : <p className="text-sm">No executable pairs. Completion percentage is not applicable.</p>}
+      {coverage.total_pairs > 0 && <p className="text-xs text-text-muted">Processing progress does not indicate scientific support.</p>}
+      {!coverage.coverage_complete && (coverage.ambiguous_claims + coverage.unresolved_claims + coverage.failed_extraction_contexts + coverage.skipped_extraction_contexts > 0) && <p className="text-xs text-warning">Extraction or attribution coverage is incomplete. Review affected claims and diagnostics.</p>}
+      {recovery && recoverable.length > 0 && <div className="space-y-2"><p className="text-sm text-warning">{recoverable.length} references need source recovery or a processing retry.</p><div className="flex flex-wrap gap-2">{recoverable.map(id => <Button key={id} size="sm" variant="outline" onClick={() => showRecovery([id])}>Recover R{job.references.findIndex(ref => ref.id === id) + 1}</Button>)}</div></div>}
+      {job.runtime_error_code && <p role="alert" className="text-sm text-warning">The worker could not finish this step. Committed results remain visible.</p>}
     </Panel>
-    <div className="grid min-w-0 gap-4 lg:grid-cols-[minmax(13rem,0.36fr)_minmax(0,1fr)]">
-      <Panel padding="sm" className="min-w-0 self-start"><h2 className="mb-3 text-sm font-semibold">Claims</h2>
-        <nav aria-label="Claim navigator" className="max-h-[25dvh] space-y-1 overflow-y-auto overscroll-contain lg:max-h-[65dvh]">{claims.map((item, index) => {
-          const pairs = job.tasks.filter(task => task.claim_id === item.id)
-          const issue = pairs.some(task => ['blocked_source', 'failed'].includes(task.state)) || item.attribution_status !== 'resolved'
-          return <button key={item.id} type="button" aria-pressed={item.id === claim?.id} onClick={() => setSelection(item.id)} className={'w-full min-w-0 rounded-lg p-3 text-left ' + (item.id === claim?.id ? 'bg-primary-muted text-primary' : 'text-text-secondary hover:bg-surface-hover')}>
-            <span className="block text-xs font-semibold">Claim {String(index + 1).padStart(2, '0')}{issue ? ' · Needs attention' : ''}</span><span className="mt-1 line-clamp-2 break-words text-xs [overflow-wrap:anywhere]">{item.text}</span><span className="mt-1 block text-[11px] text-text-muted">{pairs.filter(task => task.state === 'completed').length}/{pairs.length} pairs completed{!pairs.length ? ' · No executable pairs' : ''}</span>
-          </button>
-        })}{!claims.length && <p className="text-sm text-text-muted">No claims recorded.</p>}</nav>
-      </Panel>
-      <Panel className="min-w-0 space-y-4" aria-label="Selected claim details">
-        {claim ? <><div className="space-y-2"><h2 className="text-sm font-semibold text-text-muted">Claim {String(claims.indexOf(claim) + 1).padStart(2, '0')}</h2><p className="break-words font-medium leading-relaxed [overflow-wrap:anywhere]">{claim.text}</p><Badge variant={claim.attribution_status === 'resolved' ? 'primary' : 'warning'}>Attribution: {claim.attribution_status ?? 'unknown'}</Badge></div>
-          {recovery?.(tasks.map(task => task.reference_id))}
-          {tasks.map(task => <PairCard key={task.task_key} task={task} job={job} />)}
-          {!tasks.length && <p className="text-sm text-text-secondary">No executable reference pairs for this claim. Attribution needs review.</p>}
-          <details className="text-xs text-text-secondary"><summary className="cursor-pointer text-primary">Original context &amp; references</summary><div className="mt-2 space-y-2 break-words [overflow-wrap:anywhere]"><p className="whitespace-pre-wrap">{paragraph?.text}</p><p>{paragraph?.section ?? 'Body'}{(claim.page ?? paragraph?.page) != null ? ' · Page ' + (claim.page ?? paragraph?.page) : ''}</p>{claim.source_spans.map((span, i) => <p key={i}>Span [{span.start}, {span.end}): {codePointSlice(paragraph?.text ?? '', span.start, span.end)}</p>)}{claim.citation_callout_ids.map(id => <p key={id}>Citation: {job.citation_callouts.find(call => call.id === id)?.text ?? id}</p>)}{claim.reference_ids.map(id => <a key={id} className="mr-2 inline-block break-all text-primary" href={'#reference-' + encodeURIComponent(id)}>{id}</a>)}</div></details>
-        </> : <p className="text-sm text-text-muted">No accepted claims in this snapshot.</p>}
-      </Panel>
+    {recovery && recoverable.length > 0 && <details ref={recoveryPanel} className="min-w-0 rounded-xl border border-border p-4"><summary className="cursor-pointer text-sm text-primary" onClick={() => setSelectedReferences(null)}>Source recovery</summary><div className="mt-3">{recovery(selectedReferences ?? recoverable)}</div></details>}
+    <div className="space-y-3" aria-label="Claim results">
+      {job.claims.map((claim, index) => {
+        const tasks = job.tasks.filter(task => task.claim_id === claim.id)
+        const paragraph = job.paragraphs.find(item => item.id === claim.paragraph_id)
+        const single = tasks.length === 1 ? tasks[0] : undefined
+        const multipleReferences = new Set([...claim.reference_ids, ...tasks.map(task => task.reference_id)]).size > 1
+        const opinion = single && !multipleReferences && pairVerdict(single) ? single.pair_outcome?.verification.explanation : null
+        const blocked = job.attribution_blocked.find(item => item.claim_id === claim.id)
+        return <article key={claim.id} className="min-w-0 space-y-2 rounded-xl border border-border bg-surface px-4 py-3" data-testid="claim-result">
+          <div className="flex flex-wrap items-start justify-between gap-2"><h2 className="text-xs font-semibold text-text-muted">Claim {String(index + 1).padStart(2, '0')}</h2>
+            <div className="flex min-w-0 flex-wrap justify-end gap-1.5" aria-label="Pair verdicts">
+              {!tasks.length ? <Badge variant="warning">Needs Attention</Badge> : tasks.length > 3 ? <Badge>{tasks.length} reference results</Badge> : tasks.map(task => <PairStatus key={task.task_key} task={task} prefix={multipleReferences ? 'R' + (job.references.findIndex(ref => ref.id === task.reference_id) + 1) + ': ' : ''} />)}
+            </div>
+          </div>
+          <p className="break-words text-sm font-medium leading-relaxed [overflow-wrap:anywhere]">{claim.text}</p>
+          {opinion && <p className="line-clamp-2 whitespace-pre-wrap break-words text-sm text-text-secondary [overflow-wrap:anywhere]">{opinion}</p>}
+          {!tasks.length && <p className="text-sm text-text-secondary">{claim.attribution_status === 'ambiguous' ? 'Citation attribution is ambiguous.' : claim.attribution_status === 'unresolved' ? 'Citation attribution is unresolved.' : 'No executable reference pairs were recorded.'}</p>}
+          {tasks.some(task => task.state === 'blocked_source') && <p className="text-sm text-text-secondary">Source Required{recovery && tasks.some(task => recoverable.includes(task.reference_id)) && <> · <button type="button" className="text-primary underline" onClick={() => showRecovery(tasks.filter(task => recoverable.includes(task.reference_id)).map(task => task.reference_id))}>Add or recover source</button></>}</p>}
+          <details className="min-w-0 text-sm text-text-secondary"><summary className="cursor-pointer text-xs text-primary">More details</summary><div className="mt-3 space-y-3">
+            {tasks.map(task => <PairCard key={task.task_key} task={task} job={job} />)}
+            <details className="text-xs"><summary className="cursor-pointer">Original context &amp; attribution</summary><div className="mt-2 space-y-2 break-words [overflow-wrap:anywhere]"><p>Attribution status: {claim.attribution_status ?? 'unknown'}</p>{blocked && <p>Recorded reason: {blocked.reason_code}</p>}<p className="whitespace-pre-wrap">{paragraph?.text}</p><p>{paragraph?.section ?? 'Body'}{(claim.page ?? paragraph?.page) != null ? ' · Page ' + (claim.page ?? paragraph?.page) : ''}</p>{claim.source_spans.map((span, i) => <p key={i}>Span [{span.start}, {span.end}): {codePointSlice(paragraph?.text ?? '', span.start, span.end)}</p>)}{claim.citation_callout_ids.map(id => <p key={id}>Citation: {job.citation_callouts.find(call => call.id === id)?.text ?? id}</p>)}{claim.reference_ids.map(id => { const ref = job.references.find(item => item.id === id); return <p key={id}>{id}: {ref?.title ?? ref?.raw_text ?? 'Not recorded'}</p> })}</div></details>
+          </div></details>
+        </article>
+      })}
+      {!job.claims.length && <p className="text-sm text-text-muted">No accepted claims in this snapshot.</p>}
     </div>
-    <details className="rounded-xl border border-border bg-surface p-4"><summary className="cursor-pointer text-sm font-medium">References &amp; identity details</summary><div className="mt-4 space-y-3"><h3 className="text-sm font-medium">Reference identity diagnostics</h3><ReferenceReview references={job.references} anchors /></div></details>
-    <details className="min-w-0 rounded-xl border border-border bg-surface p-4 text-xs text-text-muted"><summary className="cursor-pointer text-sm">Report technical details &amp; coverage diagnostics</summary>
-      <div className="mt-3 space-y-3 break-words [overflow-wrap:anywhere]"><p>Job ID: {job.job_id} · Revision: {job.revision}</p><p>Recorded manuscript title (not independently verified): {job.manuscript_title ?? 'Unavailable'}</p><p>Manuscript ID: {job.manuscript_id}</p><p>Input fingerprint: {job.extraction_metadata.input_fingerprint}</p>
-        <DiagnosticDetails records={job.extraction_diagnostics?.length ? job.extraction_diagnostics : job.context_results.flatMap(context => context.diagnostics)}>{job.attribution_blocked.map(item => <p key={item.claim_id}>{item.claim_id}: {item.reason_code}</p>)}{job.context_results.map(context => <div key={context.context_id}><p>Context {context.context_id}: {context.status}</p>{context.diagnostics.map((d, i) => <p key={i}>{d.code}: {d.safe_message}</p>)}{context.rejected_proposals.map(proposal => <p key={proposal.proposal_index}>Proposal {proposal.proposal_index}: {proposal.reason_code}</p>)}</div>)}</DiagnosticDetails>
+    <details className="min-w-0 rounded-xl border border-border bg-surface p-4 text-xs text-text-muted"><summary className="cursor-pointer text-sm">Technical Details &amp; Diagnostics</summary>
+      <div className="mt-3 space-y-3 break-words [overflow-wrap:anywhere]"><p>Job ID: {job.job_id} · Revision: {job.revision}</p><p>Recorded manuscript title (not independently verified): {job.manuscript_title ?? 'Unavailable'}</p><p>Manuscript ID: {job.manuscript_id}</p><p>Input fingerprint: {job.extraction_metadata.input_fingerprint}</p><p>Worker diagnostic: {job.runtime_error_code ?? 'None'}</p>
+        <p>{coverage.blocked_source_pairs} blocked pairs · {coverage.failed_pairs} failed pairs · {coverage.pending_pairs} pending pairs · {coverage.running_pairs} running pairs</p>
+        <p>Coverage gaps: {coverage.ambiguous_claims} ambiguous claims · {coverage.unresolved_claims} unresolved claims · {coverage.failed_extraction_contexts} failed contexts · {coverage.skipped_extraction_contexts} skipped contexts.</p>
+        <details onToggle={event => setShowReferences(event.currentTarget.open)}><summary className="cursor-pointer">References &amp; identity diagnostics</summary>{showReferences && <div className="mt-3"><ReferenceReview references={job.references} anchors /></div>}</details>
+        <DiagnosticDetails records={job.extraction_diagnostics?.length ? job.extraction_diagnostics : job.context_results.flatMap(context => context.diagnostics)} heading="Extraction Diagnostics">{job.attribution_blocked.map(item => <p key={item.claim_id}>{item.claim_id}: {item.reason_code}</p>)}{job.context_results.map(context => <div key={context.context_id}><p>Context {context.context_id}: {context.status}</p>{context.diagnostics.map((d, i) => <p key={i}>{d.code}: {d.safe_message}</p>)}{context.rejected_proposals.map(proposal => <p key={proposal.proposal_index}>Proposal {proposal.proposal_index}: {proposal.reason_code}</p>)}</div>)}</DiagnosticDetails>
       </div>
     </details>
   </div>

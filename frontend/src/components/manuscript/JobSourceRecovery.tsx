@@ -6,22 +6,12 @@ import { getUploadLimits, validatePdf } from '@/services/manuscriptService'
 import { uploadManualSource } from '@/services/verificationService'
 import { resumeVerificationJob, acquireJobSource } from '@/services/verificationJobService'
 import { wholePaperError } from '@/services/wholePaperErrors'
-import { extractDoi } from '@/lib/doi'
+import { sourceDoi as doiOf, needsSource } from '@/services/sourceRecovery'
 import { ApiResponseError } from '@/services/api'
-import type { Reference } from '@/types/manuscript'
-import type { JobTask, VerificationJob } from '@/types/verification-job'
+import type { VerificationJob } from '@/types/verification-job'
 import { PdfPicker } from './PdfPicker'
 
 type Props = { job: VerificationJob; refresh: () => Promise<VerificationJob>; acceptSnapshot: (job: VerificationJob) => void; referenceIds?: string[] }
-function doiOf(ref?: Reference): string | null {
-  if (!ref?.doi) return null
-  const canonical = ref.doi.trim().replace(/^doi:\s*/i, '').replace(/^https?:\/\/(?:dx\.)?doi\.org\/\s*/i, '').trim().replace(/[.,;]+$/, '')
-  if (!/^10\.\d{4,9}\/\S+$/.test(canonical)) return null
-  try { return extractDoi(ref.doi) } catch { return null }
-}
-function needsSource(task: JobTask) {
-  return task.resume_available && (task.state === 'blocked_source' || (task.state === 'failed' && task.reason_code?.startsWith('SOURCE_DURABILITY_')))
-}
 function eligibleReferences(job: VerificationJob, doi: string) {
   return job.references.filter(ref => doiOf(ref) === doi && job.tasks.some(t => t.reference_id === ref.id && needsSource(t)))
 }

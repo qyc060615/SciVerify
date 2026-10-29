@@ -1,34 +1,35 @@
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReferenceReview } from '@/components/manuscript/ReferenceReview'
 import fixture from './fixtures/manuscript.json'
 import type { Reference } from '@/types/manuscript'
-const actions = vi.hoisted(() => ({ status: vi.fn(), upload: vi.fn(), limits: vi.fn() }))
-vi.mock('@/services/sourceService', async original => ({ ...await original<object>(), getLocalSourceStatus: actions.status }))
+const actions = vi.hoisted(() => ({ status: vi.fn(), prepare: vi.fn(), upload: vi.fn(), limits: vi.fn() }))
+vi.mock('@/services/sourceService', async original => ({ ...await original<object>(), checkReferenceSource: actions.status, prepareReferenceSource: actions.prepare }))
 vi.mock('@/services/verificationService', () => ({ uploadManualSource: actions.upload }))
 vi.mock('@/services/manuscriptService', async original => ({ ...await original<object>(), getUploadLimits: actions.limits }))
 const hash = 'e'.repeat(64)
-const absent = { availability: 'not_cached', remote_status: 'not_checked', raw_content_sha256: null, format: null }
-const available = { availability: 'available', remote_status: 'not_checked', raw_content_sha256: hash, format: 'pdf' }
-function mount(reference = fixture.parse_response.parsed.references[0] as Reference) {
-  render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } })}><ReferenceReview references={[reference]} allowSources /></QueryClientProvider>)
+const absent = { reference_id: 'r3', state: 'not_cached', reason_code: 'SOURCE_NOT_CACHED', retryable: true, retrieval_status: null, source: null, raw_content_sha256: null, format: null }
+const missing = { ...absent, state: 'unavailable', reason_code: 'SOURCE_FULL_TEXT_UNAVAILABLE' }
+const available = { ...absent, state: 'available', raw_content_sha256: hash, format: 'pdf' }
+function mount(reference = fixture.parse_response.parsed.references[0] as Reference, automatic = true) {
+  render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } })}><ReferenceReview references={[reference]} allowSources={automatic} /></QueryClientProvider>)
 }
-beforeEach(() => { vi.clearAllMocks(); actions.status.mockResolvedValue(absent); actions.limits.mockResolvedValue({ manuscript_max_bytes: 1000, source_max_bytes: 1000 }) })
+beforeEach(() => { vi.clearAllMocks(); actions.status.mockResolvedValue(absent); actions.prepare.mockResolvedValue(missing); actions.limits.mockResolvedValue({ manuscript_max_bytes: 1000, source_max_bytes: 1000 }) })
 afterEach(cleanup)
 
 it('unknown remote full text is not mislabeled missing or available', async () => {
-  mount()
+  mount(undefined, false)
   await screen.findByText('Full text: Not checked')
   expect(screen.queryByText(/Full text: Available/)).toBeNull()
   expect(screen.queryByRole('button', { name: 'Upload PDF' })).toBeNull()
-  fireEvent.click(screen.getByText('Source details · Add Source'))
-  expect(screen.getByRole('button', { name: 'Add Source' })).toBeTruthy()
-  expect(screen.getByText(/Automatic full-text retrieval has not run/)).toBeTruthy()
+  fireEvent.click(screen.getByText('More details'))
+  expect(screen.queryByRole('button', { name: 'Add Source' })).toBeNull()
+  expect(actions.prepare).not.toHaveBeenCalled()
 })
 
 it('verified existing files hide the upload action and expose their actual hash', async () => {
-  actions.status.mockResolvedValue(available)
+  actions.prepare.mockResolvedValue(available)
   mount(); await screen.findByText('Full text: Available locally (PDF)')
   expect(screen.queryByRole('button', { name: 'Add Source' })).toBeNull()
   expect(screen.queryByRole('button', { name: 'Upload PDF' })).toBeNull()
@@ -41,16 +42,15 @@ it('preuploads against the exact DOI and confirms real cache status before succe
   actions.status.mockImplementation(async () => saved ? available : absent)
   actions.upload.mockImplementation(async () => { saved = true; return { status: 'accepted', doi: ref.doi, raw_content_sha256: hash, identity_match: 'doi' } })
   const localStorageWrite = vi.spyOn(Storage.prototype, 'setItem')
-  mount(); await screen.findByText('Full text: Not checked')
-  fireEvent.click(screen.getByText('Source details · Add Source'))
-  fireEvent.click(screen.getByRole('button', { name: 'Add Source' }))
+  mount(); await screen.findByText('Full text: Unavailable')
+  fireEvent.click(screen.getByRole('button', { name: 'Upload PDF' }))
   const pdf = new File(['%PDF'], 'reference.pdf', { type: 'application/pdf' })
   fireEvent.change(await screen.findByLabelText('Source PDF for ' + ref.doi), { target: { files: [pdf] } })
-  await waitFor(() => expect(screen.getByRole('button', { name: 'Upload PDF' })).toHaveProperty('disabled', false))
-  fireEvent.click(screen.getByRole('button', { name: 'Upload PDF' }))
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Save PDF' })).toHaveProperty('disabled', false))
+  fireEvent.click(screen.getByRole('button', { name: 'Save PDF' }))
   await screen.findByText(/PDF saved and verified/)
   expect(actions.upload).toHaveBeenCalledWith(ref.doi, pdf)
-  expect(actions.status).toHaveBeenCalledTimes(2)
+  expect(actions.status).toHaveBeenCalledTimes(1)
   expect(screen.getByText('Full text: Available locally (PDF)')).toBeTruthy()
   expect(localStorageWrite).not.toHaveBeenCalled()
   localStorageWrite.mockRestore()
@@ -59,20 +59,95 @@ it('preuploads against the exact DOI and confirms real cache status before succe
 it('an accepted receipt without a confirmed file never becomes an available source', async () => {
   const ref = fixture.parse_response.parsed.references[0] as Reference
   actions.upload.mockResolvedValue({ status: 'accepted', doi: ref.doi, raw_content_sha256: hash })
-  mount(); await screen.findByText('Full text: Not checked')
-  fireEvent.click(screen.getByText('Source details · Add Source'))
-  fireEvent.click(screen.getByRole('button', { name: 'Add Source' }))
-  fireEvent.change(await screen.findByLabelText('Source PDF for ' + ref.doi), { target: { files: [new File(['%PDF'], 'ref.pdf')] } })
-  await waitFor(() => expect(screen.getByRole('button', { name: 'Upload PDF' })).toHaveProperty('disabled', false))
+  mount(); await screen.findByText('Full text: Unavailable')
   fireEvent.click(screen.getByRole('button', { name: 'Upload PDF' }))
+  fireEvent.change(await screen.findByLabelText('Source PDF for ' + ref.doi), { target: { files: [new File(['%PDF'], 'ref.pdf')] } })
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Save PDF' })).toHaveProperty('disabled', false))
+  fireEvent.click(screen.getByRole('button', { name: 'Save PDF' }))
   await screen.findByText(/saved file could not be confirmed/)
   expect(screen.queryByText(/Full text: Available/)).toBeNull()
 })
 
 it('URL-only references explain the manual-upload limit rather than fabricating DOI bindings', async () => {
   mount({ ...fixture.parse_response.parsed.references[0], doi: null, url: 'https://example.org/paper' } as Reference)
-  await screen.findByText('Full text: Not checked')
-  fireEvent.click(screen.getByText('Source details'))
-  expect(screen.getByText(/Manual PDF validation currently requires a DOI/)).toBeTruthy()
+  await screen.findByText('Full text: Unavailable')
+  fireEvent.click(screen.getByText('More details'))
+  expect(screen.getByText(/A reliable DOI or a sufficiently specific/)).toBeTruthy()
   expect(screen.queryByRole('button', { name: 'Add Source' })).toBeNull()
+})
+
+it('shows compact unknown availability without inferring success from a DOI', async () => {
+  mount(undefined, false)
+  await screen.findByRole('status', { name: 'Full text not checked' })
+  expect(screen.getByText('1 References · 0 available · 0 missing')).toBeTruthy()
+  const details = screen.getByText('More details').closest('details')!
+  expect(details.open).toBe(false)
+  expect(within(details).getByText(/^DOI:/)).toBeTruthy()
+  expect(screen.queryByRole('button', { name: 'Add Source' })).toBeNull()
+  expect(screen.queryByRole('status', { name: 'Full text available' })).toBeNull()
+  expect(document.querySelector('[class*="overflow-y-auto"]')).toBeNull()
+})
+
+it('counts availability only after the local file check finishes', async () => {
+  let finish!: (value: typeof available) => void
+  actions.prepare.mockImplementation(() => new Promise(resolve => { finish = resolve }))
+  mount()
+  expect(screen.getByRole('status', { name: 'Preparing full text' })).toBeTruthy()
+  expect(screen.getByText('1 References · 0 available · 0 missing · 1 preparing')).toBeTruthy()
+  finish(available)
+  await screen.findByRole('status', { name: 'Full text available' })
+  expect(screen.getByText('1 References · 1 available · 0 missing')).toBeTruthy()
+})
+
+it('a failed preparation has a direct retry and does not invent available full text', async () => {
+  actions.prepare.mockResolvedValueOnce({ ...missing, state: 'failed' }).mockResolvedValue(available)
+  mount()
+  await screen.findByRole('status', { name: 'Full text unavailable' })
+  expect(screen.getByRole('button', { name: 'Upload PDF' }).closest('details')).toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
+  await screen.findByRole('status', { name: 'Full text available' })
+  expect(actions.prepare).toHaveBeenCalledTimes(2)
+})
+
+it('returning to completed reference review does not automatically prepare or download again', async () => {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  const reference = fixture.parse_response.parsed.references[0] as Reference
+  actions.prepare.mockResolvedValue(available)
+  const view = (show: boolean) => <QueryClientProvider client={client}>{show && <ReferenceReview references={[reference]} allowSources />}</QueryClientProvider>
+  const mounted = render(view(true))
+  await screen.findByRole('status', { name: 'Full text available' })
+  mounted.rerender(view(false)); mounted.rerender(view(true))
+  await screen.findByRole('status', { name: 'Full text available' })
+  expect(actions.prepare).toHaveBeenCalledTimes(1)
+})
+
+it('unmounting consumes the preparation cancellation signal', async () => {
+  let signal: AbortSignal | undefined
+  actions.prepare.mockImplementation((_ref, currentSignal: AbortSignal) => {
+    signal = currentSignal
+    return new Promise((_resolve, reject) => currentSignal.addEventListener('abort', () => reject(currentSignal.reason)))
+  })
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } })
+  const reference = fixture.parse_response.parsed.references[0] as Reference
+  const mounted = render(<QueryClientProvider client={client}><ReferenceReview references={[reference]} allowSources /></QueryClientProvider>)
+  await screen.findByRole('status', { name: 'Preparing full text' })
+  mounted.unmount()
+  expect(signal?.aborted).toBe(true)
+})
+
+it('an uploaded DOI source refreshes its other reference aliases without retrying unrelated papers', async () => {
+  const reference = fixture.parse_response.parsed.references[0] as Reference
+  const references = [reference, { ...reference, id: 'same-doi' }, { ...reference, id: 'other-doi', doi: '10.1234/other' }]
+  let saved = false
+  actions.prepare.mockImplementation(async (ref: Reference) => ({ ...(saved && ref.doi === reference.doi ? available : missing), reference_id: ref.id }))
+  actions.status.mockResolvedValue(available)
+  actions.upload.mockImplementation(async () => { saved = true; return { status: 'accepted', doi: reference.doi, raw_content_sha256: hash } })
+  render(<QueryClientProvider client={new QueryClient()}><ReferenceReview references={references} allowSources /></QueryClientProvider>)
+  await waitFor(() => expect(screen.getAllByRole('status', { name: 'Full text unavailable' })).toHaveLength(3))
+  fireEvent.click(screen.getAllByRole('button', { name: 'Upload PDF' })[0])
+  fireEvent.change(await screen.findByLabelText('Source PDF for ' + reference.doi), { target: { files: [new File(['%PDF'], 'source.pdf')] } })
+  await waitFor(() => expect(screen.getByRole('button', { name: 'Save PDF' })).toHaveProperty('disabled', false))
+  fireEvent.click(screen.getByRole('button', { name: 'Save PDF' }))
+  await waitFor(() => expect(screen.getAllByRole('status', { name: 'Full text available' })).toHaveLength(2))
+  expect(actions.prepare.mock.calls.filter(([ref]) => ref.id === 'other-doi')).toHaveLength(1)
 })

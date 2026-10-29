@@ -5,16 +5,18 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import WholePaperVerifyPage from '@/pages/WholePaperVerifyPage'
 import WholePaperJobPage from '@/pages/WholePaperJobPage'
 import { WholePaperReport } from '@/components/manuscript/WholePaperReport'
+import { ClaimExtractionPreview } from '@/components/manuscript/ClaimExtractionPreview'
 import { WholePaperRoute } from '@/routes/WholePaperRoute'
 import { ApiResponseError } from '@/services/api'
+import { prepareReferenceSource } from '@/services/sourceService'
 import { jobFixture, jobId } from './fixtures/job'
 import fixture from './fixtures/manuscript.json'
-import type { ParseResponse, ReferenceResolution } from '@/types/manuscript'
+import type { ExtractionResult, ParseResponse, ReferenceResolution } from '@/types/manuscript'
 
 const services = vi.hoisted(() => ({ parse: vi.fn(), resolve: vi.fn(), extract: vi.fn(), limits: vi.fn(), create: vi.fn(), get: vi.fn(), resume: vi.fn(), demo: vi.fn() }))
 vi.mock('@/services/manuscriptService', async importOriginal => ({ ...await importOriginal<object>(), parseManuscript: services.parse, resolveReferences: services.resolve, extractClaims: services.extract, getUploadLimits: services.limits }))
 vi.mock('@/services/verificationJobService', async importOriginal => ({ ...await importOriginal<object>(), createVerificationJob: services.create, getVerificationJob: services.get, resumeVerificationJob: services.resume }))
-vi.mock('@/services/sourceService', async original => ({ ...await original<object>(), getLocalSourceStatus: vi.fn().mockResolvedValue({ availability: 'not_cached', remote_status: 'not_checked', raw_content_sha256: null, format: null }) }))
+vi.mock('@/services/sourceService', async original => ({ ...await original<object>(), checkReferenceSource: vi.fn().mockResolvedValue({ state: 'not_cached', reason_code: 'SOURCE_NOT_CACHED', raw_content_sha256: null, format: null }), prepareReferenceSource: vi.fn().mockResolvedValue({ state: 'unavailable', reason_code: 'SOURCE_FULL_TEXT_UNAVAILABLE', retryable: true, raw_content_sha256: null, format: null }) }))
 vi.mock('@/lib/demo-mode', () => ({ isLocalDemoMode: services.demo }))
 
 function app(path = '/app/manuscripts') {
@@ -34,12 +36,14 @@ beforeEach(() => {
 afterEach(cleanup)
 
 async function resolveAndReview() {
-  await screen.findByRole('button', { name: 'Resolve references' })
-  expect(screen.queryByRole('button', { name: 'Extract claims' })).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: 'Resolve references' }))
   await screen.findByRole('button', { name: 'Continue to Claims' })
+  expect(screen.queryByRole('button', { name: 'Extract claims' })).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Continue to Claims' }))
   await screen.findByRole('button', { name: 'Extract claims' })
+}
+
+function renderReport(job: ReturnType<typeof jobFixture>) {
+  return render(<QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } })}><WholePaperReport job={job} /></QueryClientProvider>)
 }
 
 function resolution(status: ReferenceResolution['status'], overrides: Partial<ReferenceResolution> = {}): ReferenceResolution {
@@ -56,7 +60,7 @@ describe('whole-paper upload and review', () => {
     expect(services.parse).toHaveBeenCalledWith(file); expect(services.extract).not.toHaveBeenCalled(); expect(services.create).not.toHaveBeenCalled()
     expect(services.resolve).toHaveBeenCalledWith(fixture.parse_response)
     fireEvent.click(screen.getByRole('button', { name: 'Extract claims' }))
-    await screen.findByText('Review extracted claims')
+    await screen.findByText('Review Claims')
     expect(services.extract).toHaveBeenCalledWith(fixture.parse_response)
     fireEvent.click(screen.getByRole('button', { name: 'Continue to Verification' }))
     expect(screen.getByText(/may call external LLM/)).toBeTruthy()
@@ -78,7 +82,7 @@ describe('whole-paper upload and review', () => {
     app(); await screen.findByText(/PDF limit/)
     fireEvent.change(screen.getByLabelText('Manuscript PDF'), { target: { files: [new File(['%PDF'], 'paper.pdf')] } })
     fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' })); await resolveAndReview()
-    fireEvent.click(screen.getByRole('button', { name: 'Extract claims' })); await screen.findByText('Review extracted claims')
+    fireEvent.click(screen.getByRole('button', { name: 'Extract claims' })); await screen.findByText('Review Claims')
     fireEvent.click(screen.getByRole('button', { name: 'Continue to Verification' }))
     const button = screen.getByRole('button', { name: 'Start Verification' }) as HTMLButtonElement
     expect(button.disabled).toBe(true)
@@ -89,7 +93,7 @@ describe('whole-paper upload and review', () => {
     app(); await screen.findByText(/PDF limit/)
     fireEvent.change(screen.getByLabelText('Manuscript PDF'), { target: { files: [new File(['%PDF'], 'paper.pdf')] } })
     fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' })); await resolveAndReview()
-    fireEvent.click(screen.getByRole('button', { name: 'Extract claims' })); await screen.findByText('Review extracted claims')
+    fireEvent.click(screen.getByRole('button', { name: 'Extract claims' })); await screen.findByText('Review Claims')
     expect((screen.getByRole('button', { name: 'Continue to Verification' }) as HTMLButtonElement).disabled).toBe(true)
     expect(screen.getByText(/No executable pairs/)).toBeTruthy(); expect(services.create).not.toHaveBeenCalled()
   })
@@ -115,12 +119,12 @@ describe('whole-paper upload and review', () => {
     fireEvent.change(screen.getByLabelText('Manuscript PDF'), { target: { files: [new File(['%PDF'], 'paper.pdf')] } })
     fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' })); await resolveAndReview()
     fireEvent.click(screen.getByRole('button', { name: /^References/ }))
-    expect(screen.getByText(/2 DOI identities ready/)).toBeTruthy()
-    expect(screen.getByText('ambiguous')).toBeTruthy(); expect(screen.getByText('provider error')).toBeTruthy()
-    expect(screen.getByText(/will attempt document retrieval and identity checks/)).toBeTruthy(); expect(screen.getByText(/OPENALEX_RATE_LIMIT/)).toBeTruthy()
+    expect(screen.getByText('5 References · 0 available · 5 missing')).toBeTruthy()
+    expect(screen.getByText('Identity status: ambiguous')).toBeTruthy(); expect(screen.getByText('Identity status: provider_error')).toBeTruthy()
+    expect(screen.getByText(/will attempt document retrieval and identity checks/)).toBeTruthy(); expect(screen.getAllByText(/OPENALEX_RATE_LIMIT/)[0]).toBeTruthy()
     expect(screen.getByText(/Resolved DOI: 10.1234\/enriched/)).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: 'Continue to Claims' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Extract claims' })); await screen.findByText('Review extracted claims')
+    fireEvent.click(screen.getByRole('button', { name: 'Extract claims' })); await screen.findByText('Review Claims')
     expect(services.extract).toHaveBeenCalledWith(enriched)
     fireEvent.click(screen.getByRole('button', { name: 'Continue to Verification' }))
     fireEvent.click(screen.getByRole('button', { name: 'Start Verification' })); await screen.findByText('Verification overview')
@@ -134,18 +138,19 @@ describe('whole-paper upload and review', () => {
     services.resolve.mockImplementationOnce(() => new Promise(resolve => { finish = resolve }))
     app(); await screen.findByText(/PDF limit/)
     fireEvent.change(screen.getByLabelText('Manuscript PDF'), { target: { files: [new File(['%PDF'], 'paper.pdf')] } })
-    fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' })); await screen.findByRole('button', { name: 'Resolve references' })
-    const button = screen.getByRole('button', { name: 'Resolve references' })
+    fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' })); await screen.findByRole('button', { name: /Resolve references/ })
+    const button = screen.getByRole('button', { name: /Resolve references/ })
+    expect(button).toHaveProperty('disabled', true)
     fireEvent.click(button); fireEvent.click(button)
     expect(services.resolve).toHaveBeenCalledTimes(1)
     finish(fixture.parse_response); await screen.findByRole('button', { name: 'Continue to Claims' })
     fireEvent.click(screen.getByRole('button', { name: 'Continue to Claims' }))
-    fireEvent.click(screen.getByRole('button', { name: 'Extract claims' })); await screen.findByText('Review extracted claims')
+    fireEvent.click(screen.getByRole('button', { name: 'Extract claims' })); await screen.findByText('Review Claims')
     fireEvent.click(screen.getByRole('button', { name: 'Replace PDF' }))
     fireEvent.change(screen.getByLabelText('Manuscript PDF'), { target: { files: [new File(['%PDF'], 'replacement.pdf')] } })
     fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' }))
-    await screen.findByRole('button', { name: 'Resolve references' })
-    await waitFor(() => expect(screen.queryByText('Review extracted claims')).toBeNull())
+    await screen.findByRole('button', { name: 'Continue to Claims' })
+    await waitFor(() => expect(screen.queryByText('Review Claims')).toBeNull())
     expect(screen.queryByRole('button', { name: 'Extract claims' })).toBeNull()
   })
   it.each([[404, 'JOBS_DISABLED', /jobs are disabled/], [404, 'JOB_NOT_FOUND', /job was not found/], [undefined, '', /Unable to connect/]] as const)('shows actionable backend errors', async (status, code, message) => {
@@ -161,9 +166,9 @@ describe('whole-paper upload and review', () => {
 
 describe('pair-level report contracts', () => {
   it('renders separate pairs, completed contradiction and uncertain HTML evidence without a page', () => {
-    render(<WholePaperReport job={jobFixture()} />)
+    renderReport(jobFixture())
     expect(screen.getAllByTestId('pair-card')).toHaveLength(2)
-    expect(screen.getByText('Contradicted')).toBeTruthy()
+    expect(screen.getAllByText(/^(R\d+: )?Contradicted$/)[0]).toBeTruthy()
     expect(screen.getByText(/Identity: uncertain/)).toBeTruthy()
     expect(screen.getAllByText(/Confidence:/)).toHaveLength(1)
     expect(screen.queryByText(/FABRICATED/)).toBeNull()
@@ -171,28 +176,30 @@ describe('pair-level report contracts', () => {
   })
   it('does not expose a semantic verdict or confidence for failed processing', () => {
     const job = jobFixture(); job.tasks[0].state = 'failed'
-    render(<WholePaperReport job={job} />)
-    expect(screen.queryByText('Contradicted')).toBeNull(); expect(screen.queryByText(/Confidence:/)).toBeNull()
+    renderReport(job)
+    expect(screen.queryAllByText(/^(R\d+: )?Contradicted$/)).toHaveLength(0); expect(screen.queryByText(/Confidence:/)).toBeNull()
     expect(within(screen.getAllByTestId('pair-card')[0]).getByText(/No scientific verdict was produced/)).toBeTruthy()
   })
   it('explains missing DOI as an unresolved identity rather than an incorrect claim', () => {
     const job = jobFixture(); job.tasks[0].state = 'failed'; job.tasks[0].reason_code = 'DOI_MISSING'
-    render(<WholePaperReport job={job} />)
+    renderReport(job)
     expect(within(screen.getAllByTestId('pair-card')[0]).getByText(/does not mean the claim is incorrect/)).toBeTruthy()
-    expect(screen.queryByText('Contradicted')).toBeNull()
+    expect(screen.queryAllByText(/^(R\d+: )?Contradicted$/)).toHaveLength(0)
   })
-  it('explains URL-only retrieval limitations in a durable job report', () => {
+  it('explains URL-only retrieval limitations in a durable job report', async () => {
     const job = jobFixture(); const task = job.tasks[0]; task.state = 'failed'; task.reason_code = 'DOI_MISSING'
     const ref = job.references.find(r => r.id === task.reference_id)!
     ref.doi = null; ref.resolution = resolution('non_doi_source', { reference_id: ref.id, source_type: 'url', source_url: 'https://www.who.int/speech' })
-    render(<WholePaperReport job={job} />)
+    renderReport(job)
     expect(screen.getByText(/unresolved in this saved job/)).toBeTruthy()
-    expect(screen.getByText(/will attempt document retrieval and identity checks/)).toBeTruthy()
-    expect(screen.getByText('Reference identity diagnostics')).toBeTruthy()
+    fireEvent.click(screen.getByText('Technical Details & Diagnostics'))
+    fireEvent.click(screen.getByText('References & identity diagnostics'))
+    expect(await screen.findByText(/will attempt document retrieval and identity checks/)).toBeTruthy()
+    expect(screen.getByText('References & identity diagnostics')).toBeTruthy()
   })
   it('shows zero pairs and extraction coverage gaps without fake completion', () => {
     const job = jobFixture(); job.tasks = []; job.coverage.total_pairs = 0; job.coverage.skipped_extraction_contexts = 1
-    render(<WholePaperReport job={job} />)
+    renderReport(job)
     expect(screen.queryByRole('progressbar')).toBeNull(); expect(screen.getByText(/Completion percentage is not applicable/)).toBeTruthy()
     expect(screen.getByText(/1 skipped contexts/)).toBeTruthy()
   })
@@ -200,18 +207,18 @@ describe('pair-level report contracts', () => {
     const job = jobFixture()
     job.tasks[0].source_binding!.locator = { kind: 'doi', value: '10.1234/local' }
     job.tasks[0].source_binding!.provenance = { identity: 'PROBABLE_SAME_WORK', document_kind: 'ARTICLE_FULL_TEXT', warnings: ['HISTORICAL_VERSION_UNCONFIRMED'], match_evidence: ['AUTHORS_MATCH'], retrieved_title: 'Retrieved manuscript version', final_url: 'https://example.org/manuscript', retrieved_version: 'sha256:' + 'b'.repeat(64) }
-    render(<WholePaperReport job={job} />)
+    renderReport(job)
     expect(screen.getByText(/Identity: Probable Same Work/)).toBeTruthy()
     expect(screen.getByText(/not an exact identity match/)).toBeTruthy()
     expect(screen.getByText(/current content may differ/)).toBeTruthy()
     expect(screen.getByText(/Retrieved title: Retrieved manuscript version/)).toBeTruthy()
-    expect(screen.getByText('Contradicted')).toBeTruthy()
+    expect(screen.getAllByText(/^(R\d+: )?Contradicted$/)[0]).toBeTruthy()
   })
   it('keeps runtime diagnostics separate from scientific verdicts', async () => {
     const job = jobFixture(); job.runtime_error_code = 'JOB_STORAGE_ERROR'
-    render(<WholePaperReport job={job} />)
+    renderReport(job)
     await waitFor(() => expect(screen.getByRole('alert').textContent).toContain('Committed results remain visible'))
-    expect(screen.getByText('Contradicted')).toBeTruthy()
+    expect(screen.getAllByText(/^(R\d+: )?Contradicted$/)[0]).toBeTruthy()
   })
 })
 
@@ -225,7 +232,6 @@ it('step navigation never bypasses reference review, extraction or job creation'
   fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' }))
   await screen.findByRole('heading', { name: 'Review References' })
   expect(screen.queryByLabelText('Manuscript PDF')).toBeNull()
-  fireEvent.click(screen.getByRole('button', { name: 'Resolve references' }))
   await screen.findByRole('button', { name: 'Continue to Claims' })
   expect(screen.getByRole('button', { name: 'Claims', exact: true })).toHaveProperty('disabled', true)
   expect(services.extract).not.toHaveBeenCalled(); expect(services.create).not.toHaveBeenCalled()
@@ -243,25 +249,29 @@ it('ambiguous claims remain non-executable through review and stage navigation',
   fireEvent.change(screen.getByLabelText('Manuscript PDF'), { target: { files: [new File(['%PDF'], 'paper.pdf')] } })
   fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' })); await resolveAndReview()
   fireEvent.click(screen.getByRole('button', { name: 'Extract claims' }))
-  await screen.findByText('Ambiguous · Citation attribution unclear')
+  await screen.findByRole('status', { name: 'Needs Attention' })
   fireEvent.click(screen.getByRole('button', { name: 'Continue to Verification' }))
-  expect(screen.getByText('2 Claim–Reference pairs ready for verification')).toBeTruthy()
+  expect(screen.getByText('2 Claim–Reference pairs ready')).toBeTruthy()
   expect(screen.getByRole('button', { name: 'Start Verification' })).toHaveProperty('disabled', true)
   expect(services.create).not.toHaveBeenCalled()
 })
 
-it('report navigation shows one claim and retains independent pair verdicts', () => {
+it('report shows all claims in order and retains independent pair verdicts', () => {
   const job = structuredClone(jobFixture())
-  const next = { ...job.claims[0], id: 'another-claim', text: 'Another claim to inspect separately.' }
+  const next = { ...job.claims[0], id: 'another-claim', text: 'Another claim to inspect separately.', reference_ids: [job.tasks[0].reference_id] }
   job.claims.push(next)
   job.tasks.push({ ...job.tasks[0], task_key: 'another-task', claim_id: next.id, pair_outcome: { ...job.tasks[0].pair_outcome!, verification: { ...job.tasks[0].pair_outcome!.verification, claim_id: next.id, verdict: 'INSUFFICIENT', confidence: null } } })
-  render(<WholePaperReport job={job} />)
-  expect(screen.getAllByTestId('pair-card')).toHaveLength(2)
-  expect(screen.getByText('Contradicted')).toBeTruthy()
-  fireEvent.click(screen.getByRole('button', { name: /^Claim 02/ }))
-  expect(screen.getAllByTestId('pair-card')).toHaveLength(1)
-  expect(screen.getByText('Insufficient evidence')).toBeTruthy()
-  expect(screen.queryByText('Contradicted')).toBeNull()
+  renderReport(job)
+  const cards = screen.getAllByTestId('claim-result')
+  expect(cards).toHaveLength(2)
+  expect(screen.queryByRole('navigation', { name: 'Claim navigator' })).toBeNull()
+  expect(within(cards[0]).getByLabelText('Pair verdicts').textContent).toContain('R1: Contradicted')
+  expect(within(cards[0]).getByLabelText('Pair verdicts').textContent).toContain('R2: Source Required')
+  expect(within(cards[1]).getByLabelText('Pair verdicts').textContent).toBe('Insufficient evidence')
+  expect(within(cards[0]).getByText('More details').closest('details')?.open).toBe(false)
+  expect(within(cards[1]).getByText(next.text)).toBeTruthy()
+  expect(within(cards[0]).getByText(job.tasks[0].pair_outcome!.verification.explanation!).closest('details')).toBeTruthy()
+  expect(within(cards[1]).getAllByText(job.tasks[2].pair_outcome!.verification.explanation!)[0].closest('details')).toBeNull()
 })
 
 it('a saved report can revisit preparation without rerunning extraction or creating jobs', async () => {
@@ -278,7 +288,131 @@ it('a saved report can revisit preparation without rerunning extraction or creat
 it.each([null, NaN, Infinity, -0.1, 1.1])('never displays invalid confidence %s', confidence => {
   const job = structuredClone(jobFixture())
   job.tasks[0].pair_outcome!.verification.confidence = confidence
-  render(<WholePaperReport job={job} />)
+  renderReport(job)
   expect(screen.queryByText(/Confidence:/)).toBeNull()
-  expect(screen.getByText('Contradicted')).toBeTruthy()
+  expect(screen.getAllByText(/^(R\d+: )?Contradicted$/)[0]).toBeTruthy()
+})
+
+it('claim review keeps input order, uses two visual states and folds diagnostics at the bottom', () => {
+  const extraction = structuredClone(fixture.job_request.extraction) as ExtractionResult
+  extraction.claims = [
+    { ...extraction.claims[0], id: 'first', text: 'First claim in extraction order.', attribution_status: 'ambiguous' },
+    { ...extraction.claims[0], id: 'second', text: 'Second claim in extraction order.', attribution_status: 'resolved' },
+    { ...extraction.claims[0], id: 'third', text: 'Third claim in extraction order.', attribution_status: 'unresolved' },
+  ]
+  extraction.diagnostics = [{ code: 'TEST_ATTRIBUTION', severity: 'warning', safe_message: 'Review citation attribution.', entity_id: 'first' }]
+  render(<ClaimExtractionPreview parsed={fixture.parse_response.parsed as ParseResponse['parsed']} extraction={extraction} />)
+  expect(screen.getByText('3 Claims · 1 Resolved · 2 Need Attention')).toBeTruthy()
+  const list = screen.getByLabelText('Claim review list')
+  const rows = Array.from(list.querySelectorAll('article'))
+  expect(rows.map(row => row.querySelector('p')!.textContent)).toEqual(extraction.claims.map(claim => claim.text))
+  expect(screen.getAllByRole('status', { name: 'Needs Attention' })).toHaveLength(2)
+  expect(screen.getAllByRole('status', { name: 'Citation Attributed' })).toHaveLength(1)
+  expect(rows.every(row => !row.querySelector('details')!.open)).toBe(true)
+  const diagnostics = screen.getByText('Extraction Diagnostics (1)').closest('details')!
+  expect(diagnostics.open).toBe(false)
+  expect(list.compareDocumentPosition(diagnostics) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  expect(document.querySelector('[class*="overflow-y-auto"]')).toBeNull()
+})
+
+it.each([
+  ['pending', 'Not Verified'], ['running', 'Processing'], ['blocked_source', 'Source Required'], ['failed', 'Processing Failed'],
+] as const)('shows %s as a processing state without a stale scientific verdict', (state, label) => {
+  const job = structuredClone(jobFixture())
+  job.tasks = [{ ...job.tasks[0], state }]
+  job.claims[0].reference_ids = [job.tasks[0].reference_id]
+  renderReport(job)
+  const card = screen.getByTestId('claim-result')
+  expect(within(card).getByLabelText('Pair verdicts').textContent).toBe(label)
+  expect(within(card).queryByText(/Confidence:/)).toBeNull()
+  expect(within(card).queryByText('The cited findings contradict this claim.')).toBeNull()
+  expect(screen.queryAllByText(/Contradicted/)).toHaveLength(0)
+})
+
+it('does not show a scientific verdict when task and result completion disagree', () => {
+  const job = structuredClone(jobFixture())
+  job.tasks = [job.tasks[0]]
+  job.claims[0].reference_ids = [job.tasks[0].reference_id]
+  job.tasks[0].pair_outcome!.verification.processing_status = 'failed'
+  renderReport(job)
+  expect(screen.getByLabelText('Pair verdicts').textContent).toBe('Not Verified')
+  expect(screen.queryByText(/Confidence:/)).toBeNull()
+})
+
+it('many reference results use a neutral count and keep all independent explanations in details', () => {
+  const job = structuredClone(jobFixture())
+  job.tasks = Array.from({ length: 4 }, (_, i) => ({ ...job.tasks[0], task_key: 'pair-' + i }))
+  renderReport(job)
+  expect(screen.getByLabelText('Pair verdicts').textContent).toBe('4 reference results')
+  const card = screen.getByTestId('claim-result')
+  expect(within(card).getAllByText('The cited findings contradict this claim.')).toHaveLength(4)
+  expect(within(card).getAllByText('The cited findings contradict this claim.').every(node => !!node.closest('details'))).toBe(true)
+  expect(document.querySelector('[class*="overflow-y-auto"]')).toBeNull()
+})
+
+it('a claim without executable pairs shows an attribution reason and no scientific conclusion', () => {
+  const job = structuredClone(jobFixture())
+  job.tasks = []; job.claims[0].attribution_status = 'ambiguous'
+  renderReport(job)
+  expect(screen.getByLabelText('Pair verdicts').textContent).toBe('Needs Attention')
+  expect(screen.getByText('Citation attribution is ambiguous.')).toBeTruthy()
+  expect(screen.queryByText(/Confidence:/)).toBeNull()
+})
+
+it('report recovery opens the matching reference above claims without executing resume', async () => {
+  const job = structuredClone(jobFixture())
+  job.references = job.references.map(ref => ref.id === 'r4' ? { ...ref, doi: '10.1234/recover' } : ref)
+  services.get.mockResolvedValue(job)
+  app('/app/manuscripts/jobs/' + jobId)
+  await screen.findByText('Verification overview')
+  const recovery = screen.getByText('Source recovery').closest('details')!
+  expect(recovery.open).toBe(false)
+  fireEvent.click(screen.getByRole('button', { name: 'Recover R2' }))
+  expect(recovery.open).toBe(true)
+  expect(screen.getByLabelText('Source PDF for 10.1234/recover')).toBeTruthy()
+  expect(recovery.compareDocumentPosition(screen.getByTestId('claim-result')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  expect(services.resume).not.toHaveBeenCalled()
+})
+
+it('a completed report without eligible issues has no recovery module', async () => {
+  const job = structuredClone(jobFixture())
+  job.status = 'completed'; job.tasks = [job.tasks[0]]
+  services.get.mockResolvedValue(job)
+  app('/app/manuscripts/jobs/' + jobId)
+  await screen.findByText('Verification overview')
+  expect(screen.queryByText('Source recovery')).toBeNull()
+  expect(screen.queryByRole('button', { name: /Recover R/ })).toBeNull()
+})
+
+it('one executable pair does not become a claim-wide opinion for a multi-reference claim', () => {
+  const job = structuredClone(jobFixture())
+  job.tasks = [job.tasks[0]]
+  renderReport(job)
+  expect(screen.getByLabelText('Pair verdicts').textContent).toBe('R1: Contradicted')
+  expect(screen.getByText('The cited findings contradict this claim.').closest('details')).toBeTruthy()
+})
+
+it('no scientific verdict also means no displayed confidence', () => {
+  const job = structuredClone(jobFixture())
+  job.tasks[0].pair_outcome!.verification.verdict = null
+  renderReport(job)
+  expect(screen.queryByText(/Confidence:/)).toBeNull()
+})
+
+it('allows continuing to Claims while a source is unfinished and cancels its UI request', async () => {
+  let pending: AbortSignal | undefined
+  vi.mocked(prepareReferenceSource).mockImplementationOnce((_reference, signal) => {
+    pending = signal
+    return new Promise((_resolve, reject) => signal.addEventListener('abort', () => reject(signal.reason)))
+  })
+  app(); await screen.findByText(/PDF limit/)
+  fireEvent.change(screen.getByLabelText('Manuscript PDF'), { target: { files: [new File(['%PDF'], 'pending.pdf')] } })
+  fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' }))
+  const next = await screen.findByRole('button', { name: 'Continue to Claims' })
+  await screen.findByRole('status', { name: 'Preparing full text' })
+  expect(next).toHaveProperty('disabled', false)
+  fireEvent.click(next)
+  await screen.findByRole('button', { name: 'Extract claims' })
+  expect(pending?.aborted).toBe(true)
+  expect(services.create).not.toHaveBeenCalled()
 })
