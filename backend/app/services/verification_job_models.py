@@ -14,7 +14,7 @@ from app.researchguard.manuscript_verification import AttributionBlockedClaim, P
 from app.services.manuscript_verification import validate_combined_input, plan_manuscript_pairs
 from app.utils.doi import normalize_doi
 from app.researchguard.source_locator import SourceLocator
-from app.services.source_locator import reference_locator
+from app.services.source_locator import reference_locator, reference_locators
 
 JobId = Annotated[str, StringConstraints(pattern=r"^job_[0-9a-f]{32}$")]
 RawHash = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
@@ -133,7 +133,7 @@ class JobSnapshot(DomainModel):
             if t.source_binding:
                 if (t.source_binding.reference_id != t.reference_id
                         or (t.source_binding.locator or SourceLocator(kind='doi', value=t.source_binding.doi))
-                        != reference_locator(reference)):
+                        not in reference_locators(reference)):
                     raise ValueError("Task source binding does not match its reference")
                 version = t.source_version
                 if version is not None and (not version.startswith("sha256:") or len(version) != 71

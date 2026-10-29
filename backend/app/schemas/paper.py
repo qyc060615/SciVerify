@@ -81,3 +81,4 @@ class RetrievePaperResponse(BaseModel):
     chunks: list[EvidenceChunk] = Field(default_factory=list)
     source: PaperSource
     detail: str | None = None
+    candidates: list[dict[str, Any]] = Field(default_factory=list)

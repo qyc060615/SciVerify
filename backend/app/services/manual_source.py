@@ -102,19 +102,32 @@ def accept_manual_pdf(doi: str, content: bytes) -> dict:
             "raw_content_sha256": artifact.raw_content_sha256, "identity_match": match}
 
 
-def accept_reference_pdf(reference, content: bytes) -> dict:
+def accept_reference_pdf(reference, content: bytes, *, locator=None) -> dict:
     """URL-only PDF association requires a substantive body and a strong title match."""
-    from app.services.source_locator import reference_locator
+    from app.services.source_locator import reference_locator, reference_locators
     from app.services.source_acquisition import inspect_institutional, _url_association
     from app.services.source_identity import _title_relation
     from app.services.document_retriever import RetrievedDocument
     from app.researchguard.source_locator import SourceProvenance
     from app.schemas.paper import PaperMetadata
-    locator = reference_locator(reference)
+    explicit = locator is not None
+    if explicit and locator not in reference_locators(reference):
+        raise ManualSourceError('SOURCE_NOT_CITED', "Choose one of this reference's discovered source targets.")
+    locator = locator or reference_locator(reference)
+    if explicit and locator.kind == 'doi':
+        if len(content) > source_max_size():
+            raise ManualSourceError('FILE_TOO_LARGE', 'The PDF exceeds the upload limit.', 413)
+        from app.services.source_confirmation import inspect_confirmation
+        try:
+            proof = inspect_confirmation(content, 'pdf', reference)
+        except Exception:
+            raise ManualSourceError('INVALID_PDF', 'Upload a readable PDF with extractable text.') from None
+        if proof['status'] != 'confirmed':
+            raise ManualSourceError('SOURCE_MISMATCH', 'The PDF does not directly identify this cited work.')
+        accepted = accept_manual_pdf(locator.value, content)
+        return {**accepted, 'reference_id': reference.id, 'locator': locator.model_dump()}
     if locator is None or locator.kind != 'url':
         raise ManualSourceError('SOURCE_URL_REQUIRED', 'A cited public URL is required.')
-    if reference.resolution and reference.resolution.status != 'non_doi_source':
-        raise ManualSourceError('SOURCE_IDENTITY_UNRESOLVED', 'Resolve the reference identity before uploading.')
     if len(content) > source_max_size():
         raise ManualSourceError('FILE_TOO_LARGE', 'The PDF exceeds the upload limit.', 413)
     try:

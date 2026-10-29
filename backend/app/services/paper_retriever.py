@@ -95,11 +95,13 @@ def retrieve_paper(
     doi: str,
     client: httpx.Client | None = None,
     *, candidate_urls: tuple[str, ...] = (), cache_only: bool = False,
+    metadata_hint: PaperMetadata | None = None, max_candidate_visits: int = MAX_SOURCE_CANDIDATE_VISITS,
 ) -> RetrievePaperResponse:
     """Retrieve paper metadata and, when available, parsed evidence chunks."""
     normalized = normalize_doi(doi)
     store = LocalSourceStore()
     artifact = store.get(normalized)
+    cache_conflict = None
     if artifact is not None and (not artifact.paper.full_text_available or artifact.paper.full_text_format != artifact.format):
         logger.warning("source_cache_rejected doi=%s reason=not_full_text", normalized)
         artifact = None
@@ -107,6 +109,7 @@ def retrieve_paper(
         identity = (SourceIdentity("confirmed", "MANUAL_UPLOAD_ACCEPTED") if artifact.origin == "manual"
                     else qualify_source_identity(artifact.content, artifact.format, artifact.paper))
         if identity.status == "conflict":
+            cache_conflict = identity.reason
             logger.warning("source_cache_rejected doi=%s reason=%s", normalized, identity.reason)
             artifact = None
     if artifact is not None:
@@ -124,10 +127,11 @@ def retrieve_paper(
         except DocumentParseError:
             if not is_full_text_document(artifact.content, artifact.format):
                 logger.warning("source_cache_rejected doi=%s reason=not_full_text", normalized)
-    if cache_only:
+    if cache_only or cache_conflict == 'DOCUMENT_COVER_TITLE_CONFLICT':
         return RetrievePaperResponse(status=PaperRetrievalStatus.FULL_TEXT_UNAVAILABLE,
             paper=PaperMetadata(paper_id=normalized, doi=normalized),
-            source=PaperSource(provider='local_cache'), detail='SOURCE_NOT_CACHED')
+            source=PaperSource(provider='local_cache', identity_status='conflict' if cache_conflict else 'uncertain'),
+            detail='SOURCE_IDENTITY_CONFLICT' if cache_conflict else 'SOURCE_NOT_CACHED')
     logger.info("source_cache_miss doi=%s", normalized)
     owns_client = client is None
     http_client = client or httpx.Client(
@@ -139,10 +143,15 @@ def retrieve_paper(
     try:
         try:
             citation = resolve_doi(normalized, client=http_client)
-        except CitationNotFoundError as exc:
-            raise PaperNotFoundError(str(exc)) from exc
-        except CitationResolverError as exc:
-            raise PaperProviderError(str(exc)) from exc
+        except (CitationNotFoundError, CitationResolverError) as exc:
+            if metadata_hint is None and not candidate_urls and not normalized.startswith('10.48550/arxiv.'):
+                if isinstance(exc, CitationNotFoundError):
+                    raise PaperNotFoundError(str(exc)) from exc
+                raise PaperProviderError(str(exc)) from exc
+            citation = CitationMetadata(doi=normalized, title=metadata_hint.title if metadata_hint else None,
+                authors=metadata_hint.authors if metadata_hint else [], year=metadata_hint.year if metadata_hint else None,
+                source='crossref')
+            logger.info('metadata_unavailable_continue doi=%s reason=%s', normalized, type(exc).__name__)
 
         openalex_work: dict[str, Any] | None = None
         provider_error: PaperProviderError | None = None
@@ -172,12 +181,25 @@ def retrieve_paper(
         if len(candidate_urls) > 3:
             raise ValueError('SOURCE_CANDIDATE_LIMIT')
         hints = []
+        if normalized.startswith("10.48550/arxiv."):
+            candidate_urls = tuple(dict.fromkeys((*candidate_urls, "https://arxiv.org/pdf/" + normalized.split("arxiv.", 1)[1])))[:3]
         for value in candidate_urls:
             url = normalize_candidate_url(value)
             if url:
                 hints.append(FullTextCandidate(url, _format_from_url(url), 'explicit_candidate', 'repository'))
         all_raw = hints + epmc_candidates + openalex_candidates + unpaywall_candidates + s2_candidates
         candidates = _order_candidates(_dedupe_candidates(all_raw))
+        traces = []
+        def trace(candidate):
+            existing = next((r for r in traces if r['url'] == candidate.url), None)
+            if existing is None:
+                existing = dict(url=candidate.url, provider=candidate.provider, format=candidate.format,
+                    attempted=False, state='candidate_found', reason='NOT_ATTEMPTED', full_text_obtained=False,
+                    raw_content_sha256=None)
+                traces.append(existing)
+            return existing
+        for item in candidates:
+            trace(item)
         logger.info(
             "Candidate discovery complete: doi=%s total=%d sources=epmc:%d openalex:%d unpaywall:%d s2:%d",
             normalized,
@@ -203,13 +225,15 @@ def retrieve_paper(
         visited: set[str] = set()
         followups = 0
         visits = 0
-        while pending and visits < MAX_SOURCE_CANDIDATE_VISITS:
+        while pending and visits < min(max_candidate_visits, MAX_SOURCE_CANDIDATE_VISITS):
             candidate, depth = pending.popleft()
             candidate_url = normalize_candidate_url(candidate.url)
             if candidate_url is None or candidate_url in visited:
                 continue
             visited.add(candidate_url)
             visits += 1
+            attempt = trace(candidate)
+            attempt.update(attempted=True, state="unavailable", reason="DOWNLOAD_STARTED")
             logger.info(
                 "Trying full-text candidate: url=%s format=%s provider=%s",
                 candidate.url,
@@ -228,6 +252,7 @@ def retrieve_paper(
                 )
             except DocumentRetrievalError as exc:
                 last_detail = str(exc)
+                attempt.update(reason=last_detail[:1000])
                 logger.warning(
                     "Full-text candidate rejected: url=%s reason=%s",
                     candidate.url,
@@ -249,6 +274,7 @@ def retrieve_paper(
                 )
             except DocumentParseError as exc:
                 last_detail = exc.message
+                attempt.update(reason=last_detail[:1000])
                 logger.warning(
                     "Full-text candidate parsing failed: url=%s reason=%s",
                     candidate.url,
@@ -258,6 +284,7 @@ def retrieve_paper(
 
             if not is_full_text_document(document.content, document.format):
                 last_detail = "The retrieved page is not a full-text scholarly article."
+                attempt.update(reason=last_detail)
                 logger.info("full_text_candidate_rejected url=%s reason=landing_or_abstract", document.source_url)
                 if depth == 0:
                     direct = discover_direct_full_text_links(document.content, document.source_url)
@@ -281,6 +308,7 @@ def retrieve_paper(
             identity = qualify_source_identity(document.content, document.format, paper)
             logger.info("source_identity doi=%s status=%s reason=%s", normalized, identity.status, identity.reason)
             if identity.status == "conflict":
+                attempt.update(state="conflict", reason=identity.reason)
                 last_detail = identity.reason
                 continue
             chunks = chunk_sections(
@@ -324,6 +352,9 @@ def retrieve_paper(
                 logger.warning("source_cache_write_failed doi=%s", normalized)
             response = artifact.response(sections=sections, chunks=chunks)
             response.source.identity_status = identity.status
+            attempt.update(state="accepted", reason=identity.reason, full_text_obtained=True,
+                raw_content_sha256=artifact.raw_content_sha256, identity_status=identity.status)
+            response.candidates = traces
             return response
 
         paper.full_text_available = False
@@ -336,6 +367,7 @@ def retrieve_paper(
             chunks=[],
             source=source,
             detail=last_detail or "Full text is unavailable for evidence retrieval.",
+            candidates=traces,
         )
     finally:
         if owns_client:
@@ -449,7 +481,10 @@ def discover_full_text_candidates(openalex_work: dict[str, Any]) -> list[FullTex
 
 
 def _format_from_url(url: str) -> DocumentFormat:
-    return "pdf" if url.lower().endswith(".pdf") else "html"
+    from urllib.parse import urlsplit
+    parsed = urlsplit(url)
+    return 'pdf' if (parsed.path.lower().endswith('.pdf') or
+        (parsed.hostname in {'arxiv.org', 'www.arxiv.org', 'export.arxiv.org'} and parsed.path.startswith('/pdf/'))) else 'html'
 
 
 def _is_known_oa_repository(url: str) -> bool:

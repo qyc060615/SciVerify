@@ -26,7 +26,7 @@ from app.services.source_store import SourceDurabilityError
 from app.utils.claim_preprocessor import preprocess_claim
 from app.utils.doi import InvalidDOIError, normalize_doi
 from app.researchguard.source_locator import SourceLocator
-from app.services.source_locator import reference_locator
+from app.services.source_locator import reference_locator, reference_locators
 from app.services.source_acquisition import retrieve_reference_source
 
 MAX_CLAIMS = 256
@@ -116,7 +116,7 @@ async def verify_manuscript_core(
     expected_raw_hashes = expected_raw_hashes or {}
     expected_source_versions = expected_source_versions or {}
 
-    prepared, sources, outcomes, provenance = {}, {}, [], {}
+    prepared, sources, outcomes, provenance, selected_locators = {}, {}, [], {}, {}
     original_claim_ids = {c.id for c in extraction.claims}
     for claim, reference, calls in plan:
         # Runtime/storage exceptions propagate, outside semantic failure isolation.
@@ -138,7 +138,7 @@ async def verify_manuscript_core(
             key = locator.key
             # A provisional version requires its own content review even when an
             # exact DOI reference happened to prepare that same source earlier.
-            memo = (key, reference.id if not reference.doi and locator.kind == 'doi' else None)
+            memo = (key, reference.id if len(reference_locators(reference)) > 1 or not reference.doi and locator.kind == 'doi' else None)
             binding = SourceBinding(reference_id=reference.id, doi=doi,
                                     locator=locator if not reference.doi else None)
             if memo not in prepared:
@@ -153,11 +153,17 @@ async def verify_manuscript_core(
                     response = RetrievePaperResponse.model_validate(response.model_dump())
                     actual_locator = response.source.locator or SourceLocator(kind='doi', value=response.paper.doi)
                     provenance[memo] = response.source.provenance
+                    selected_locators[memo] = actual_locator
                     if response.source.provenance:
                         binding = binding.model_copy(update={'provenance': response.source.provenance})
-                    if actual_locator != locator or (locator.kind == 'url' and response.paper.doi is not None):
+                    if actual_locator in reference_locators(reference):
+                        binding = binding.model_copy(update={'doi': response.paper.doi,
+                            'locator': actual_locator if not reference.doi or actual_locator != locator else None})
+                    expected_hash = expected_raw_hashes.get(reference.id, expected_raw_hashes.get(key))
+                    expected_version = expected_source_versions.get(reference.id, expected_source_versions.get(key))
+                    if actual_locator not in reference_locators(reference) or (actual_locator.kind == 'url' and response.paper.doi is not None):
                         prepared[memo] = (ProcessingStatus.SOURCE_MISMATCH, "SOURCE_DOI_MISMATCH" if doi else 'SOURCE_LOCATOR_MISMATCH')
-                    elif key in expected_raw_hashes and response.source.raw_content_sha256 != expected_raw_hashes[key]:
+                    elif expected_hash is not None and response.source.raw_content_sha256 != expected_hash:
                         prepared[memo] = (ProcessingStatus.SOURCE_MISMATCH, "SOURCE_VERSION_CONFLICT")
                     elif response.detail in {'SOURCE_IDENTITY_CONFLICT', 'SOURCE_IDENTITY_UNCERTAIN', 'SOURCE_VERSION_UNCONFIRMED'}:
                         prepared[memo] = (ProcessingStatus.SOURCE_MISMATCH if response.detail == 'SOURCE_IDENTITY_CONFLICT'
@@ -172,7 +178,7 @@ async def verify_manuscript_core(
                         if source_durability_check is not None:
                             await to_thread.run_sync(source_durability_check, response)
                         source, chunks = accepted_source_to_domain(response)
-                        if key in expected_source_versions and source.content_hash != expected_source_versions[key]:
+                        if expected_version is not None and source.content_hash != expected_version:
                             prepared[memo] = (ProcessingStatus.SOURCE_MISMATCH, "SOURCE_VERSION_CONFLICT")
                         elif len(source.model_dump_json().encode("utf-8")) > MAX_PAIR_PAYLOAD_BYTES:
                             prepared[memo] = (ProcessingStatus.FAILED, "SOURCE_METADATA_SIZE_LIMIT")
@@ -190,6 +196,9 @@ async def verify_manuscript_core(
             if isinstance(source, ProcessingStatus):
                 status, reason = source, chunks
                 raise _PairBlocked()
+            chosen = selected_locators.get(memo, locator)
+            binding = binding.model_copy(update={'doi': chosen.value if chosen.kind == 'doi' else None,
+                'locator': chosen if not reference.doi or chosen != locator else None})
             sources[source.id] = source
             prov = provenance.get(memo)
             if prov:

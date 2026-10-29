@@ -111,6 +111,16 @@ def qualify_source_identity(content, doc_format, paper):
             if (len(pages) == 1
                     and re.search(r'(?im)^\s*abstract\s*:?[ \t]*$', text) and not _BODY.search(text)):
                 return SourceIdentity('conflict', 'ABSTRACT_ONLY_PDF')
+            # Apply the same direct-document checks before accepting a cached
+            # artifact, so a known wrong cover also triggers normal remote fallback.
+            from types import SimpleNamespace
+            from app.services.source_confirmation import inspect_confirmation
+            proof = inspect_confirmation(content, 'pdf', SimpleNamespace(title=paper.title,
+                authors=tuple(paper.authors), year=paper.year, raw_text=paper.title or ''))
+            if proof['status'] == 'conflict':
+                return SourceIdentity('conflict', proof['reason'])
+            if proof['status'] == 'confirmed' and paper.title:
+                titles.append(paper.title)
             header = _BOUNDARY.split(pages[0] if pages else '')[0][:4000]
             # Some preprint footers extract the adjacent label without a space:
             # "...20245175doi:". Separate only that numeric-DOI/label boundary;
@@ -128,9 +138,14 @@ def qualify_source_identity(content, doc_format, paper):
             # Transport/parser owns malformed PDF rejection. Do not turn absence into conflict.
             return SourceIdentity('uncertain', 'PDF_IDENTITY_UNAVAILABLE')
     target = normalize_doi(paper.doi)
-    if dois and dois != {target}:
-        return SourceIdentity('conflict', 'ARTICLE_DOI_CONFLICT')
     relations = [_title_relation(paper.title, title) for title in titles]
+    if dois and dois != {target}:
+        # A matching document title can explain an arXiv/formal-publication DOI
+        # difference, but it cannot establish an exact identity or version.
+        if ('match' in relations and 'conflict' not in relations
+                and (target.startswith('10.48550/arxiv.') or all(d.startswith('10.48550/arxiv.') for d in dois))):
+            return SourceIdentity('uncertain', 'RELATED_VERSION_DOI_UNCONFIRMED')
+        return SourceIdentity('conflict', 'ARTICLE_DOI_CONFLICT')
     if 'conflict' in relations:
         return SourceIdentity('conflict', 'ARTICLE_TITLE_CONFLICT')
     if dois == {target}:

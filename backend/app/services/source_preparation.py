@@ -1,6 +1,6 @@
 """Pre-job source checks/acquisition using the same readers and checks as M4."""
 from app.researchguard.domain import Reference
-from app.services.source_locator import reference_locator
+from app.services.source_locator import reference_locator, reference_locators, reference_candidates
 from app.services.source_acquisition import retrieve_reference_source
 from app.services.source_store import LocalSourceStore, verify_source_durability, SourceDurabilityError
 from app.services.paper_retriever import PaperNotFoundError, PaperProviderError
@@ -14,9 +14,12 @@ def prepare_reference(reference: Reference, *, retrieve=False):
                 'retryable': retryable, 'retrieval_status': result.status.value if result else None,
                 'format': result.paper.full_text_format if available else None,
                 'raw_content_sha256': result.source.raw_content_sha256 if available else None,
-                'source': result.source.model_dump(mode='json') if result else None}
-    if reference.resolution and reference.resolution.status not in {'resolved', 'non_doi_source'}:
-        return outcome('needs_attention', 'REFERENCE_' + reference.resolution.status.upper())
+                'source': result.source.model_dump(mode='json') if result else None,
+                'full_text_obtained': available,
+                'identity': ('CONFIRMED' if result.source.identity_status == 'confirmed' else
+                    'POSSIBLE') if available else
+                    ('CONFLICT' if result and ((result.source.identity_status == 'conflict' and not result.candidates) or any((c.get('state') == 'conflict' or c.get('identity_conflict_observed')) and (c.get('priority', 3) <= 2 or len(result.candidates) == 1) for c in result.candidates)) else 'CANDIDATE_FOUND' if not retrieve and reference_candidates(reference) else 'UNAVAILABLE'),
+                'candidates': result.candidates if result and result.candidates else reference_candidates(reference)}
     try:
         locator = reference_locator(reference)
         if locator is None:
@@ -34,7 +37,7 @@ def prepare_reference(reference: Reference, *, retrieve=False):
             reason = result.detail if result.detail and result.detail.startswith('SOURCE_') and result.detail.replace('_', '').isalnum() else 'SOURCE_' + result.status.value.upper()
             identity_issue = 'IDENTITY' in reason or 'ASSOCIATION' in reason or 'VERSION_UNCONFIRMED' in reason
             return outcome('needs_attention' if identity_issue else 'unavailable', reason, result, not identity_issue)
-        if actual != locator or result.source.identity_status == 'conflict':
+        if actual not in reference_locators(reference) or result.source.identity_status == 'conflict':
             return outcome('needs_attention', 'SOURCE_IDENTITY_CONFLICT', result)
         if not result.paper.full_text_available or not result.chunks or result.paper.full_text_format not in {'pdf', 'html'}:
             return outcome('failed' if retrieve else 'not_cached', 'SOURCE_CONTENT_INVALID', result, True)

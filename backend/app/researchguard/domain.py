@@ -134,7 +134,7 @@ class CitationCallout(DomainModel):
 
 
 class ReferenceCandidate(DomainModel):
-    doi: str
+    doi: str | None = None
     title: str
     authors: tuple[str, ...] = ()
     years: tuple[int, ...] = ()
@@ -145,6 +145,16 @@ class ReferenceCandidate(DomainModel):
     match_confidence: Probability = 0
     evidence: tuple[str, ...] = ()
     rejection_reason: str | None = None
+
+
+    urls: Annotated[tuple[str, ...], Field(max_length=6)] = ()
+
+    @model_serializer(mode='wrap')
+    def optional_urls(self, handler):
+        data = handler(self)
+        if not self.urls:
+            data.pop('urls', None)
+        return data
 
 
 class ReferenceResolution(DomainModel):

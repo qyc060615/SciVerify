@@ -12,7 +12,18 @@ export async function getLocalSourceStatus(locator: { kind: 'doi' | 'url'; value
   return (await apiClient.post<LocalSourceStatus>('/api/sources/status', locator, { signal })).data
 }
 
+export interface SourceCandidate {
+  locator?: { kind: 'doi' | 'url'; value: string } | null
+  doi?: string | null; url?: string; urls?: string[]; title?: string | null
+  authors?: string[]; years?: number[]; provider?: string; state?: string
+  reason?: string | null; attempted?: boolean; full_text_obtained?: boolean
+  raw_content_sha256?: string | null; diagnostics?: string[]
+  downloads?: SourceCandidate[]
+}
 export interface PreparedSource {
+  candidates?: SourceCandidate[]
+  identity?: 'CONFIRMED' | 'POSSIBLE' | 'PROBABLE' | 'UNCERTAIN' | 'CANDIDATE_FOUND' | 'CONFLICT' | 'UNAVAILABLE'
+  full_text_obtained?: boolean
   reference_id: string
   state: 'available' | 'not_cached' | 'unavailable' | 'needs_attention' | 'failed'
   reason_code: string
@@ -52,50 +63,27 @@ async function limited<T>(signal: AbortSignal, operation: () => Promise<T>): Pro
   finally { running--; waiting.shift()?.() }
 }
 
-type DoiResult = { status: string; detail?: string | null }
-const downloads = new Map<string, { promise: Promise<DoiResult>; controller: AbortController; users: number }>()
-async function retrieveDoi(doi: string, signal: AbortSignal): Promise<DoiResult> {
-  const key = doi.trim().toLowerCase()
-  let shared = downloads.get(key)
-  if (!shared) {
-    const controller = new AbortController()
-    const promise = apiClient.post<DoiResult>('/api/papers/retrieve', { doi }, { signal: controller.signal, timeout: 180_000 }).then(result => result.data)
-    shared = { controller, promise, users: 0 }
-    downloads.set(key, shared)
-    void promise.finally(() => { if (downloads.get(key) === shared) downloads.delete(key) }).catch(() => {})
-  }
-  shared.users++
-  let released = false
-  const release = () => { if (!released) { released = true; if (--shared.users === 0) shared.controller.abort() } }
-  signal.addEventListener('abort', release, { once: true })
-  try { const result = await shared.promise; signal.throwIfAborted(); return result }
-  finally { signal.removeEventListener('abort', release); release() }
-}
-
 export async function prepareReferenceSource(reference: Reference, signal: AbortSignal): Promise<PreparedSource> {
   return limited(signal, async () => {
     const base: PreparedSource = { reference_id: reference.id, state: 'failed', reason_code: 'SOURCE_REQUEST_FAILED', retryable: true, retrieval_status: null, format: null, raw_content_sha256: null, source: null }
+    let checked: PreparedSource | undefined
     try {
       const local = await checkReferenceSource(reference, signal)
+      checked = local
       if (local.state !== 'not_cached') return local
-      if (reference.doi) {
-        const result = await retrieveDoi(reference.doi, signal)
-        if (result.status !== 'success') return { ...base, state: 'unavailable', reason_code: 'SOURCE_' + result.status.toUpperCase(), retrieval_status: result.status }
-        const confirmed = await checkReferenceSource(reference, signal)
-        return confirmed.state === 'not_cached' ? { ...confirmed, state: 'failed', reason_code: 'SOURCE_PERSISTENCE_UNCONFIRMED', retrieval_status: result.status, retryable: true } : confirmed
-      }
       const retrieved = (await apiClient.post<PreparedSource>('/api/sources/prepare', { reference, retrieve: true }, { signal, timeout: 180_000 })).data
       if (retrieved.reference_id !== reference.id) throw new Error('The source acquisition returned another reference.')
+      if (retrieved.state === 'available' && !sourceAvailable(retrieved)) return { ...retrieved, state: 'failed', reason_code: 'SOURCE_PERSISTENCE_UNCONFIRMED', raw_content_sha256: null, retryable: true }
       return retrieved
     } catch (error) {
       signal.throwIfAborted()
       const status = (error as { status?: number }).status
-      return { ...base, reason_code: status === 404 ? 'SOURCE_NOT_FOUND' : status === 422 || status === 400 ? 'SOURCE_IDENTITY_OR_URL_INVALID' : 'SOURCE_NETWORK_OR_PROVIDER_ERROR', state: status === 422 || status === 400 ? 'needs_attention' : 'failed' }
+      return { ...base, candidates: checked?.candidates, identity: checked?.candidates?.length ? 'CANDIDATE_FOUND' : 'UNAVAILABLE', reason_code: status === 404 ? 'SOURCE_NOT_FOUND' : status === 422 || status === 400 ? 'SOURCE_IDENTITY_OR_URL_INVALID' : 'SOURCE_NETWORK_OR_PROVIDER_ERROR', state: status === 422 || status === 400 ? 'needs_attention' : 'failed' }
     }
   })
 }
 
-export async function uploadReferenceSource(reference: Reference, file: File): Promise<string> {
+export async function uploadReferenceSource(reference: Reference, file: File, locator?: { kind: 'doi' | 'url'; value: string }): Promise<string> {
   if (reference.doi) {
     const result = await uploadManualSource(reference.doi, file)
     if (result.status !== 'accepted' || result.doi.toLowerCase() !== reference.doi.toLowerCase()) throw new Error('The upload did not confirm the target DOI.')
@@ -103,7 +91,9 @@ export async function uploadReferenceSource(reference: Reference, file: File): P
   }
   const form = new FormData()
   form.append('reference', JSON.stringify(reference)); form.append('file', file)
-  const result = (await apiClient.post<{ status: string; reference_id: string; raw_content_sha256: string }>('/api/sources/manual-reference', form, { headers: { 'Content-Type': undefined } })).data
+  if (locator) form.append('locator', JSON.stringify(locator))
+  const result = (await apiClient.post<{ status: string; reference_id: string; raw_content_sha256: string; locator?: { kind: 'doi' | 'url'; value: string } }>('/api/sources/manual-reference', form, { headers: { 'Content-Type': undefined } })).data
   if (result.status !== 'accepted' || result.reference_id !== reference.id) throw new Error('The upload did not confirm the target reference.')
+  if (locator && (result.locator?.kind !== locator.kind || result.locator.value !== locator.value)) throw new Error('The upload did not confirm the selected source target.')
   return result.raw_content_sha256
 }

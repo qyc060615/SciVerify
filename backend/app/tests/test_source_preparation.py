@@ -115,12 +115,15 @@ def test_url_redirect_to_metadata_is_not_contacted(monkeypatch):
     assert seen == [URL]
 
 
-def test_ambiguous_reference_never_downloads(monkeypatch):
+def test_ambiguous_reference_with_explicit_url_downloads_and_verifies_bytes(monkeypatch):
     from app.researchguard.domain import ReferenceResolution
     reference = ref().model_copy(update={'resolution': ReferenceResolution(reference_id='r1', status='ambiguous', match_reason='MULTIPLE_IDENTITIES')})
     seen = transport(monkeypatch, HTML)
-    assert check(TestClient(app), reference, retrieve=True)['state'] == 'needs_attention'
-    assert not seen
+    result = check(TestClient(app), reference, retrieve=True)
+    assert result['state'] == 'available'
+    assert result['raw_content_sha256'] == hashlib.sha256(HTML).hexdigest()
+    assert seen == [URL]
+    assert result['candidates'][0]['attempted'] is True
 
 
 def test_url_manual_pdf_requires_actual_matching_title_and_preserves_manual_origin():

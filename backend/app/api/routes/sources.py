@@ -39,7 +39,7 @@ async def prepare_source(payload: PrepareSourceRequest, request: Request, respon
 
 
 @router.post('/manual-reference')
-async def upload_reference_source(request: Request, reference: str = Form(...), file: UploadFile = File(...)):
+async def upload_reference_source(request: Request, reference: str = Form(...), file: UploadFile = File(...), locator: str | None = Form(None)):
     from app.services.manual_source import accept_reference_pdf
     try:
         peer = request.client.host if request.client else ''
@@ -49,7 +49,11 @@ async def upload_reference_source(request: Request, reference: str = Form(...), 
             raise HTTPException(413, detail={'code': 'REFERENCE_TOO_LARGE'})
         parsed = Reference.model_validate_json(reference)
         content = await file.read(source_max_size() + 1)
-        return await to_thread.run_sync(accept_reference_pdf, parsed, content)
+        if locator is not None and len(locator) > 8192:
+            raise HTTPException(413, detail={'code': 'SOURCE_LOCATOR_TOO_LARGE'})
+        selected = SourceLocator.model_validate_json(locator) if locator else None
+        from functools import partial
+        return await to_thread.run_sync(partial(accept_reference_pdf, parsed, content, locator=selected))
     except ValidationError:
         raise HTTPException(422, detail={'code': 'REFERENCE_INVALID'}) from None
     except ManualSourceError as exc:

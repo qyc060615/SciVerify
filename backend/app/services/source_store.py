@@ -117,7 +117,8 @@ class LocalSourceStore:
             if hashlib.sha256(raw.read_bytes()).hexdigest() == artifact.raw_content_sha256:
                 raise ValueError('Immutable source content conflict')
             logger.warning('source_cache_repair hash=%s', artifact.raw_content_sha256)
-        self._atomic_write(directory / ("source." + artifact.format), artifact.content)
+        if not raw.exists() or raw.read_bytes() != artifact.content:
+            self._atomic_write(raw, artifact.content)
         if not (directory / key).exists():
             self._atomic_write(directory / key, json.dumps(metadata).encode())
         # Publish the DOI pointer last; readers never see a partially written artifact.

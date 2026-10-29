@@ -160,8 +160,7 @@ def review_version(reference, response, *, citing_publication_date=None):
     evidence = list(candidate_evidence(reference, candidate) or ())
     original = {_surname(a) for a in reference.authors if _surname(a)}
     actual = {_surname(a) for a in response.paper.authors if _surname(a)}
-    if original and actual and not original & actual:
-        return {'identity': 'IDENTITY_CONFLICT', 'match_evidence': ('RETRIEVED_AUTHORS_CONFLICT',), 'warnings': ()}
+    authors_differ = bool(original and actual and not original & actual)
     body = _normal(' '.join(s.text for s in response.sections
                             if not s.section_name.lower().startswith(('references', 'bibliography', 'abstract'))))
     terms = _title_terms(reference.title or '')
@@ -173,6 +172,8 @@ def review_version(reference, response, *, citing_publication_date=None):
                  and 'VERSION_DATE_DIFFERS' not in evidence)
     identity = 'PROBABLE_SAME_WORK' if supported else 'IDENTITY_UNCERTAIN'
     warnings = ['VERSION_RELATIONSHIP_UNCONFIRMED']
+    if authors_differ:
+        warnings.append('RETRIEVED_AUTHORS_UNCONFIRMED')
     if _normal(reference.title or '') != _normal(candidate.title):
         warnings.insert(0, 'RETITLED_PREPRINT')
     if not original or not actual:

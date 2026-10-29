@@ -151,3 +151,72 @@ it('an uploaded DOI source refreshes its other reference aliases without retryin
   await waitFor(() => expect(screen.getAllByRole('status', { name: 'Full text available' })).toHaveLength(2))
   expect(actions.prepare.mock.calls.filter(([ref]) => ref.id === 'other-doi')).toHaveLength(1)
 })
+
+
+it('obtained uncertain full text stays visible in yellow with its hash and complete source links', async () => {
+  const url = 'https://example.org/paper.pdf?version=preprint&download=complete'
+  actions.prepare.mockResolvedValue({ ...available, identity: 'UNCERTAIN', source: { provider: 'fixture', identity_status: 'uncertain', provenance: { warnings: ['VERSION_DATE_DIFFERS'] } }, candidates: [{ url, state: 'accepted', attempted: true }] })
+  mount()
+  const status = await screen.findByRole('status', { name: 'Full text acquired, identity pending' })
+  expect(status.className).toContain('text-warning')
+  expect(screen.getByText('SHA-256: ' + hash)).toBeTruthy()
+  fireEvent.click(screen.getByText('More details'))
+  expect(screen.getByRole('link', { name: url }).getAttribute('href')).toBe(url)
+  expect(screen.getByText('VERSION_DATE_DIFFERS')).toBeTruthy()
+  expect(screen.queryByRole('status', { name: 'Full text unavailable' })).toBeNull()
+})
+
+it('exhausted candidates retain reasons and links while explicit conflicts are red', async () => {
+  const url = 'https://example.org/conflict.pdf'
+  actions.prepare.mockResolvedValue({ ...missing, state: 'needs_attention', identity: 'CONFLICT', candidates: [{ url, state: 'conflict', reason: 'ARTICLE_DOI_CONFLICT', attempted: true }] })
+  mount()
+  const status = await screen.findByRole('status', { name: 'Source identity conflict' })
+  expect(status.className).toContain('text-danger')
+  fireEvent.click(screen.getByText('More details'))
+  expect(screen.getByRole('link', { name: url })).toBeTruthy()
+  expect(screen.getByText(/ARTICLE_DOI_CONFLICT/)).toBeTruthy()
+  expect(screen.queryByText(/^SHA-256:/)).toBeNull()
+})
+
+
+it('POSSIBLE full text offers a matching upload even though its bytes already exist', async () => {
+  actions.prepare.mockResolvedValue({ ...available, identity: 'POSSIBLE', source: { provider: 'fixture', identity_status: 'uncertain' } })
+  mount()
+  await screen.findByRole('status', { name: 'Full text acquired, identity pending' })
+  fireEvent.click(screen.getByRole('button', { name: 'Upload matching PDF' }))
+  const ref = fixture.parse_response.parsed.references[0] as Reference
+  expect(await screen.findByLabelText('Source PDF for ' + ref.doi)).toBeTruthy()
+  expect(screen.getByText('SHA-256: ' + hash)).toBeTruthy()
+})
+
+it('identity conflict keeps an immediate correct-PDF upload even for ambiguous metadata', async () => {
+  const ref = fixture.parse_response.parsed.references[0] as Reference
+  const ambiguous = { ...ref, resolution: { reference_id: ref.id, status: 'ambiguous', match_reason: 'MULTIPLE_IDENTITIES', original_doi: null, resolved_doi: null, matched_title: null, provider: null, source_type: 'unknown', source_url: null, match_confidence: null, candidates: [], diagnostics: [] } } as Reference
+  actions.prepare.mockResolvedValue({ ...missing, state: 'needs_attention', identity: 'CONFLICT' })
+  mount(ambiguous)
+  await screen.findByRole('status', { name: 'Source identity conflict' })
+  fireEvent.click(screen.getByRole('button', { name: 'Upload correct PDF' }))
+  expect(await screen.findByLabelText('Source PDF for ' + ref.doi)).toBeTruthy()
+})
+
+it('a candidate-only upload requires an explicit target and never defaults to the first candidate', async () => {
+  const ref = { ...fixture.parse_response.parsed.references[0], doi: null } as Reference
+  actions.prepare.mockResolvedValue({ ...missing, identity: 'CONFLICT', candidates: [
+    { locator: { kind: 'doi', value: '10.1234/one' } }, { locator: { kind: 'url', value: 'https://example.org/two.pdf' } },
+  ] })
+  mount(ref)
+  fireEvent.click(await screen.findByRole('button', { name: 'Upload correct PDF' }))
+  const select = await screen.findByLabelText('Source to attach') as HTMLSelectElement
+  expect(select.value).toBe('')
+  expect(within(select).getAllByRole('option')).toHaveLength(3)
+  expect(actions.upload).not.toHaveBeenCalled()
+})
+
+it('confirmed work stays green while historical version warnings remain visible', async () => {
+  actions.prepare.mockResolvedValue({ ...available, identity: 'CONFIRMED', source: { provider: 'fixture', identity_status: 'confirmed', provenance: { warnings: ['VERSION_DATE_DIFFERS', 'HISTORICAL_VERSION_UNCONFIRMED'] } } })
+  mount()
+  const status = await screen.findByRole('status', { name: 'Full text available' })
+  expect(status.className).toContain('text-success')
+  fireEvent.click(screen.getByText('More details'))
+  expect(screen.getByText('VERSION_DATE_DIFFERS')).toBeTruthy()
+})

@@ -18,7 +18,8 @@ from app.services.verification_job_models import (
 )
 from app.services.verification_job_store import LocalJobStore, JobError, positive_setting
 from app.utils.doi import normalize_doi
-from app.services.source_locator import reference_locator
+from app.services.source_locator import reference_locator, reference_locators
+from app.researchguard.source_locator import SourceLocator
 
 RETRYABLE = frozenset({"VERIFIER_EXECUTION_FAILURE", "VERIFIER_LLM_UNAVAILABLE",
     "VERIFIER_VERIFICATION_FAILED", "PAPERQA2_ADAPTER_FAILURE", "EVIDENCE_RETRIEVAL_FAILURE",
@@ -200,7 +201,15 @@ class VerificationJobRuntime:
             accepted, updates, doi_versions = {}, {}, {}
             for task in selected:
                 try:
-                    locator = reference_locator(references[task.reference_id])
+                    reference = references[task.reference_id]
+                    locator = (task.source_binding.locator or SourceLocator(kind='doi', value=task.source_binding.doi)) if task.source_binding and task.source_version else reference_locator(reference)
+                    supplied_hash = hashes.get(task.reference_id) or task.expected_raw_hash
+                    if supplied_hash and not task.source_version:
+                        for possible in reference_locators(reference):
+                            artifact = await to_thread.run_sync(self.source_store.get_locator, possible)
+                            if artifact and artifact.raw_content_sha256 == supplied_hash:
+                                locator = possible
+                                break
                     if locator is None:
                         raise ValueError('No recoverable locator')
                     doi = locator.key
@@ -266,6 +275,7 @@ class VerificationJobRuntime:
                                 if doi in mapping and mapping[doi] != value:
                                     raise JobError("JOB_SOURCE_VERSION_CONFLICT")
                                 mapping[doi] = value
+                                mapping[t.reference_id] = value
 
                 async def started(claim_id, reference_id):
                     async with self._lock(job_id):

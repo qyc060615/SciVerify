@@ -182,6 +182,8 @@ def _crossref_candidates(payload):
         relations = item.get("relation", {})
         result.append(ReferenceCandidate(doi=doi, title=title[:2000], authors=tuple(_extract_crossref_authors(item.get("author"))[:100]),
             years=years, journal=_first_str(item.get("container-title")), publication_type=work_type, provider="crossref",
+            urls=tuple(dict.fromkeys(v for v in [item.get('URL'),
+                *(link.get('URL') for link in (item.get('link') or []) if isinstance(link, dict))] if isinstance(v, str)))[:6],
             relations=tuple(sorted(relations)) if isinstance(relations, dict) else ()))
     return result
 
@@ -196,7 +198,7 @@ def _openalex_candidates(payload):
         try:
             doi = normalize_doi(_first_str(item.get("doi")) or "")
         except InvalidDOIError:
-            continue
+            doi = None
         title = _first_str(item.get("display_name"))
         if not title:
             continue
@@ -204,7 +206,12 @@ def _openalex_candidates(payload):
         source = location.get("source") or {} if isinstance(location, dict) else {}
         journal = _first_str(source.get("display_name")) if isinstance(source, dict) else None
         year = item.get("publication_year")
-        result.append(ReferenceCandidate(doi=doi, title=title[:2000], authors=tuple(_extract_openalex_authors(item.get("authorships"))[:100]),
+        locations = [location, item.get('best_oa_location'), *(item.get('locations') or [])]
+        urls = tuple(dict.fromkeys(value for loc in locations if isinstance(loc, dict)
+            for key in ('pdf_url', 'landing_page_url') if isinstance(value := loc.get(key), str)))[:6]
+        if not doi and not urls:
+            continue
+        result.append(ReferenceCandidate(doi=doi, urls=urls, title=title[:2000], authors=tuple(_extract_openalex_authors(item.get("authorships"))[:100]),
             years=(year,) if type(year) is int else (), journal=journal, publication_type=_first_str(item.get("type")), provider="openalex"))
     return result
 
@@ -247,7 +254,7 @@ def _select(reference, candidates, diagnostics, successful_providers):
     # Deduplicate identities, not provider hits. Keep rejected candidates visible.
     accepted = {}
     for c in candidates:
-        if c.rejection_reason is None:
+        if c.rejection_reason is None and c.doi:
             accepted.setdefault(c.doi, c)
     version_uncertain = any(c.rejection_reason == "VERSION_UNCERTAIN" for c in candidates)
     # A cited preprint can later be retitled. Shared authors are a reason to
@@ -301,7 +308,18 @@ async def _resolve(reference, client, limited):
     if (official or url) and not article:
         return ReferenceResolution(reference_id=reference.id, status="non_doi_source", source_type="url", source_url=url,
             match_reason="URL_DISCOVERED" if url else "SOURCE_URL_MISSING", diagnostics=tuple(diagnostics + ["DISCOVERED_ONLY", "SOURCE_NOT_YET_ACQUIRED"] + ([] if url else ["URL_MISSING"])))
-    if not reference.title or len(_compact(reference.title)) < 12:
+    from app.services.source_locator import citation_title, citation_arxiv
+    arxiv = citation_arxiv(reference.raw_text)
+    if arxiv:
+        doi = '10.48550/arxiv.' + re.sub(r'v\d+$', '', arxiv)
+        return ReferenceResolution(reference_id=reference.id, status='resolved', resolved_doi=doi,
+            provider='original', source_type='doi', source_url='https://arxiv.org/pdf/' + arxiv,
+            match_reason='EXPLICIT_CITED_ARXIV', diagnostics=tuple(diagnostics + ['ORIGINAL_CITATION_VERSION_UNCONFIRMED']))
+    hint = citation_title(reference)
+    if hint and hint != reference.title:
+        diagnostics.append('TITLE_RECOVERED_SEARCH_HINT')
+    search_input = reference.model_copy(update={'title': hint})
+    if not hint or len(_compact(hint)) < 12:
         return ReferenceResolution(reference_id=reference.id, status="metadata_insufficient", source_url=url,
             match_reason="TITLE_MISSING_OR_TOO_SHORT", diagnostics=tuple(diagnostics))
     if article and official:
@@ -309,15 +327,15 @@ async def _resolve(reference, client, limited):
     candidates, successful = [], 0
     for provider in ("crossref", "openalex"):
         try:
-            found = await search_reference_by_metadata(reference, provider, client, limited)
+            found = await search_reference_by_metadata(search_input, provider, client, limited)
             successful += 1
-            candidates.extend(match_candidate(reference, c) for c in found)
+            candidates.extend(match_candidate(search_input, c) for c in found)
         except ProviderError as exc:
             diagnostics.append(exc.code)
-        selection = _select(reference, candidates, diagnostics, successful)
+        selection = _select(search_input, candidates, diagnostics, successful)
         if selection.status == "resolved":
             return selection
-    selection = _select(reference, candidates, diagnostics, successful)
+    selection = _select(search_input, candidates, diagnostics, successful)
     if url:
         # A failed DOI search does not discard an explicitly cited public URL.
         selection = selection.model_copy(update={'source_type': 'url', 'source_url': url,
