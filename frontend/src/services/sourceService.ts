@@ -51,6 +51,30 @@ export function sourceNeedsUpload(source?: PreparedSource) {
   return ['unavailable', 'failed'].includes(source.state) || source.state === 'available'
 }
 
+// Presentation only: never rewrite the backend identity or acquisition result.
+export function referenceSourceDisplay({ data, isFetching, isError }: { data?: PreparedSource; isFetching: boolean; isError: boolean }) {
+  const preparing = isFetching
+  const conflict = data?.identity === 'CONFLICT' || data?.reason_code === 'SOURCE_IDENTITY_CONFLICT'
+  const ready = !preparing && !isError && sourceAvailable(data) && !sourceNeedsUpload(data)
+  const missing = !preparing && (isError || sourceNeedsUpload(data))
+  // Known issues that require a reliable locator or reference association.
+  // Candidate discovery and identity/version warnings do not imply manual work.
+  const attention = !preparing && !ready && !missing && data?.state === 'needs_attention' && [
+    'SOURCE_LOCATOR_MISSING', 'SOURCE_IDENTITY_OR_URL_INVALID', 'SOURCE_REFERENCE_ASSOCIATION_UNCONFIRMED',
+  ].includes(data.reason_code)
+  const candidate = !preparing && !ready && !missing && !attention && (data?.identity === 'CANDIDATE_FOUND' || !!data?.candidates?.length)
+  const identityUncertain = ready && (data?.identity === 'UNCERTAIN' || (!data?.identity && data?.source?.identity_status === 'uncertain'))
+  const label = preparing ? 'Preparing Full Text'
+    : ready ? 'Full Text Ready' + (identityUncertain ? ' · Identity Uncertain' : '')
+      : missing ? conflict ? 'Source Identity Conflict' : 'Full Text Unavailable'
+        : attention ? 'Needs Attention' : candidate ? 'Candidate Found' : 'Full Text Not Checked'
+  return {
+    ready, missing, attention, preparing, identityUncertain, label,
+    mark: preparing ? '…' : ready ? '✓' : missing ? '×' : attention || candidate ? '!' : '—',
+    color: ready ? 'text-success' : missing ? 'text-danger' : attention || candidate ? 'text-warning' : 'text-text-muted',
+  }
+}
+
 export async function checkReferenceSource(reference: Reference, signal?: AbortSignal): Promise<PreparedSource> {
   const result = (await apiClient.post<PreparedSource>('/api/sources/prepare', { reference, retrieve: false }, { signal, timeout: 120_000 })).data
   if (result.reference_id !== reference.id) throw new Error('The source check returned another reference.')

@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReferenceReview } from '@/components/manuscript/ReferenceReview'
 import fixture from './fixtures/manuscript.json'
 import { apiClient } from '@/services/api'
+import { referenceSourceDisplay, type PreparedSource } from '@/services/sourceService'
 import type { Reference } from '@/types/manuscript'
 const actions = vi.hoisted(() => ({ status: vi.fn(), prepare: vi.fn(), upload: vi.fn(), limits: vi.fn() }))
 vi.mock('@/services/sourceService', async original => ({ ...await original<object>(), checkReferenceSource: actions.status, prepareReferenceSource: actions.prepare }))
@@ -75,13 +76,13 @@ it('URL-only references explain the manual-upload limit rather than fabricating 
 
 it('shows compact unknown availability without inferring success from a DOI', async () => {
   mount(undefined, false)
-  await screen.findByRole('status', { name: 'Full text not checked' })
+  await screen.findByRole('status', { name: 'Full Text Not Checked' })
   expect(screen.getByText('1 References · 0 available · 0 missing')).toBeTruthy()
   const details = screen.getByText('More details').closest('details')!
   expect(details.open).toBe(false)
   expect(within(details).getByText(/^DOI:/)).toBeTruthy()
   expect(screen.queryByRole('button', { name: 'Add Source' })).toBeNull()
-  expect(screen.queryByRole('status', { name: 'Full text available' })).toBeNull()
+  expect(screen.queryByRole('status', { name: 'Full Text Ready' })).toBeNull()
   expect(document.querySelector('[class*="overflow-y-auto"]')).toBeNull()
 })
 
@@ -89,20 +90,20 @@ it('counts availability only after the local file check finishes', async () => {
   let finish!: (value: typeof available) => void
   actions.prepare.mockImplementation(() => new Promise(resolve => { finish = resolve }))
   mount()
-  expect(screen.getByRole('status', { name: 'Preparing full text' })).toBeTruthy()
+  expect(screen.getByRole('status', { name: 'Preparing Full Text' })).toBeTruthy()
   expect(screen.getByText('1 References · 0 available · 0 missing · 1 preparing')).toBeTruthy()
   finish(available)
-  await screen.findByRole('status', { name: 'Full text available' })
+  await screen.findByRole('status', { name: 'Full Text Ready' })
   expect(screen.getByText('1 References · 1 available · 0 missing')).toBeTruthy()
 })
 
 it('a failed preparation has a direct retry and does not invent available full text', async () => {
   actions.prepare.mockResolvedValueOnce({ ...missing, state: 'failed' }).mockResolvedValue(available)
   mount()
-  await screen.findByRole('status', { name: 'Full text unavailable' })
+  await screen.findByRole('status', { name: 'Full Text Unavailable' })
   expect(screen.getByRole('button', { name: 'Upload file' }).closest('details')).toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Retry' }))
-  await screen.findByRole('status', { name: 'Full text available' })
+  await screen.findByRole('status', { name: 'Full Text Ready' })
   expect(actions.prepare).toHaveBeenCalledTimes(2)
 })
 
@@ -112,9 +113,9 @@ it('returning to completed reference review does not automatically prepare or do
   actions.prepare.mockResolvedValue(available)
   const view = (show: boolean) => <QueryClientProvider client={client}>{show && <ReferenceReview references={[reference]} allowSources />}</QueryClientProvider>
   const mounted = render(view(true))
-  await screen.findByRole('status', { name: 'Full text available' })
+  await screen.findByRole('status', { name: 'Full Text Ready' })
   mounted.rerender(view(false)); mounted.rerender(view(true))
-  await screen.findByRole('status', { name: 'Full text available' })
+  await screen.findByRole('status', { name: 'Full Text Ready' })
   expect(actions.prepare).toHaveBeenCalledTimes(1)
 })
 
@@ -127,7 +128,7 @@ it('unmounting consumes the preparation cancellation signal', async () => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } })
   const reference = fixture.parse_response.parsed.references[0] as Reference
   const mounted = render(<QueryClientProvider client={client}><ReferenceReview references={[reference]} allowSources /></QueryClientProvider>)
-  await screen.findByRole('status', { name: 'Preparing full text' })
+  await screen.findByRole('status', { name: 'Preparing Full Text' })
   mounted.unmount()
   expect(signal?.aborted).toBe(true)
 })
@@ -140,32 +141,34 @@ it('an uploaded DOI source refreshes its other reference aliases without retryin
   actions.status.mockResolvedValue(available)
   actions.upload.mockImplementation(async () => { saved = true; return { status: 'accepted', doi: reference.doi, raw_content_sha256: hash } })
   render(<QueryClientProvider client={new QueryClient()}><ReferenceReview references={references} allowSources /></QueryClientProvider>)
-  await waitFor(() => expect(screen.getAllByRole('status', { name: 'Full text unavailable' })).toHaveLength(3))
+  await waitFor(() => expect(screen.getAllByRole('status', { name: 'Full Text Unavailable' })).toHaveLength(3))
   fireEvent.click(screen.getAllByRole('button', { name: 'Upload file' })[0])
   fireEvent.change(screen.getAllByLabelText('Source PDF for ' + reference.doi)[0], { target: { files: [new File(['%PDF'], 'source.pdf')] } })
-  await waitFor(() => expect(screen.getAllByRole('status', { name: 'Full text available' })).toHaveLength(2))
+  await waitFor(() => expect(screen.getAllByRole('status', { name: 'Full Text Ready' })).toHaveLength(2))
   expect(actions.prepare.mock.calls.filter(([ref]) => ref.id === 'other-doi')).toHaveLength(1)
 })
 
 
-it('obtained uncertain full text stays visible in yellow with its hash and complete source links', async () => {
+it('obtained uncertain full text stays green with an identity hint, hash and complete source links', async () => {
   const url = 'https://example.org/paper.pdf?version=preprint&download=complete'
   actions.prepare.mockResolvedValue({ ...available, identity: 'UNCERTAIN', source: { provider: 'fixture', identity_status: 'uncertain', provenance: { warnings: ['VERSION_DATE_DIFFERS'] } }, candidates: [{ url, state: 'accepted', attempted: true }] })
   mount()
-  const status = await screen.findByRole('status', { name: 'Full text acquired, identity pending' })
-  expect(status.className).toContain('text-warning')
+  const status = await screen.findByRole('status', { name: 'Full Text Ready · Identity Uncertain' })
+  expect(status.className).toContain('text-success')
+  expect(status.textContent).toBe('✓Full Text Ready · Identity Uncertain')
+  expect(screen.getByText('1 References · 1 available · 0 missing')).toBeTruthy()
   expect(screen.getByText('SHA-256: ' + hash)).toBeTruthy()
   fireEvent.click(screen.getByText('More details'))
   expect(screen.getByRole('link', { name: url }).getAttribute('href')).toBe(url)
   expect(screen.getByText('VERSION_DATE_DIFFERS')).toBeTruthy()
-  expect(screen.queryByRole('status', { name: 'Full text unavailable' })).toBeNull()
+  expect(screen.queryByRole('status', { name: 'Full Text Unavailable' })).toBeNull()
 })
 
 it('exhausted candidates retain reasons and links while explicit conflicts are red', async () => {
   const url = 'https://example.org/conflict.pdf'
   actions.prepare.mockResolvedValue({ ...missing, state: 'needs_attention', identity: 'CONFLICT', candidates: [{ url, state: 'conflict', reason: 'ARTICLE_DOI_CONFLICT', attempted: true }] })
   mount()
-  const status = await screen.findByRole('status', { name: 'Source identity conflict' })
+  const status = await screen.findByRole('status', { name: 'Source Identity Conflict' })
   expect(status.className).toContain('text-danger')
   fireEvent.click(screen.getByText('More details'))
   expect(screen.getByRole('link', { name: url })).toBeTruthy()
@@ -174,10 +177,16 @@ it('exhausted candidates retain reasons and links while explicit conflicts are r
 })
 
 
-it.each(['POSSIBLE', 'PROBABLE', 'UNCERTAIN'])('%s full text retains warnings without offering upload', async identity => {
+it.each(['CONFIRMED', 'POSSIBLE', 'PROBABLE', 'UNCERTAIN'])('%s full text stays green without requiring manual attention', async identity => {
   actions.prepare.mockResolvedValue({ ...available, identity, source: { provider: 'fixture', identity_status: 'uncertain' } })
   mount()
-  await screen.findByRole('status', { name: 'Full text acquired, identity pending' })
+  const label = identity === 'UNCERTAIN' ? 'Full Text Ready · Identity Uncertain' : 'Full Text Ready'
+  const status = await screen.findByRole('status', { name: label })
+  expect(status.className).toContain('text-success')
+  expect(status.textContent).toBe('✓' + label)
+  expect(screen.getByText('1 References · 1 available · 0 missing')).toBeTruthy()
+  expect(screen.queryByText(/need attention/)).toBeNull()
+  expect(screen.queryByText('Identity Uncertain', { exact: false })).toBe(identity === 'UNCERTAIN' ? status : null)
   expect(screen.queryByRole('button', { name: 'Upload file' })).toBeNull()
   expect(screen.getByText('SHA-256: ' + hash)).toBeTruthy()
 })
@@ -187,7 +196,7 @@ it('identity conflict keeps an immediate correct-PDF upload even for ambiguous m
   const ambiguous = { ...ref, resolution: { reference_id: ref.id, status: 'ambiguous', match_reason: 'MULTIPLE_IDENTITIES', original_doi: null, resolved_doi: null, matched_title: null, provider: null, source_type: 'unknown', source_url: null, match_confidence: null, candidates: [], diagnostics: [] } } as Reference
   actions.prepare.mockResolvedValue({ ...missing, state: 'needs_attention', identity: 'CONFLICT' })
   mount(ambiguous)
-  await screen.findByRole('status', { name: 'Source identity conflict' })
+  await screen.findByRole('status', { name: 'Source Identity Conflict' })
   fireEvent.click(screen.getByRole('button', { name: 'Upload file' }))
   expect(await screen.findByLabelText('Source PDF for ' + ref.doi)).toBeTruthy()
 })
@@ -209,10 +218,11 @@ it('a candidate-only upload requires an explicit target and never defaults to th
 it('confirmed work stays green while historical version warnings remain visible', async () => {
   actions.prepare.mockResolvedValue({ ...available, identity: 'CONFIRMED', source: { provider: 'fixture', identity_status: 'confirmed', provenance: { warnings: ['VERSION_DATE_DIFFERS', 'HISTORICAL_VERSION_UNCONFIRMED'] } } })
   mount()
-  const status = await screen.findByRole('status', { name: 'Full text available' })
+  const status = await screen.findByRole('status', { name: 'Full Text Ready' })
   expect(status.className).toContain('text-success')
   fireEvent.click(screen.getByText('More details'))
   expect(screen.getByText('VERSION_DATE_DIFFERS')).toBeTruthy()
+  expect(screen.getByText('HISTORICAL_VERSION_UNCONFIRMED')).toBeTruthy()
 })
 
 
@@ -230,7 +240,7 @@ it('opens the native PDF picker synchronously without expanding details or uploa
   expect(screen.getByText('More details').closest('details')?.open).toBe(false)
   fireEvent.change(input, { target: { files: [] } })
   expect(actions.upload).not.toHaveBeenCalled()
-  expect(screen.getByRole('status', { name: 'Full text unavailable' })).toBeTruthy()
+  expect(screen.getByRole('status', { name: 'Full Text Unavailable' })).toBeTruthy()
 })
 
 it.each([
@@ -242,7 +252,7 @@ it.each([
   actions.prepare.mockResolvedValue(prepared)
   mount()
   await waitFor(() => expect(actions.prepare).toHaveBeenCalled())
-  await waitFor(() => expect(screen.queryByRole('status', { name: 'Preparing full text' })).toBeNull())
+  await waitFor(() => expect(screen.queryByRole('status', { name: 'Preparing Full Text' })).toBeNull())
   expect(screen.queryByRole('button', { name: 'Upload file' })).toBeNull()
 })
 
@@ -260,7 +270,7 @@ it('keeps failed uploads repairable and allows selecting the same PDF again', as
     expect(input.value).toBe('')
   }
   expect(screen.getByText('The PDF could not be saved locally.')).toBeTruthy()
-  expect(screen.getByRole('status', { name: 'Full text unavailable' })).toBeTruthy()
+  expect(screen.getByRole('status', { name: 'Full Text Unavailable' })).toBeTruthy()
 })
 
 it('rejects a mismatched persisted hash and blocks duplicate uploads while pending', async () => {
@@ -279,7 +289,7 @@ it('rejects a mismatched persisted hash and blocks duplicate uploads while pendi
   expect(actions.upload).toHaveBeenCalledTimes(1)
   finish({ status: 'accepted', doi: ref.doi, raw_content_sha256: hash })
   await screen.findByText(/matching saved file could not be confirmed/)
-  expect(screen.queryByRole('status', { name: 'Full text available' })).toBeNull()
+  expect(screen.queryByRole('status', { name: 'Full Text Ready' })).toBeNull()
   expect(screen.getByRole('button', { name: 'Upload file' })).toHaveProperty('disabled', false)
 })
 
@@ -328,5 +338,89 @@ it.each([new File([], 'empty.pdf'), new File(['%PDF'], 'wrong.txt'), new File(['
   fireEvent.change(screen.getByLabelText('Source PDF for ' + ref.doi), { target: { files: [file] } })
   await waitFor(() => expect(screen.getByRole('button', { name: 'Upload file' })).toHaveProperty('disabled', false))
   expect(actions.upload).not.toHaveBeenCalled()
-  expect(screen.getByRole('status', { name: 'Full text unavailable' })).toBeTruthy()
+  expect(screen.getByRole('status', { name: 'Full Text Unavailable' })).toBeTruthy()
+})
+
+it('uses the lower identity only when the top-level identity is absent', async () => {
+  actions.prepare.mockResolvedValue({ ...available, source: { provider: 'fixture', identity_status: 'uncertain' } })
+  mount()
+  const status = await screen.findByRole('status', { name: 'Full Text Ready · Identity Uncertain' })
+  expect(status.className).toContain('text-success')
+  expect(screen.getByText('1 References · 1 available · 0 missing')).toBeTruthy()
+  expect(screen.queryByRole('button', { name: 'Upload file' })).toBeNull()
+})
+
+it('shows a candidate without treating discovery as available or manual work', async () => {
+  actions.prepare.mockResolvedValue({ ...absent, state: 'needs_attention', identity: 'CANDIDATE_FOUND', candidates: [{ url: 'https://example.org/candidate.pdf', state: 'candidate_found' }] })
+  mount()
+  const status = await screen.findByRole('status', { name: 'Candidate Found' })
+  expect(status.className).toContain('text-warning')
+  expect(status.textContent).toBe('!Candidate Found')
+  expect(screen.getByText('1 References · 0 available · 0 missing')).toBeTruthy()
+  expect(screen.queryByText(/need attention/)).toBeNull()
+  expect(screen.queryByRole('button', { name: 'Upload file' })).toBeNull()
+})
+
+it.each([
+  ['SOURCE_LOCATOR_MISSING', 1],
+  ['SOURCE_IDENTITY_OR_URL_INVALID', 1],
+  ['SOURCE_REFERENCE_ASSOCIATION_UNCONFIRMED', 1],
+  ['SOURCE_VERSION_UNCONFIRMED', 0],
+  ['SOURCE_IDENTITY_UNCERTAIN', 0],
+  ['SOURCE_NOT_CACHED', 0],
+  ['UNKNOWN_WARNING', 0],
+])('counts manual attention only for a known actionable reason: %s', async (reason_code, count) => {
+  actions.prepare.mockResolvedValue({ ...absent, state: 'needs_attention', reason_code, retryable: false })
+  mount()
+  await screen.findByText('Preparation result: ' + reason_code)
+  expect(screen.getByText('1 References · 0 available · 0 missing' + (count ? ' · 1 need attention' : ''))).toBeTruthy()
+  expect(screen.queryByRole('button', { name: 'Upload file' })).toBeNull()
+})
+
+it('keeps aggregate categories mutually exclusive for ready, missing, conflict, candidate and manual issues', async () => {
+  const ref = fixture.parse_response.parsed.references[0] as Reference
+  const outcomes = [
+    { ...available, identity: 'POSSIBLE' },
+    { ...missing, state: 'needs_attention', identity: 'CONFLICT', reason_code: 'SOURCE_IDENTITY_CONFLICT' },
+    { ...missing, state: 'failed', identity: 'UNAVAILABLE' },
+    { ...absent, state: 'needs_attention', identity: 'CANDIDATE_FOUND' },
+    { ...absent, state: 'needs_attention', reason_code: 'SOURCE_LOCATOR_MISSING' },
+  ]
+  const references = outcomes.map((_, i) => ({ ...ref, id: String(i) }))
+  actions.prepare.mockImplementation(async (reference: Reference) => ({ ...outcomes[Number(reference.id)], reference_id: reference.id }))
+  render(<QueryClientProvider client={new QueryClient()}><ReferenceReview references={references} allowSources /></QueryClientProvider>)
+  await screen.findByText('5 References · 1 available · 2 missing · 1 need attention')
+  expect(screen.getByRole('status', { name: 'Source Identity Conflict' }).className).toContain('text-danger')
+  expect(screen.getByRole('status', { name: 'Full Text Unavailable' }).className).toContain('text-danger')
+  expect(screen.getAllByRole('button', { name: 'Upload file' })).toHaveLength(2)
+})
+
+it.each([
+  { ...available, raw_content_sha256: null },
+  { ...available, raw_content_sha256: 'bad-hash' },
+  { ...available, format: null },
+  { ...available, state: 'not_cached' },
+  { ...available, identity: 'CONFLICT' },
+  { ...available, reason_code: 'SOURCE_IDENTITY_CONFLICT' },
+])('never shows a ready state without valid persisted full text and no conflict: %j', data => {
+  const display = referenceSourceDisplay({ data: data as PreparedSource, isFetching: false, isError: false })
+  expect(display.ready).toBe(false)
+  expect(display.color).not.toBe('text-success')
+  expect(display.mark).not.toBe('✓')
+})
+
+it.each([{ isFetching: true, isError: false }, { isFetching: false, isError: true }])('ignores stale available data during fetching or request errors: %j', query => {
+  const display = referenceSourceDisplay({ data: { ...available, identity: 'UNCERTAIN' } as PreparedSource, ...query })
+  expect(display.ready).toBe(false)
+  expect(display.attention).toBe(false)
+  expect(display.mark).not.toBe('✓')
+})
+
+it('accepts persisted HTML and preserves the original backend identity and provenance', () => {
+  const data = { ...available, identity: 'POSSIBLE', format: 'html', source: { provider: 'fixture', identity_status: 'uncertain', provenance: { warnings: ['VERSION_DATE_DIFFERS'] } } } as PreparedSource
+  const before = structuredClone(data)
+  const display = referenceSourceDisplay({ data, isFetching: false, isError: false })
+  expect(display.ready).toBe(true)
+  expect(display.label).toBe('Full Text Ready')
+  expect(data).toEqual(before)
 })

@@ -411,7 +411,7 @@ it('allows continuing to Claims while a source is unfinished and cancels its UI 
   fireEvent.change(screen.getByLabelText('Manuscript PDF'), { target: { files: [new File(['%PDF'], 'pending.pdf')] } })
   fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' }))
   const next = await screen.findByRole('button', { name: 'Continue to Claims' })
-  await screen.findByRole('status', { name: 'Preparing full text' })
+  await screen.findByRole('status', { name: 'Preparing Full Text' })
   expect(next).toHaveProperty('disabled', false)
   fireEvent.click(next)
   await screen.findByRole('button', { name: 'Extract claims' })
@@ -444,4 +444,26 @@ it('uses actual tasks, preserves extraction order and original numbers even with
   expect(screen.getByText('2 claims · 1/2 pairs processed')).toBeTruthy()
   expect(screen.queryByText('Needs Attention')).toBeNull()
   expect(screen.getByText(/No task despite resolved attribution/).closest('details')?.open).toBe(false)
+})
+
+it.each(['CONFIRMED', 'PROBABLE', 'POSSIBLE', 'UNCERTAIN'] as const)('keeps continuing from References to Claims unchanged for ready %s sources', async identity => {
+  for (const reference of fixture.parse_response.parsed.references) {
+    vi.mocked(prepareReferenceSource).mockResolvedValueOnce({
+      reference_id: reference.id, state: 'available', identity, reason_code: 'SOURCE_PERSISTED',
+      retryable: false, retrieval_status: 'success', raw_content_sha256: 'a'.repeat(64), format: 'pdf',
+      source: { provider: 'fixture', identity_status: 'uncertain' },
+    })
+  }
+  app(); await screen.findByText(/PDF limit/)
+  fireEvent.change(screen.getByLabelText('Manuscript PDF'), { target: { files: [new File(['%PDF'], 'ready.pdf')] } })
+  fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' }))
+  const label = identity === 'UNCERTAIN' ? 'Full Text Ready · Identity Uncertain' : 'Full Text Ready'
+  await waitFor(() => expect(screen.getAllByRole('status', { name: label })).toHaveLength(fixture.parse_response.parsed.references.length))
+  expect(screen.queryByText(/need attention/)).toBeNull()
+  const next = screen.getByRole('button', { name: 'Continue to Claims' })
+  expect(next).toHaveProperty('disabled', false)
+  fireEvent.click(next)
+  await screen.findByRole('button', { name: 'Extract claims' })
+  expect(services.extract).not.toHaveBeenCalled()
+  expect(services.create).not.toHaveBeenCalled()
 })

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useQueries, useQuery, useQueryClient, type UseQueryResult } from '@tanstack/react-query'
 import { Button } from '@/components/ui/Button'
 import { getUploadLimits, validatePdf } from '@/services/manuscriptService'
-import { checkReferenceSource, prepareReferenceSource, referenceLocator, referenceSourceKey, sourceAvailable, sourceNeedsUpload, uploadReferenceSource, type PreparedSource, type SourceCandidate } from '@/services/sourceService'
+import { checkReferenceSource, prepareReferenceSource, referenceLocator, referenceSourceKey, referenceSourceDisplay, sourceAvailable, sourceNeedsUpload, uploadReferenceSource, type PreparedSource, type SourceCandidate } from '@/services/sourceService'
 import { wholePaperError } from '@/services/wholePaperErrors'
 import type { Diagnostic, Reference } from '@/types/manuscript'
 import { DiagnosticDetails } from './DiagnosticDetails'
@@ -32,9 +32,8 @@ function ReferenceItem({ reference: ref, index, status, automatic, anchors, onBu
   const [message, setMessage] = useState('')
   const [uploadTarget, setUploadTarget] = useState('')
   const limits = useQuery({ queryKey: ['manuscript-upload-limits'], queryFn: ({ signal }) => getUploadLimits(signal), enabled: automatic && !status.isFetching && (status.isError || sourceNeedsUpload(status.data)), retry: false })
-  const confirmed = !status.isFetching && !status.isError && sourceAvailable(status.data) && !sourceNeedsUpload(status.data)
-  const missing = !status.isFetching && (status.isError || sourceNeedsUpload(status.data))
-  const attention = !status.isFetching && (status.data?.state === 'needs_attention' || (confirmed && (status.data?.source?.identity_status === 'uncertain' || ['POSSIBLE', 'PROBABLE', 'UNCERTAIN'].includes(status.data?.identity ?? ''))) || status.data?.identity === 'CANDIDATE_FOUND')
+  const display = referenceSourceDisplay(status)
+  const { ready: confirmed, missing } = display
   const uploadOptions = [...new Map((status.data?.candidates ?? []).filter(candidate => candidate.locator).map(candidate => [JSON.stringify(candidate.locator), candidate.locator!])).entries()]
   const requiresTarget = !ref.doi && !(ref.resolution?.source_url || ref.url)
   const canUpload = !!ref.doi || !!((ref.resolution?.source_url || ref.url) && ref.title && ref.title.trim().split(/\s+/).length >= 6) || uploadOptions.length > 0
@@ -66,11 +65,10 @@ function ReferenceItem({ reference: ref, index, status, automatic, anchors, onBu
     } catch (error) { if (mounted.current) setMessage(wholePaperError(error)) }
     finally { active.current = false; if (mounted.current) { setBusy(false); onBusy?.(ref.id, false) } }
   }
-  const label = status.isFetching ? 'Preparing full text' : status.data?.identity === 'CONFLICT' ? 'Source identity conflict' : confirmed && attention ? 'Full text acquired, identity pending' : confirmed ? 'Full text available' : missing ? 'Full text unavailable' : attention ? 'Candidate found, review identity or version' : 'Full text not checked'
   return <article id={anchors ? 'reference-' + encodeURIComponent(ref.id) : undefined} className="grid min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-x-3 py-3 text-sm">
     <p className="break-words font-medium [overflow-wrap:anywhere]">R{index + 1} · {ref.title ?? ref.raw_text}</p>
     <div className="flex flex-col items-end gap-1">
-      <span role="status" aria-label={label} className={'text-lg ' + (missing ? 'text-danger' : attention ? 'text-warning' : confirmed ? 'text-success' : 'text-text-muted')}>{status.isFetching ? '…' : missing ? '×' : confirmed ? '✓' : attention ? '!' : '—'}</span>
+      <span role="status" aria-label={display.label} className={'flex flex-wrap items-center justify-end gap-2 text-xs ' + display.color}><span aria-hidden="true" className="text-lg">{display.mark}</span>{display.label}</span>
       {automatic && missing && canUpload && <Button type="button" size="sm" variant="outline" disabled={busy} onClick={event => { event.preventDefault(); event.stopPropagation(); inputRef.current?.click() }}>Upload file</Button>}
       <input ref={inputRef} type="file" accept=".pdf,application/pdf" onClick={event => event.stopPropagation()} hidden aria-label={'Source PDF for ' + (ref.doi ?? ref.id)} disabled={busy} onChange={event => {
         const selected = event.currentTarget.files?.[0]
@@ -100,8 +98,8 @@ function ReferenceItem({ reference: ref, index, status, automatic, anchors, onBu
             <p>{result?.match_reason}</p>
             {result?.candidates.map((candidate, i) => <div key={i} className="space-y-1 border-t border-border pt-2"><p>{candidate.title} · {candidate.doi}</p><p>{candidate.authors.join(', ')} · {candidate.years.join(', ')} · {candidate.provider}</p><p>{candidate.journal} · {candidate.publication_type}</p><p>Identity match score: {Number.isFinite(candidate.match_confidence) ? (candidate.match_confidence * 100).toFixed(0) + '%' : 'Unavailable'} · {candidate.rejection_reason ?? 'Identity criteria met'}</p><p>{candidate.evidence.join(' · ')}</p></div>)}
       {status.data?.candidates?.map((candidate, i) => <CandidateDetails key={i} candidate={candidate} />)}
-      {confirmed && attention && <p>Full text acquired, identity pending. Version and identity warnings remain attached to the source.</p>}
-      <p>Full text: {confirmed ? 'Available locally (' + status.data!.format!.toUpperCase() + ')' : status.isFetching ? 'Preparing' : missing ? 'Unavailable' : attention ? 'Needs Attention' : 'Not checked'}</p>
+      <p>Full text: {confirmed ? 'Available locally (' + status.data!.format!.toUpperCase() + ')' : status.isFetching ? 'Preparing' : missing ? 'Unavailable' : 'Not checked'}</p>
+      {status.data?.source?.identity_status && <p>Source identity status: {status.data.source.identity_status}</p>}
       {status.data && <><p>Preparation result: {status.data.reason_code}</p><p>Retrieval status: {status.data.retrieval_status ?? 'Not run'}</p><p>Full-text provider: {status.data.source?.provider ?? 'None'}</p>{status.data.source?.url && <p className="break-all">Full-text source URL: {status.data.source.url}</p>}{status.data.source?.provenance?.warnings?.map(warning => <p key={warning}>{warning}</p>)}</>}
       {status.data?.identity && <p>Acquired source identity: {status.data.identity}</p>}
       {confirmed && <p className="break-all font-mono">SHA-256: {status.data!.raw_content_sha256}</p>}
@@ -115,10 +113,11 @@ export function ReferenceReview({ references, allowSources = false, onSourceBusy
     queryFn: ({ signal }: { signal: AbortSignal }) => allowSources ? prepareReferenceSource(reference, signal) : checkReferenceSource(reference, signal),
     retry: false, staleTime: Infinity, gcTime: 30 * 60_000, refetchOnWindowFocus: false, refetchOnMount: false,
   })) })
-  const available = statuses.filter(status => !status.isFetching && !status.isError && sourceAvailable(status.data) && !sourceNeedsUpload(status.data)).length
-  const missing = statuses.filter(status => !status.isFetching && (status.isError || sourceNeedsUpload(status.data))).length
-  const attention = statuses.filter(status => !status.isFetching && (status.data?.state === 'needs_attention' || ['POSSIBLE', 'PROBABLE', 'UNCERTAIN', 'CANDIDATE_FOUND'].includes(status.data?.identity ?? ''))).length
-  const preparing = statuses.filter(status => status.isFetching).length
+  const displays = statuses.map(referenceSourceDisplay)
+  const available = displays.filter(status => status.ready).length
+  const missing = displays.filter(status => status.missing).length
+  const attention = displays.filter(status => status.attention).length
+  const preparing = displays.filter(status => status.preparing).length
   const warnings: Diagnostic[] = [...diagnostics, ...references.flatMap(ref => (ref.resolution?.diagnostics ?? []).map(code => ({ code, severity: 'warning' as const, entity_id: ref.id, safe_message: code })))]
   return <div className="min-w-0 space-y-3">
     <p className="text-sm font-medium">{references.length} References · {available} available · {missing} missing{attention > 0 ? ' · ' + attention + ' need attention' : ''}{preparing > 0 ? ' · ' + preparing + ' preparing' : ''}</p>
