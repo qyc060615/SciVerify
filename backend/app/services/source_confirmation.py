@@ -90,7 +90,7 @@ def apply_confirmation(reference, response, locator, *, store=None):
     from app.schemas.paper import PaperRetrievalStatus
     from app.researchguard.source_locator import SourceProvenance
     from app.services.source_store import LocalSourceStore
-    if response.status != PaperRetrievalStatus.SUCCESS or response.source.identity_status == 'conflict':
+    if response.status != PaperRetrievalStatus.SUCCESS or response.source.identity_status == 'conflict' or response.source.origin == 'manual':
         return response
     artifact = (store or LocalSourceStore()).get_locator(locator)
     if artifact is None:

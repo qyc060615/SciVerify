@@ -106,8 +106,15 @@ def retrieve_paper(
         logger.warning("source_cache_rejected doi=%s reason=not_full_text", normalized)
         artifact = None
     if artifact is not None:
-        identity = (SourceIdentity("confirmed", "MANUAL_UPLOAD_ACCEPTED") if artifact.origin == "manual"
-                    else qualify_source_identity(artifact.content, artifact.format, artifact.paper))
+        if artifact.origin == 'manual':
+            from app.services.manual_source import review_manual_source, ManualSourceError
+            try:
+                review = review_manual_source(artifact, artifact.paper)
+                identity = SourceIdentity('conflict' if review['match'] is None else 'uncertain' if review['match'] == 'uncertain' else 'confirmed', 'MANUAL_PDF_IDENTITY_RECHECKED')
+            except ManualSourceError:
+                identity = SourceIdentity('conflict', 'MANUAL_PDF_INVALID')
+        else:
+            identity = qualify_source_identity(artifact.content, artifact.format, artifact.paper)
         if identity.status == "conflict":
             cache_conflict = identity.reason
             logger.warning("source_cache_rejected doi=%s reason=%s", normalized, identity.reason)
@@ -115,14 +122,17 @@ def retrieve_paper(
     if artifact is not None:
         try:
             sections = parse_document(artifact.content, artifact.format)
-            if not is_full_text_document(artifact.content, artifact.format):
+            if artifact.origin != 'manual' and not is_full_text_document(artifact.content, artifact.format):
                 logger.warning("source_cache_rejected doi=%s reason=not_full_text", normalized)
             else:
                 chunks = chunk_sections(sections, artifact.paper.paper_id, artifact.source_url)
                 if chunks:
                     logger.info("source_cache_hit doi=%s origin=%s", normalized, artifact.origin)
                     response = artifact.response(cache_hit=True, sections=sections, chunks=chunks)
-                    response.source.identity_status = "confirmed" if artifact.origin == "manual" else identity.status
+                    response.source.identity_status = identity.status
+                    if artifact.origin == 'manual':
+                        from app.services.manual_source import review_manual_response
+                        response = review_manual_response(artifact.paper, response, artifact)
                     return response
         except DocumentParseError:
             if not is_full_text_document(artifact.content, artifact.format):

@@ -4,7 +4,9 @@ from __future__ import annotations
 import logging
 import re
 import unicodedata
+import hashlib
 from io import BytesIO
+from types import SimpleNamespace
 
 from pypdf import PdfReader
 
@@ -14,6 +16,8 @@ from app.services.document_parser import parse_document
 from app.services.evidence_chunker import chunk_sections
 from app.services.paper_retriever import _build_paper_metadata
 from app.services.source_store import AcceptedSourceArtifact, LocalSourceStore
+from app.researchguard.source_locator import SourceProvenance
+from app.schemas.paper import PaperMetadata, PaperRetrievalStatus
 from app.utils.doi import normalize_doi
 
 logger = logging.getLogger(__name__)
@@ -30,58 +34,137 @@ def _words(text: str) -> str:
     return " ".join(re.findall(r"\w+", unicodedata.normalize("NFKC", text).casefold()))
 
 
-def match_pdf_identity(doi, citation, header, metadata) -> str | None:
-    """DOI in first-page header/metadata; fallback exact title plus author AND year.
-
-    Header is restricted to 4000 chars before the first body/reference heading. Conflicting
-    DOI evidence blocks fallback. Short/generic titles cannot establish identity.
-    """
-    header = re.split(r"(?im)^\s*(?:abstract|introduction|background|methods|results|discussion|references|bibliography)\s*:?[ \t]*$", header)[0][:4000]
+def _manual_identity(doi, citation, header, metadata):
+    """Only positive contrary evidence rejects a user-selected source."""
+    from app.services.source_confirmation import compact
+    from app.services.source_identity import _title_relation
+    header = re.split(r"(?im)^\s*(?:[/\d.()]+\s*)?(?:abstract|introduction|background|methods|results|discussion|references|bibliography)\b", header)[0][:4000]
     identity_metadata = " ".join(str(metadata.get(key, "")) for key in
                                   ("/DOI", "/doi", "/Subject", "/Keywords"))
-    found = {normalize_doi(m.group(0).rstrip(").,;]}")) for m in _DOI.finditer(header + "\n" + identity_metadata)}
-    if found:
-        return "doi" if found == {doi} else None
-    title = _words(citation.title or "")
-    # A full contiguous title in the title/header region, never anywhere in body.
-    title_region = _words(str(metadata.get("/Title", "")) + "\n" + header[:2000])
-    if len(title.split()) < 6 or len(title) < 35 or not (" " + title + " ") in (" " + title_region + " "):
-        return None
-    surnames = [_words(author).split()[-1] for author in citation.authors if _words(author)]
-    region = " " + _words(header) + " "
-    if not citation.year or not surnames:
-        return None
-    if (str(citation.year) in re.findall(r"\b\d{4}\b", header)
-            and any(len(name) >= 3 and " " + name + " " in region for name in surnames)):
-        return "title_author_year"
-    return None
+    found = set()
+    for match in _DOI.finditer(header + '\n' + identity_metadata):
+        try:
+            found.add(normalize_doi(match.group(0).rstrip(').,;]}')))
+        except ValueError:
+            pass
+    expected = citation.title or ''
+    target = compact(expected)
+    lines = [line.strip() for line in header.splitlines() if line.strip()]
+    actual = str(metadata.get('/Title', '')).strip()
+    if not actual or re.search(r'(?i)^arxiv:|microsoft|untitled|\.(?:docx?|dvi)$|^document$', actual):
+        actual = next((line for line in lines[:5] if not re.search(r'(?i)^arxiv:|published as|^https?://', line)), '')
+    standalone = bool(len(target) >= 10 and any(target == compact(' '.join(lines[start:end]))
+        for start in range(min(8, len(lines))) for end in range(start + 1, min(start + 5, len(lines)) + 1)))
+    title_match = bool(target and (standalone or _title_relation(expected, actual) == 'match'
+        or (len(expected.split()) >= 6 and target in compact(header[:2000]))))
+    authors = tuple(citation.authors or ())
+    author_region = compact(header + ' ' + str(metadata.get('/Author', '')))
+    overlap = any(compact(author) in author_region for author in authors if len(compact(author)) >= 5)
+    overlap = overlap or any(compact(author.split()[-1]) in author_region
+        for author in authors if author.split() and len(compact(author.split()[-1])) >= 4)
+    def named_author(line):
+        words = re.findall(r'[^\W\d_]+', line)
+        return 2 <= len(words) <= 6 and all(word[0].isupper() for word in words) and not re.search(
+            r'(?i)university|universidad|institute|journal|research|abstract|copyright|proceedings|department', line)
+    author_evidence = any(named_author(line) for line in [str(metadata.get('/Author', '')), *lines[1:]])
+    title_conflict = bool(expected and len(actual.split()) >= 4 and _title_relation(expected, actual) == 'conflict')
+    conflict = title_conflict and not title_match and bool(authors) and author_evidence and not overlap
+    related_version = bool(doi and title_match and len(found) == 1
+        and any(value.startswith(('10.48550/arxiv.', '10.1101/')) for value in [doi, *found])
+        and next(iter(found)).split('/')[0] != doi.split('/')[0])
+    if found and doi and found != {doi} and not related_version:
+        conflict = True
+    match = None if conflict else 'doi' if doi and found == {doi} else 'uncertain' if related_version else 'title' if title_match else 'uncertain'
+    if match == 'title' and overlap and citation.year and str(citation.year) in re.findall(r'\b\d{4}\b', header):
+        match = 'title_author_year'  # Retain the existing receipt for this stronger case.
+    return {'match': match, 'title': actual or None, 'dois': found, 'related_version': related_version}
 
 
-def accept_manual_pdf(doi: str, content: bytes) -> dict:
-    normalized = normalize_doi(doi)
+def match_pdf_identity(doi, citation, header, metadata) -> str | None:
+    return _manual_identity(doi, citation, header, metadata)['match']
+
+
+def _read_manual_pdf(content, *, validate_body=True):
     if len(content) > source_max_size():
-        raise ManualSourceError("FILE_TOO_LARGE", "The PDF exceeds the configured upload size limit.", 413)
-    if not content or not content.startswith(b"%PDF-"):
-        raise ManualSourceError("INVALID_PDF", "Select a non-empty, valid PDF file.")
+        raise ManualSourceError('FILE_TOO_LARGE', 'The PDF exceeds the configured upload size limit.', 413)
     try:
-        sections = parse_document(content, "pdf")
+        if not content.startswith(b'%PDF-'):
+            raise ValueError('Invalid PDF')
         reader = PdfReader(BytesIO(content))
         if reader.is_encrypted or not reader.pages:
-            raise ValueError("Unsupported PDF")
-        header = reader.pages[0].extract_text() or ""
-        metadata = reader.metadata or {}
+            raise ValueError('Unsupported PDF')
+        sections = parse_document(content, 'pdf') if validate_body else []
+        has_abstract = any(section.section_name.casefold() == 'abstract' for section in sections)
+        body = [section for index, section in enumerate(sections)
+            if not (has_abstract and index == 0 and section.section_name == 'Body')
+            and section.section_name.casefold() not in {'abstract', 'references', 'bibliography'}
+            and len(_words(section.text).split()) >= 3]
+        if validate_body and not body:
+            raise ValueError('No usable body')
+        return sections, reader.pages[0].extract_text() or '', reader.metadata or {}
+    except ManualSourceError:
+        raise
     except Exception as exc:
-        raise ManualSourceError("INVALID_PDF", "The PDF could not be read. Upload a PDF with extractable text.") from exc
-    try:
-        citation = resolve_doi(normalized)
-    except (CitationResolverError, CitationNotFoundError) as exc:
-        raise ManualSourceError("METADATA_UNAVAILABLE", "The cited paper metadata could not be resolved. Try again later.", 503) from exc
-    if normalize_doi(citation.doi) != normalized:
-        raise ManualSourceError("METADATA_UNAVAILABLE", "The resolver returned a different paper identity.", 503)
-    match = match_pdf_identity(normalized, citation, header, metadata)
+        raise ManualSourceError('INVALID_PDF', 'Upload a readable PDF with extractable full text.') from exc
+
+
+def _manual_provenance(locator, target, content, review):
+    uncertain = review['match'] == 'uncertain'
+    warnings = ['HISTORICAL_VERSION_UNCONFIRMED']
+    if uncertain:
+        warnings.append('SOURCE_IDENTITY_UNCERTAIN')
+    if review['related_version']:
+        warnings.append('RELATED_VERSION_DOI_UNCONFIRMED')
+    return SourceProvenance(original_citation=getattr(target, 'raw_text', None),
+        matched_doi=locator.value if review['match'] == 'doi' else None,
+        identity='IDENTITY_UNCERTAIN' if uncertain else 'EXACT_IDENTITY', document_kind='ARTICLE_FULL_TEXT',
+        retrieved_title=review['title'], retrieved_version='sha256:' + hashlib.sha256(content).hexdigest(),
+        match_evidence=('USER_SELECTED_' + locator.kind.upper() + '_LOCATOR',
+            'MANUAL_PDF_' + ('IDENTITY_UNCONFIRMED' if uncertain else 'DOI_MATCH' if review['match'] == 'doi' else 'TITLE_MATCH'),
+            *('PDF_DOI:' + value for value in sorted(review['dois']))), warnings=tuple(warnings))
+
+
+def review_manual_source(artifact, target):
+    """Recheck persisted manual bytes without promoting the user's Locator into evidence."""
+    # The acquisition reader extracts the persisted body/chunks separately.
+    _, header, metadata = _read_manual_pdf(artifact.content, validate_body=False)
+    locator = artifact.source_locator
+    return _manual_identity(locator.value if locator.kind == 'doi' else None, target, header, metadata)
+
+
+def review_manual_response(reference, response, artifact):
+    review = review_manual_source(artifact, reference)
+    response = response.model_copy(deep=True)
+    if review['match'] is None:
+        response.status = PaperRetrievalStatus.FULL_TEXT_UNAVAILABLE
+        response.chunks = []
+        response.detail = 'SOURCE_IDENTITY_CONFLICT'
+        response.source.identity_status = 'conflict'
+    else:
+        response.source.identity_status = 'uncertain' if review['match'] == 'uncertain' else 'confirmed'
+        response.source.provenance = _manual_provenance(artifact.source_locator, reference, artifact.content, review)
+        response.detail = None
+    return response
+
+
+def accept_manual_pdf(doi: str, content: bytes, *, reference=None) -> dict:
+    normalized = normalize_doi(doi)
+    sections, header, metadata = _read_manual_pdf(content)
+    citation = None
+    if reference is None:
+        try:
+            citation = resolve_doi(normalized)
+        except (CitationResolverError, CitationNotFoundError):
+            pass
+    if citation and normalize_doi(citation.doi) != normalized:
+        citation = None
+    target = reference or citation or SimpleNamespace(title=None, authors=(), year=None)
+    review = _manual_identity(normalized, target, header, metadata)
+    match = review['match']
     if match is None:
         raise ManualSourceError("SOURCE_MISMATCH", "The uploaded PDF does not appear to match DOI " + normalized + ".")
-    paper = _build_paper_metadata(citation, None)
+    paper = _build_paper_metadata(citation, None) if citation else PaperMetadata(paper_id=normalized, doi=normalized,
+        title=getattr(target, 'title', None), authors=list(target.authors), year=target.year)
     paper.full_text_available = True
     paper.full_text_format = "pdf"
     # No fabricated remote URL for an uploaded file.
@@ -89,13 +172,19 @@ def accept_manual_pdf(doi: str, content: bytes) -> dict:
     chunks = chunk_sections(sections, paper.paper_id)
     if not chunks:
         raise ManualSourceError("INVALID_PDF", "The PDF contains no usable source text.")
+    from app.researchguard.source_locator import SourceLocator
+    locator = SourceLocator(kind='doi', value=normalized)
     artifact = AcceptedSourceArtifact.create(
         doi=normalized, content=content, format="pdf", source_url=None,
-        provider="manual_upload", origin="manual", paper=paper,
+        provider="manual_upload", origin="manual", paper=paper, locator=locator,
+        provenance=_manual_provenance(locator, target, content, review),
     )
     try:
-        LocalSourceStore().put(artifact)
-    except OSError as exc:
+        store = LocalSourceStore()
+        store.put(artifact)
+        from app.services.source_store import verify_source_durability
+        verify_source_durability(artifact.response(), store)
+    except (OSError, ValueError) as exc:
         raise ManualSourceError("SOURCE_STORE_FAILED", "The PDF could not be saved locally. Check the source cache directory.", 503) from exc
     logger.info("manual_source_accepted doi=%s match=%s", normalized, match)
     return {"status": "accepted", "doi": normalized,
@@ -103,55 +192,27 @@ def accept_manual_pdf(doi: str, content: bytes) -> dict:
 
 
 def accept_reference_pdf(reference, content: bytes, *, locator=None) -> dict:
-    """URL-only PDF association requires a substantive body and a strong title match."""
+    """Keep the user-selected reference binding; reject only positive conflicts."""
     from app.services.source_locator import reference_locator, reference_locators
-    from app.services.source_acquisition import inspect_institutional, _url_association
-    from app.services.source_identity import _title_relation
-    from app.services.document_retriever import RetrievedDocument
-    from app.researchguard.source_locator import SourceProvenance
-    from app.schemas.paper import PaperMetadata
     explicit = locator is not None
     if explicit and locator not in reference_locators(reference):
         raise ManualSourceError('SOURCE_NOT_CITED', "Choose one of this reference's discovered source targets.")
     locator = locator or reference_locator(reference)
-    if explicit and locator.kind == 'doi':
-        if len(content) > source_max_size():
-            raise ManualSourceError('FILE_TOO_LARGE', 'The PDF exceeds the upload limit.', 413)
-        from app.services.source_confirmation import inspect_confirmation
-        try:
-            proof = inspect_confirmation(content, 'pdf', reference)
-        except Exception:
-            raise ManualSourceError('INVALID_PDF', 'Upload a readable PDF with extractable text.') from None
-        if proof['status'] != 'confirmed':
-            raise ManualSourceError('SOURCE_MISMATCH', 'The PDF does not directly identify this cited work.')
-        accepted = accept_manual_pdf(locator.value, content)
+    if locator and locator.kind == 'doi':
+        accepted = accept_manual_pdf(locator.value, content, reference=reference)
         return {**accepted, 'reference_id': reference.id, 'locator': locator.model_dump()}
     if locator is None or locator.kind != 'url':
         raise ManualSourceError('SOURCE_URL_REQUIRED', 'A cited public URL is required.')
-    if len(content) > source_max_size():
-        raise ManualSourceError('FILE_TOO_LARGE', 'The PDF exceeds the upload limit.', 413)
-    try:
-        if not content.startswith(b'%PDF-'):
-            raise ValueError('Invalid PDF')
-        sections = parse_document(content, 'pdf')
-        document = RetrievedDocument(content, None, 'pdf', 'application/pdf', '')
-        kind, identity, title, date = inspect_institutional(document, reference, locator)
-    except Exception as exc:
-        raise ManualSourceError('INVALID_PDF', 'Upload a readable PDF with extractable text.') from exc
-    expected = _words(reference.title or '')
-    if (kind != 'INSTITUTIONAL_DOCUMENT' or identity == 'IDENTITY_CONFLICT'
-            or len(expected.split()) < 6 or len(expected) < 35
-            or _title_relation(reference.title, title) != 'match'
-            or not _url_association(reference, title, sections)):
-        raise ManualSourceError('SOURCE_MISMATCH', 'The PDF cannot be reliably matched to this cited reference.')
-    paper = PaperMetadata(paper_id=locator.key, title=title, authors=list(reference.authors),
-        year=reference.year, publication_date=date, url=locator.value,
+    sections, header, metadata = _read_manual_pdf(content)
+    review = _manual_identity(None, reference, header, metadata)
+    if review['match'] is None:
+        raise ManualSourceError('SOURCE_MISMATCH', 'The PDF identifies a different paper.')
+    paper = PaperMetadata(paper_id=locator.key, title=reference.title, authors=list(reference.authors),
+        year=reference.year, url=locator.value,
         full_text_available=True, full_text_format='pdf')
     if not chunk_sections(sections, paper.paper_id):
         raise ManualSourceError('INVALID_PDF', 'The PDF contains no usable full text.')
-    provenance = SourceProvenance(original_citation=reference.raw_text, source_url=locator.value,
-        identity='EXACT_IDENTITY', document_kind=kind, retrieved_title=title,
-        match_evidence=('MANUAL_PDF_TITLE_MATCH',), warnings=('HISTORICAL_VERSION_UNCONFIRMED',))
+    provenance = _manual_provenance(locator, reference, content, review)
     artifact = AcceptedSourceArtifact.create(locator=locator, content=content, format='pdf',
         source_url=None, provider='manual_upload', origin='manual', paper=paper, provenance=provenance)
     try:
@@ -162,4 +223,4 @@ def accept_reference_pdf(reference, content: bytes, *, locator=None) -> dict:
     except (OSError, ValueError) as exc:
         raise ManualSourceError('SOURCE_STORE_FAILED', 'The matching PDF could not be confirmed in local storage.', 503) from exc
     return {'status': 'accepted', 'reference_id': reference.id, 'locator': locator.model_dump(),
-            'raw_content_sha256': artifact.raw_content_sha256, 'identity_match': 'title'}
+            'raw_content_sha256': artifact.raw_content_sha256, 'identity_match': review['match']}

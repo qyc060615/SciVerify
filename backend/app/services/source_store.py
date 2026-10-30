@@ -119,8 +119,16 @@ class LocalSourceStore:
             logger.warning('source_cache_repair hash=%s', artifact.raw_content_sha256)
         if not raw.exists() or raw.read_bytes() != artifact.content:
             self._atomic_write(raw, artifact.content)
-        if not (directory / key).exists():
-            self._atomic_write(directory / key, json.dumps(metadata).encode())
+        metadata_path = directory / key
+        if artifact.origin == 'manual' and metadata_path.exists():
+            # An explicit upload may rebind even identical bytes. Preserve the
+            # previous acquisition record as well as the immutable raw file.
+            previous = directory / (key + '.previous')
+            if not previous.exists():
+                self._atomic_write(previous, metadata_path.read_bytes())
+            self._atomic_write(metadata_path, json.dumps(metadata).encode())
+        elif not metadata_path.exists():
+            self._atomic_write(metadata_path, json.dumps(metadata).encode())
         # Publish the DOI pointer last; readers never see a partially written artifact.
         self._atomic_write(self._locator_path(locator), json.dumps({
             "raw_content_sha256": artifact.raw_content_sha256,

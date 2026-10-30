@@ -128,7 +128,7 @@ export async function prepareReferenceSource(reference: Reference, signal: Abort
 
 export async function uploadReferenceSource(reference: Reference, file: File, locator?: { kind: 'doi' | 'url'; value: string }): Promise<string> {
   if (reference.doi) {
-    const result = await uploadManualSource(reference.doi, file)
+    const result = await uploadManualSource(reference.doi, file, reference)
     if (result.status !== 'accepted' || result.doi.toLowerCase() !== reference.doi.toLowerCase()) throw new Error('The upload did not confirm the target DOI.')
     return result.raw_content_sha256
   }

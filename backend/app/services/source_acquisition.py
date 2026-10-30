@@ -123,6 +123,11 @@ def retrieve_url_source(reference, locator=None, *, client=None, store=None, ref
     if artifact and (not artifact.paper.full_text_available or artifact.paper.full_text_format != artifact.format):
         artifact = None
     if artifact and not refresh:
+        if artifact.origin == 'manual':
+            from app.services.manual_source import review_manual_response
+            sections = parse_document(artifact.content, artifact.format)
+            chunks = chunk_sections(sections, artifact.paper.paper_id, artifact.source_url)
+            return review_manual_response(reference, artifact.response(cache_hit=True, sections=sections, chunks=chunks), artifact)
         cached = RetrievedDocument(artifact.content, None, artifact.format,
             'application/pdf' if artifact.format == 'pdf' else 'text/html', artifact.source_url or locator.value)
         try:
@@ -234,6 +239,9 @@ def _review_reference(reference, response, locator, citing_publication_date=None
     """Review the acquired document; missing metadata is never a contradiction."""
     response = response.model_copy(deep=True)
     artifact = LocalSourceStore().get_locator(locator)
+    if artifact and artifact.origin == 'manual':
+        from app.services.manual_source import review_manual_response
+        return review_manual_response(reference, response, artifact)
     title = document_title(artifact.content, artifact.format, response.paper.title) if artifact else response.paper.title
     expected = citation_title(reference)
     # A document-verified DOI can corroborate its canonical metadata even when

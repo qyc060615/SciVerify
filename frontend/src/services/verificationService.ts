@@ -2,7 +2,7 @@ import axios from 'axios'
 import { extractDoi, InvalidDoiError } from '@/lib/doi'
 import { apiClient } from '@/services/api'
 import { ApiResponseError } from '@/services/ApiResponseError'
-import type { ManualSourceResponse } from '@/types/manuscript'
+import type { ManualSourceResponse, Reference } from '@/types/manuscript'
 import {
   mapBackendVerificationToResult,
   mapInsufficientEvidenceResult,
@@ -34,10 +34,11 @@ export class SourceRequiredError extends VerificationServiceError {
   }
 }
 
-export async function uploadManualSource(doi: string, file: File): Promise<ManualSourceResponse> {
+export async function uploadManualSource(doi: string, file: File, reference?: Reference): Promise<ManualSourceResponse> {
   const form = new FormData()
   form.append('doi', doi)
   form.append('file', file)
+  if (reference) form.append('reference', JSON.stringify(reference))
   try {
     const { data } = await apiClient.post<ManualSourceResponse>('/api/sources/manual', form, {
       headers: { 'Content-Type': undefined },

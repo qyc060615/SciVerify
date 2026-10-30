@@ -17,7 +17,7 @@ def prepare_reference(reference: Reference, *, retrieve=False):
                 'source': result.source.model_dump(mode='json') if result else None,
                 'full_text_obtained': available,
                 'identity': ('CONFIRMED' if result.source.identity_status == 'confirmed' else
-                    'POSSIBLE') if available else
+                    'UNCERTAIN' if result.source.origin == 'manual' else 'POSSIBLE') if available else
                     ('CONFLICT' if result and ((result.source.identity_status == 'conflict' and not result.candidates) or any((c.get('state') == 'conflict' or c.get('identity_conflict_observed')) and (c.get('priority', 3) <= 2 or len(result.candidates) == 1) for c in result.candidates)) else 'CANDIDATE_FOUND' if not retrieve and reference_candidates(reference) else 'UNAVAILABLE'),
                 'candidates': result.candidates if result and result.candidates else reference_candidates(reference)}
     try:

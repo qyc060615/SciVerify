@@ -187,12 +187,10 @@ def test_valid_upload_real_pdf_hash_provenance_and_safe_filename(canonical, capl
 
 @pytest.mark.parametrize("lines,metadata", [
     (["Completely different article", "10.1234/wrong", "Results", "Other finding."], None),
-    (["Other paper", "References", DOI, "Results", "Other finding."], None),
     ([TITLE, "Ada Lovelace 2020", "10.1234/wrong", "Results", "Other finding."], None),
     ([TITLE, "Ada Lovelace 2020", DOI, "10.1234/wrong"], None),
-    (["Generic text without identity", "Results", "Other finding."], None),
 ])
-def test_wrong_or_ambiguous_pdf_is_rejected_and_does_not_replace_cache(canonical, lines, metadata):
+def test_conflicting_pdf_is_rejected_and_does_not_replace_cache(canonical, lines, metadata):
     original = artifact()
     LocalSourceStore().put(original)
     response = TestClient(app).post("/api/sources/manual", data={"doi": DOI},
@@ -204,10 +202,10 @@ def test_wrong_or_ambiguous_pdf_is_rejected_and_does_not_replace_cache(canonical
 @pytest.mark.parametrize("header,metadata,expected", [
     ("Other text", {"/DOI": DOI}, "doi"),
     (TITLE + "\nAda Lovelace 2020", {}, "title_author_year"),
-    (TITLE + "\n2020", {}, None),
-    (TITLE + "\nAda Lovelace", {}, None),
-    ("References\n" + TITLE + "\nAda Lovelace 2020", {}, None),
-    ("x" * 4001 + DOI, {}, None),
+    (TITLE + "\n2020", {}, 'title'),
+    (TITLE + "\nAda Lovelace", {}, 'title'),
+    ("References\n" + TITLE + "\nAda Lovelace 2020", {}, 'uncertain'),
+    ("x" * 4001 + DOI, {}, 'uncertain'),
     ("10.1234/recovery-extra", {}, None),
 ])
 def test_deterministic_matching_policy(header, metadata, expected):
@@ -236,15 +234,11 @@ def test_oversized_upload_and_invalid_doi(canonical, monkeypatch):
     canonical.assert_not_called()
 
 
-@pytest.mark.parametrize("failure", ["metadata", "store"])
-def test_upload_failures_are_safe_and_retryable(canonical, monkeypatch, failure):
-    if failure == "metadata":
-        canonical.side_effect = CitationResolverError("secret provider body")
-    else:
-        monkeypatch.setattr(LocalSourceStore, "put", Mock(side_effect=OSError("secret local path")))
+def test_upload_storage_failures_are_safe_and_retryable(canonical, monkeypatch):
+    monkeypatch.setattr(LocalSourceStore, "put", Mock(side_effect=OSError("secret local path")))
     response = TestClient(app).post("/api/sources/manual", data={"doi": DOI}, files={"file": ("x.pdf", pdf_bytes())})
     assert response.status_code == 503
-    assert response.json()["detail"]["code"] == ("METADATA_UNAVAILABLE" if failure == "metadata" else "SOURCE_STORE_FAILED")
+    assert response.json()["detail"]["code"] == "SOURCE_STORE_FAILED"
     assert "secret" not in response.text
 
 
@@ -426,7 +420,7 @@ async def test_failed_index_build_is_not_cached_and_next_attempt_recovers(canoni
 
 
 def test_doi_in_first_page_body_is_not_source_identity():
-    assert match_pdf_identity(DOI, CITATION, "Unrelated paper\nAbstract\nEarlier work " + DOI, {}) is None
+    assert match_pdf_identity(DOI, CITATION, "Unrelated paper\nAbstract\nEarlier work " + DOI, {}) == 'uncertain'
 
 
 def test_source_recovery_response_schema_rejects_scientific_verdict():

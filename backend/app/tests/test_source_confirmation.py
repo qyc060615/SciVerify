@@ -112,7 +112,7 @@ def test_upload_cannot_choose_foreign_candidate_or_accept_wrong_pdf():
     response = client.post('/api/sources/manual-reference', data={'reference': ref.model_dump_json(),
         'locator': SourceLocator(kind='doi', value='10.1234/foreign').model_dump_json()}, files={'file': ('source.pdf', pdf_bytes(), 'application/pdf')})
     assert response.status_code == 400 and response.json()['detail']['code'] == 'SOURCE_NOT_CITED'
-    wrong = pdf_bytes(['Unrelated laboratory optical absorption measurements', 'Results', 'Full text'])
+    wrong = pdf_bytes(['Unrelated laboratory optical absorption measurements', 'doi: 10.1234/wrong', 'Results', 'Actual body text.'])
     response = client.post('/api/sources/manual-reference', data={'reference': ref.model_dump_json(),
         'locator': SourceLocator(kind='doi', value=DOI).model_dump_json()}, files={'file': ('source.pdf', wrong, 'application/pdf')})
     assert response.status_code == 400 and response.json()['detail']['code'] == 'SOURCE_MISMATCH'

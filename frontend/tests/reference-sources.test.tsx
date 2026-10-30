@@ -49,7 +49,7 @@ it('preuploads against the exact DOI and confirms real cache status before succe
   const pdf = new File(['%PDF'], 'reference.pdf', { type: 'application/pdf' })
   fireEvent.change(await screen.findByLabelText('Source PDF for ' + ref.doi), { target: { files: [pdf] } })
   await screen.findByText(/PDF saved and verified/)
-  expect(actions.upload).toHaveBeenCalledWith(ref.doi, pdf)
+  expect(actions.upload).toHaveBeenCalledWith(ref.doi, pdf, ref)
   expect(actions.status).toHaveBeenCalledTimes(1)
   expect(screen.getByText('Full text: Available locally (PDF)')).toBeTruthy()
   expect(localStorageWrite).not.toHaveBeenCalled()
@@ -66,11 +66,53 @@ it('an accepted receipt without a confirmed file never becomes an available sour
   expect(screen.queryByText(/Full text: Available/)).toBeNull()
 })
 
-it('URL-only references explain the manual-upload limit rather than fabricating DOI bindings', async () => {
+it('replaces an old conflict during upload and validation, then shows the reread uncertain source', async () => {
+  const ref = fixture.parse_response.parsed.references[0] as Reference
+  const conflict = { ...missing, identity: 'CONFLICT', reason_code: 'SOURCE_IDENTITY_CONFLICT' }
+  actions.prepare.mockResolvedValue(conflict)
+  let uploaded!: (receipt: object) => void
+  let validated!: (source: object) => void
+  actions.upload.mockImplementation(() => new Promise(resolve => { uploaded = resolve }))
+  actions.status.mockImplementation(() => new Promise(resolve => { validated = resolve }))
+  mount()
+  await screen.findByRole('status', { name: 'Source Identity Conflict' })
+  fireEvent.change(screen.getByLabelText('Source PDF for ' + ref.doi), { target: { files: [new File(['%PDF'], 'source.pdf')] } })
+  await screen.findByRole('status', { name: 'Uploading PDF...' })
+  await waitFor(() => expect(actions.upload).toHaveBeenCalledTimes(1))
+  expect(screen.queryByRole('status', { name: 'Source Identity Conflict' })).toBeNull()
+  expect(screen.getByRole('button', { name: 'Upload file' })).toHaveProperty('disabled', true)
+  uploaded({ status: 'accepted', doi: ref.doi, raw_content_sha256: hash })
+  await screen.findByRole('status', { name: 'Validating Source...' })
+  expect(screen.queryByRole('status', { name: /Full Text Ready|Source Identity Conflict/ })).toBeNull()
+  validated({ ...available, identity: 'UNCERTAIN', source: { origin: 'manual', identity_status: 'uncertain' } })
+  await screen.findByRole('status', { name: 'Full Text Ready · Identity Uncertain' })
+  expect(screen.queryByRole('status', { name: 'Validating Source...' })).toBeNull()
+  expect(screen.getByText('SHA-256: ' + hash)).toBeTruthy()
+})
+
+it('ends failed uploads with an error and permits a successful retry', async () => {
+  const ref = fixture.parse_response.parsed.references[0] as Reference
+  actions.upload.mockRejectedValueOnce(new Error('The PDF identifies a different paper.'))
+    .mockResolvedValue({ status: 'accepted', doi: ref.doi, raw_content_sha256: hash })
+  actions.status.mockResolvedValue(available)
+  mount()
+  await screen.findByRole('button', { name: 'Upload file' })
+  const select = () => fireEvent.change(screen.getByLabelText('Source PDF for ' + ref.doi), { target: { files: [new File(['%PDF'], 'source.pdf')] } })
+  select()
+  expect((await screen.findByRole('alert')).textContent).toContain('different paper')
+  expect(screen.getByRole('button', { name: 'Upload file' })).toHaveProperty('disabled', false)
+  expect(screen.queryByRole('status', { name: 'Uploading PDF...' })).toBeNull()
+  select()
+  await screen.findByRole('status', { name: 'Full Text Ready' })
+  expect(screen.queryByRole('alert')).toBeNull()
+  expect(actions.upload).toHaveBeenCalledTimes(2)
+})
+
+it('URL-only references allow an explicit manual upload without fabricating DOI bindings', async () => {
   mount({ ...fixture.parse_response.parsed.references[0], doi: null, url: 'https://example.org/paper' } as Reference)
   await screen.findByText('Full text: Unavailable')
   fireEvent.click(screen.getByText('More details'))
-  expect(screen.getByText(/A reliable DOI or a sufficiently specific/)).toBeTruthy()
+  expect(screen.getByRole('button', { name: 'Upload file' })).toBeTruthy()
   expect(screen.queryByRole('button', { name: 'Add Source' })).toBeNull()
 })
 

@@ -1,0 +1,52 @@
+[
+  {
+    "reference": "R10",
+    "file": "C:\\Users\\31147\\Desktop\\coding_project\\He_Deep_Residual_Learning_CVPR_2016_paper.pdf",
+    "doi": "10.1109/cvpr.2016.90",
+    "before": {
+      "state": "needs_attention",
+      "identity": "CONFLICT",
+      "old_conflict_rejected": true,
+      "hash": "abae522adef6ea5f546beac11c43417c5b994d9da08e8a10818402235ed2e306"
+    },
+    "after": {
+      "state": "available",
+      "identity": "CONFIRMED",
+      "hash": "51b5de45eb0b558b19c3affe49503cff50cb170a32de602983d6e2ec286942a7",
+      "identity_match": "title",
+      "warnings": [
+        "HISTORICAL_VERSION_UNCONFIRMED"
+      ]
+    },
+    "stage4": {
+      "hash": "sha256:51b5de45eb0b558b19c3affe49503cff50cb170a32de602983d6e2ec286942a7",
+      "chunks": 74,
+      "cache_hit": true
+    }
+  },
+  {
+    "reference": "R12",
+    "file": "C:\\Users\\31147\\Desktop\\coding_project\\2604.pdf",
+    "doi": "10.1162/neco.1997.9.8.1735",
+    "before": {
+      "state": "not_cached",
+      "identity": "CANDIDATE_FOUND",
+      "old_conflict_rejected": null,
+      "hash": null
+    },
+    "after": {
+      "state": "available",
+      "identity": "CONFIRMED",
+      "hash": "ceb9e53dbc0493f5b3bf5520ed940f3e6b526064d17b2118d77e51f79c0edcc6",
+      "identity_match": "title",
+      "warnings": [
+        "HISTORICAL_VERSION_UNCONFIRMED"
+      ]
+    },
+    "stage4": {
+      "hash": "sha256:ceb9e53dbc0493f5b3bf5520ed940f3e6b526064d17b2118d77e51f79c0edcc6",
+      "chunks": 920,
+      "cache_hit": true
+    }
+  }
+]

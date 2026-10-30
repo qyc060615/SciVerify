@@ -126,7 +126,7 @@ def test_ambiguous_reference_with_explicit_url_downloads_and_verifies_bytes(monk
     assert result['candidates'][0]['attempted'] is True
 
 
-def test_url_manual_pdf_requires_actual_matching_title_and_preserves_manual_origin():
+def test_url_manual_pdf_preserves_manual_origin_and_accepts_unconfirmed_identity():
     text = pdf_bytes([URL_TITLE, 'October 2020', 'Purpose', PROSE * 15, 'Background', PROSE * 15], metadata={'/Title': URL_TITLE})
     writer = PdfWriter(); writer.clone_document_from_reader(PdfReader(BytesIO(text))); writer.add_blank_page(width=612, height=792)
     output = BytesIO(); writer.write(output); content = output.getvalue()
@@ -138,7 +138,9 @@ def test_url_manual_pdf_requires_actual_matching_title_and_preserves_manual_orig
     assert result['source']['url'] is None and result['source']['provenance']['final_url'] is None
     assert result['raw_content_sha256'] == hashlib.sha256(content).hexdigest()
     wrong = client.post('/api/sources/manual-reference', data={'reference': ref(title='Unrelated childhood nutrition policy and food safety guidance').model_dump_json()}, files={'file': ('wrong.pdf', content, 'application/pdf')})
-    assert wrong.status_code == 400 and wrong.json()['detail']['code'] == 'SOURCE_MISMATCH'
+    assert wrong.status_code == 200 and wrong.json()['identity_match'] == 'uncertain'
+    uncertain = check(client, ref(title='Unrelated childhood nutrition policy and food safety guidance'))
+    assert uncertain['state'] == 'available' and uncertain['identity'] == 'UNCERTAIN'
 
 
 def test_prepare_is_loopback_only():

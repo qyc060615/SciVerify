@@ -87,18 +87,28 @@ class ManualSourceResponse(BaseModel):
     status: Literal["accepted"]
     doi: str
     raw_content_sha256: str
-    identity_match: Literal["doi", "title_author_year"]
+    identity_match: Literal["doi", "title_author_year", "title", "uncertain"]
 
 
 @router.post("/manual", response_model=ManualSourceResponse)
-async def upload_manual_source(doi: str = Form(...), file: UploadFile = File(...)):
+async def upload_manual_source(doi: str = Form(...), file: UploadFile = File(...), reference: str | None = Form(None)):
     try:
         # The uploaded filename is never used, stored, or logged.
         limit = source_max_size()
         content = await file.read(limit + 1)
         if len(content) > limit:
             raise ManualSourceError("FILE_TOO_LARGE", "The PDF exceeds the configured upload size limit.", 413)
-        return await to_thread.run_sync(accept_manual_pdf, doi, content)
+        target = None
+        if reference is not None:
+            if len(reference) > 100_000:
+                raise ManualSourceError('REFERENCE_TOO_LARGE', 'The reference metadata is too large.', 413)
+            target = Reference.model_validate_json(reference)
+            if not target.doi or SourceLocator(kind='doi', value=target.doi).value != SourceLocator(kind='doi', value=doi).value:
+                raise ManualSourceError('SOURCE_NOT_CITED', 'The selected reference DOI does not match the upload.')
+        from functools import partial
+        return await to_thread.run_sync(partial(accept_manual_pdf, doi, content, reference=target))
+    except ValidationError:
+        raise HTTPException(422, detail={'code': 'REFERENCE_INVALID'}) from None
     except InvalidDOIError as exc:
         raise HTTPException(400, detail={"code": "INVALID_DOI", "message": "Provide a valid DOI."}) from exc
     except ManualSourceError as exc:
