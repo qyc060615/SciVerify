@@ -282,7 +282,7 @@ def _select(reference, candidates, diagnostics, successful_providers):
         diagnostics=tuple(diagnostics), candidates=tuple(candidates))
 
 
-async def _resolve(reference, client, limited):
+async def _resolve(reference, client, limited, local_records=None):
     raw_url = discover_url(reference.raw_text)
     url = raw_url or reference.url
     diagnostics = []
@@ -315,6 +315,12 @@ async def _resolve(reference, client, limited):
         return ReferenceResolution(reference_id=reference.id, status='resolved', resolved_doi=doi,
             provider='original', source_type='doi', source_url='https://arxiv.org/pdf/' + arxiv,
             match_reason='EXPLICIT_CITED_ARXIV', diagnostics=tuple(diagnostics + ['ORIGINAL_CITATION_VERSION_UNCONFIRMED']))
+    from anyio import to_thread
+    from functools import partial
+    from app.services.local_reference_recovery import recover_local_reference
+    local = await to_thread.run_sync(partial(recover_local_reference, reference, records=local_records))
+    if local is not None:
+        return local.model_copy(update={'diagnostics': (*diagnostics, *local.diagnostics)})
     hint = citation_title(reference)
     if hint and hint != reference.title:
         diagnostics.append('TITLE_RECOVERED_SEARCH_HINT')
@@ -350,7 +356,7 @@ async def resolve_reference(reference: Reference, *, client: httpx.AsyncClient |
         return await _resolve(reference, owned, set())
 
 
-async def resolve_references(parsed: ParsedManuscript, *, client: httpx.AsyncClient | None = None) -> ParsedManuscript:
+async def resolve_references(parsed: ParsedManuscript, *, client: httpx.AsyncClient | None = None, local_cache=True) -> ParsedManuscript:
     parsed = validate_input(parsed)
     if len(parsed.references) > MAX_REFERENCES:
         raise ResolutionInputError("REFERENCE_LIMIT_EXCEEDED")
@@ -362,10 +368,14 @@ async def resolve_references(parsed: ParsedManuscript, *, client: httpx.AsyncCli
                 or any(len(a) > 200 for a in r.authors) or len(r.journal or "") > 2000):
             raise ResolutionInputError("REFERENCE_METADATA_TOO_LARGE")
     async def run(http):
+        from anyio import to_thread
+        from app.services.local_reference_recovery import local_reference_metadata
+        from app.services.source_store import LocalSourceStore
+        local_records = await to_thread.run_sync(local_reference_metadata, LocalSourceStore()) if local_cache else ()
         semaphore, limited, memo = asyncio.Semaphore(CONCURRENCY), set(), {}
         async def one(reference):
             async with semaphore:
-                return await _resolve(reference, http, limited)
+                return await _resolve(reference, http, limited, local_records)
         tasks = []
         for r in parsed.references:
             key = (r.doi, r.title, r.authors, r.year, r.journal, r.raw_text, r.url)
@@ -390,7 +400,10 @@ async def resolve_references(parsed: ParsedManuscript, *, client: httpx.AsyncCli
             result = (ReferenceResolution(reference_id=r.id, status="provider_error", match_reason="REQUEST_DEADLINE",
                 diagnostics=("TOTAL_TIMEOUT",)) if task.cancelled() else task.result().model_copy(update={"reference_id": r.id}))
             doi = result.resolved_doi if result.status == "resolved" else r.doi
-            references.append(r.model_copy(update={"doi": doi, "resolution": result}))
+            updates = {"doi": doi, "resolution": result}
+            if result.provider == 'local_cache' and result.source_type == 'url':
+                updates['url'] = result.source_url
+            references.append(r.model_copy(update=updates))
         enriched = ParsedManuscript.model_validate(parsed.model_copy(update={"references": tuple(references)}).model_dump())
         if len(enriched.model_dump_json().encode("utf-8")) > MAX_RESPONSE_BYTES:
             raise ResolutionInputError("ENRICHED_MANUSCRIPT_TOO_LARGE")

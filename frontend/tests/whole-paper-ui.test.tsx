@@ -467,3 +467,32 @@ it.each(['CONFIRMED', 'PROBABLE', 'POSSIBLE', 'UNCERTAIN'] as const)('keeps cont
   expect(services.extract).not.toHaveBeenCalled()
   expect(services.create).not.toHaveBeenCalled()
 })
+
+it('retries failed reference resolution and passes recovered locators into extraction and task creation', async () => {
+  const broken = structuredClone(fixture.parse_response) as ParseResponse
+  broken.parsed.references = broken.parsed.references.map(ref => ({ ...ref, doi: null, resolution: resolution('provider_error', { reference_id: ref.id, match_reason: 'PROVIDERS_UNAVAILABLE' }) }))
+  const recovered = structuredClone(broken)
+  recovered.parsed.references = recovered.parsed.references.map((ref, i) => ({ ...ref, doi: '10.1234/local-' + i, resolution: resolution('resolved', { reference_id: ref.id, provider: 'local_cache', resolved_doi: '10.1234/local-' + i, source_type: 'doi', match_reason: 'LOCAL_CACHE_DOCUMENT_VERIFIED' }) }))
+  services.resolve.mockResolvedValueOnce(broken).mockResolvedValueOnce(recovered)
+  vi.mocked(prepareReferenceSource).mockImplementation(async ref => ({ reference_id: ref.id,
+    state: ref.doi ? 'available' : 'needs_attention', identity: ref.doi ? 'CONFIRMED' : 'UNAVAILABLE',
+    reason_code: ref.doi ? 'SOURCE_PERSISTED' : 'SOURCE_LOCATOR_MISSING', retryable: false,
+    retrieval_status: null, raw_content_sha256: ref.doi ? 'a'.repeat(64) : null, format: ref.doi ? 'pdf' : null, source: null }))
+  app(); await screen.findByText(/PDF limit/)
+  fireEvent.change(screen.getByLabelText('Manuscript PDF'), { target: { files: [new File(['%PDF'], 'retry.pdf')] } })
+  fireEvent.click(screen.getByRole('button', { name: 'Parse manuscript' }))
+  const retry = await screen.findByRole('button', { name: 'Retry reference resolution' })
+  await waitFor(() => expect(screen.getAllByRole('status', { name: 'Needs Attention' })).toHaveLength(broken.parsed.references.length))
+  fireEvent.click(retry)
+  await waitFor(() => expect(screen.getAllByRole('status', { name: 'Full Text Ready' })).toHaveLength(recovered.parsed.references.length))
+  expect(services.resolve).toHaveBeenNthCalledWith(2, fixture.parse_response)
+  expect(services.extract).not.toHaveBeenCalled(); expect(services.create).not.toHaveBeenCalled()
+  fireEvent.click(screen.getByRole('button', { name: 'Continue to Claims' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Extract claims' }))
+  await screen.findByText('Review Claims')
+  expect(services.extract).toHaveBeenCalledWith(recovered)
+  fireEvent.click(screen.getByRole('button', { name: 'Continue to Verification' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Start Verification' }))
+  await screen.findByText('Verification overview')
+  expect(services.create.mock.calls[0][0].parsed.references).toEqual(recovered.parsed.references)
+})

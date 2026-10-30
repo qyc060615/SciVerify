@@ -111,7 +111,7 @@ export function ReferenceReview({ references, allowSources = false, onSourceBusy
   const statuses = useQueries({ queries: references.map(reference => ({
     queryKey: referenceSourceKey(reference, allowSources),
     queryFn: ({ signal }: { signal: AbortSignal }) => allowSources ? prepareReferenceSource(reference, signal) : checkReferenceSource(reference, signal),
-    retry: false, staleTime: Infinity, gcTime: 30 * 60_000, refetchOnWindowFocus: false, refetchOnMount: false,
+    retry: false, staleTime: 60_000, gcTime: 30 * 60_000, refetchOnWindowFocus: false, refetchOnMount: true,
   })) })
   const displays = statuses.map(referenceSourceDisplay)
   const available = displays.filter(status => status.ready).length

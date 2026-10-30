@@ -1,4 +1,5 @@
 import { apiClient } from './api'
+import type { QueryClient } from '@tanstack/react-query'
 import type { Reference } from '@/types/manuscript'
 import { uploadManualSource } from './verificationService'
 
@@ -36,6 +37,15 @@ export interface PreparedSource {
 
 export function referenceSourceKey(reference: Reference, automatic: boolean) {
   return ['reference-source', automatic ? 'prepare' : 'check', JSON.stringify(reference)] as const
+}
+
+export function invalidateChangedReferenceSources(client: QueryClient, previous: Reference[], next: Reference[]) {
+  const old = new Map(previous.map(reference => [reference.id, JSON.stringify(reference)]))
+  const changed = new Set(next.filter(reference => old.get(reference.id) !== JSON.stringify(reference)).map(reference => reference.id))
+  return client.invalidateQueries({ refetchType: 'none', predicate: query => {
+    if (query.queryKey[0] !== 'reference-source') return false
+    try { return changed.has((JSON.parse(String(query.queryKey[2])) as Reference).id) } catch { return false }
+  } })
 }
 
 export function sourceAvailable(source?: PreparedSource) {

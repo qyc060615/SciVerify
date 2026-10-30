@@ -163,7 +163,7 @@ class ReferenceResolution(DomainModel):
     original_doi: str | None = None
     resolved_doi: str | None = None
     matched_title: str | None = None
-    provider: Literal["original", "crossref", "openalex"] | None = None
+    provider: Literal["original", "crossref", "openalex", "local_cache"] | None = None
     source_type: Literal["doi", "url", "unknown"] = "unknown"
     source_url: str | None = None
     match_reason: str

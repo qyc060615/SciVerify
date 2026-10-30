@@ -43,9 +43,16 @@ def get_extraction_provider_factory():
     return get_llm_provider
 
 
-def get_reference_resolver():
+def get_reference_resolver(request: Request):
+    from functools import partial
+    from ipaddress import ip_address
     from app.services.reference_resolver import resolve_references
-    return resolve_references
+    peer = request.client.host if request.client else ''
+    try:
+        local = ip_address(peer).is_loopback
+    except ValueError:
+        local = peer == 'testclient'
+    return partial(resolve_references, local_cache=local)
 
 
 @router.post("/resolve-references", response_model=ManuscriptParseResponse)

@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { AppHeader } from '@/components/app/AppHeader'
 import { Button } from '@/components/ui/Button'
 import { Panel } from '@/components/ui/Card'
@@ -15,14 +15,17 @@ import { extractClaims, getUploadLimits, parseManuscript, resolveReferences, val
 import { buildJobCreateRequest, executablePairCount } from '@/services/manuscriptBridge'
 import { createVerificationJob } from '@/services/verificationJobService'
 import { wholePaperError } from '@/services/wholePaperErrors'
+import { invalidateChangedReferenceSources } from '@/services/sourceService'
 import { wholePaperJobPath } from '@/constants'
 import type { ExtractionResult, ParseResponse } from '@/types/manuscript'
 
 export default function WholePaperVerifyPage() {
   const navigate = useNavigate()
+  const client = useQueryClient()
   const limits = useQuery({ queryKey: ['manuscript-upload-limits'], queryFn: ({ signal }) => getUploadLimits(signal), retry: false })
   const [file, setFile] = useState<File | null>(null)
   const [parsed, setParsed] = useState<ParseResponse | null>(null)
+  const [originalParsed, setOriginalParsed] = useState<ParseResponse | null>(null)
   const [extraction, setExtraction] = useState<ExtractionResult | null>(null)
   const [stage, setStage] = useState<WorkflowStage>('upload')
   const [busy, setBusy] = useState<string | null>(null)
@@ -48,8 +51,14 @@ export default function WholePaperVerifyPage() {
   }
   function replace(next: File | null = null) {
     if (working) return
+    setOriginalParsed(null)
     setFile(next); setParsed(null); setExtraction(null); setReferencesResolved(false); setReferencesReviewed(false)
     setClaimsReviewed(false); setConfirmedPartial(false); setSourceUploads({}); setError(null); setStage('upload')
+  }
+  async function resolve(input: ParseResponse) {
+    const enriched = await resolveReferences(input)
+    await invalidateChangedReferenceSources(client, parsed?.parsed.references ?? input.parsed.references, enriched.parsed.references)
+    setParsed(enriched); setReferencesResolved(true); setReferencesReviewed(false); setClaimsReviewed(false); setExtraction(null); setConfirmedPartial(false)
   }
   async function extract() {
     if (action.current || Object.values(sourceUploads).some(Boolean) || !parsed || !referencesReviewed) return
@@ -79,17 +88,18 @@ export default function WholePaperVerifyPage() {
         {limits.isPending ? <p className="text-xs text-text-muted">Reading PDF limit…</p> : limits.error ? <p role="alert" className="text-sm">{wholePaperError(limits.error)} <Button size="sm" variant="outline" onClick={() => void limits.refetch()}>Reconnect</Button></p> : <p className="text-xs text-text-muted">PDF limit: {((limits.data?.manuscript_max_bytes ?? 0) / 1024 / 1024).toFixed(1)} MB</p>}
         <Button loading={busy === 'parse'} disabled={working || !file || !limits.data} onClick={() => void perform('parse', async () => {
           const invalid = validatePdf(file, limits.data!.manuscript_max_bytes); if (invalid) throw new Error(invalid)
-          const result = await parseManuscript(file!); setParsed(result); setStage('references')
-          setBusy('resolve'); setParsed(await resolveReferences(result)); setReferencesResolved(true)
+          const result = await parseManuscript(file!); setOriginalParsed(result); setParsed(result); setStage('references')
+          setBusy('resolve'); await resolve(result)
         })}>{busy === 'parse' ? 'Parsing manuscript…' : 'Parse manuscript'}</Button>
       </>}
     </Panel>}
     {stage === 'references' && parsed && <Panel className="space-y-4">
       <h2 className="text-lg font-semibold">Review References</h2>
       {!referencesResolved ? <><p className="text-sm text-text-secondary">{parsed.parsed.references.length} references found. Resolve their identities before review.</p><Button disabled={working} loading={busy === 'resolve'} onClick={() => void perform('resolve', async () => {
-        setParsed(await resolveReferences(parsed)); setReferencesResolved(true); setReferencesReviewed(false); setClaimsReviewed(false); setExtraction(null); setConfirmedPartial(false)
+        await resolve(originalParsed ?? parsed)
       })}>Resolve references</Button><DiagnosticDetails records={parsed.diagnostics} heading="Warnings" /></> : <>
         <ReferenceReview references={parsed.parsed.references} diagnostics={parsed.diagnostics} allowSources onSourceBusy={(id, value) => setSourceUploads(old => ({ ...old, [id]: value }))}><p className="break-words text-xs">Original parsed title (not independently verified): {parsed.parsed.manuscript.title ?? 'Unavailable'}</p></ReferenceReview>
+        {originalParsed && parsed.parsed.references.some(reference => reference.resolution?.status === 'provider_error') && <Button size="sm" variant="outline" disabled={working} loading={busy === 'resolve'} onClick={() => void perform('resolve', () => resolve(originalParsed))}>Retry reference resolution</Button>}
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4"><p className="text-xs text-text-muted">Continuing confirms your review; unfinished sources are checked during verification.</p><Button disabled={working} onClick={() => { setReferencesReviewed(true); setStage('claims') }}>Continue to Claims</Button></div>
       </>}
     </Panel>}

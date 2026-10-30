@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReferenceReview } from '@/components/manuscript/ReferenceReview'
 import fixture from './fixtures/manuscript.json'
 import { apiClient } from '@/services/api'
-import { referenceSourceDisplay, type PreparedSource } from '@/services/sourceService'
+import { invalidateChangedReferenceSources, referenceSourceKey, referenceSourceDisplay, type PreparedSource } from '@/services/sourceService'
 import type { Reference } from '@/types/manuscript'
 const actions = vi.hoisted(() => ({ status: vi.fn(), prepare: vi.fn(), upload: vi.fn(), limits: vi.fn() }))
 vi.mock('@/services/sourceService', async original => ({ ...await original<object>(), checkReferenceSource: actions.status, prepareReferenceSource: actions.prepare }))
@@ -423,4 +423,52 @@ it('accepts persisted HTML and preserves the original backend identity and prove
   expect(display.ready).toBe(true)
   expect(display.label).toBe('Full Text Ready')
   expect(data).toEqual(before)
+})
+
+it('invalidates only the changed reference across old and restored locator query keys without refetching old input', async () => {
+  const client = new QueryClient()
+  const original = { ...fixture.parse_response.parsed.references[0], doi: null } as Reference
+  const restored = { ...original, doi: '10.1234/recovered' }
+  const other = { ...original, id: 'unrelated' }
+  for (const ref of [original, restored, other]) {
+    for (const automatic of [false, true]) client.setQueryData(referenceSourceKey(ref, automatic), missing)
+  }
+  await invalidateChangedReferenceSources(client, [original, other], [restored, other])
+  for (const ref of [original, restored]) {
+    for (const automatic of [false, true]) expect(client.getQueryState(referenceSourceKey(ref, automatic))?.isInvalidated).toBe(true)
+  }
+  expect(client.getQueryState(referenceSourceKey(other, true))?.isInvalidated).toBe(false)
+  expect(client.getQueryState(referenceSourceKey(other, false))?.isInvalidated).toBe(false)
+  expect(actions.prepare).not.toHaveBeenCalled()
+})
+
+it('rechecks an expired blocked cache on remount rather than retaining it forever', async () => {
+  const ref = fixture.parse_response.parsed.references[0] as Reference
+  const client = new QueryClient()
+  client.setQueryData(referenceSourceKey(ref, true), missing, { updatedAt: Date.now() - 61_000 })
+  actions.prepare.mockResolvedValue(available)
+  render(<QueryClientProvider client={client}><ReferenceReview references={[ref]} allowSources /></QueryClientProvider>)
+  await screen.findByRole('status', { name: 'Full Text Ready' })
+  expect(actions.prepare).toHaveBeenCalledTimes(1)
+})
+
+it('restored reference data refreshes its blocked source without rechecking unrelated rows', async () => {
+  const original = { ...fixture.parse_response.parsed.references[0], doi: null } as Reference
+  const restored = { ...original, doi: '10.1234/recovered' }
+  const other = { ...restored, id: 'other-reference', doi: '10.1234/unrelated' }
+  const blocked = { ...absent, state: 'needs_attention', reason_code: 'SOURCE_LOCATOR_MISSING' }
+  const client = new QueryClient()
+  client.setQueryData(referenceSourceKey(original, true), blocked)
+  client.setQueryData(referenceSourceKey(restored, true), blocked)
+  actions.prepare.mockImplementation(async (ref: Reference) => ({ ...(ref.doi ? available : blocked), reference_id: ref.id }))
+  const view = (ref: Reference) => <QueryClientProvider client={client}><ReferenceReview references={[ref, other]} allowSources /></QueryClientProvider>
+  const mounted = render(view(original))
+  await screen.findByRole('status', { name: 'Needs Attention' })
+  await screen.findByRole('status', { name: 'Full Text Ready' })
+  await invalidateChangedReferenceSources(client, [original, other], [restored, other])
+  mounted.rerender(view(restored))
+  await waitFor(() => expect(screen.getAllByRole('status', { name: 'Full Text Ready' })).toHaveLength(2))
+  expect(actions.prepare.mock.calls.filter(([ref]) => ref.id === other.id)).toHaveLength(1)
+  expect(actions.prepare.mock.calls.filter(([ref]) => ref.id === restored.id)).toHaveLength(1)
+  expect(actions.upload).not.toHaveBeenCalled()
 })
