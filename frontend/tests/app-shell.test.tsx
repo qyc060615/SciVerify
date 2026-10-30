@@ -18,11 +18,21 @@ it('renders the complete landing brand beside the existing shield', () => {
   expect(screen.queryByRole('link', { name: 'SciVerify' })).toBeNull()
 })
 
-it.each(['/app/manuscripts', '/app/repository', '/app/history', '/app/settings', '/app/manuscripts/jobs/job_test'])('uses the shared viewport shell and independent main scrolling on %s', route => {
-  render(<MemoryRouter initialEntries={[route]}><Routes><Route element={<AppLayout />}><Route path="*" element={<div>{Array.from({ length: 50 }, (_, index) => <p key={index}>Long content {index}</p>)}</div>} /></Route></Routes></MemoryRouter>)
+it.each(['/app/manuscripts', '/app/repository', '/app/history', '/app/settings', '/app/manuscripts/jobs/job_test'].flatMap(route => [1, 50].map(lines => ({ route, lines }))))('keeps full-width scrolling separate from centered content on $route with $lines lines', ({ route, lines }) => {
+  render(<MemoryRouter initialEntries={[route]}><Routes><Route element={<AppLayout />}><Route path="*" element={<div>{Array.from({ length: lines }, (_, index) => <p key={index}>Content {index}</p>)}</div>} /></Route></Routes></MemoryRouter>)
   const main = screen.getByRole('main')
   expect(main.className).toContain('overflow-y-auto')
   expect(main.className).toContain('min-h-0')
+  expect(main.className).toContain('w-full')
+  expect(main.className).toContain('min-w-0')
+  expect(main.className).not.toContain('max-w-')
+  expect(main.className).not.toContain('mx-auto')
+  const content = main.firstElementChild as HTMLElement
+  expect(content.className).toContain('mx-auto')
+  expect(content.className).toContain('max-w-6xl')
+  expect(content.className).toContain('px-4 py-6 sm:px-6 lg:px-8 lg:py-8')
+  expect(content.querySelector('[class*="overflow-y-auto"]')).toBeNull()
+  expect(screen.getByText('Content ' + (lines - 1)).closest('main')).toBe(main)
   const shell = main.parentElement!.parentElement!.parentElement!
   expect(shell.className).toContain('h-dvh')
   expect(shell.className).toContain('overflow-hidden')
@@ -32,5 +42,5 @@ it.each(['/app/manuscripts', '/app/repository', '/app/history', '/app/settings',
   expect(sidebar.querySelector('[class*="overflow-y-auto"]')).toBeTruthy()
   expect(sidebar.textContent).toContain('ResearchGuard')
   expect(sidebar.textContent).toContain('Local Demo')
-  expect(main.textContent).toContain('Long content 49')
+  expect(main.contains(sidebar)).toBe(false)
 })

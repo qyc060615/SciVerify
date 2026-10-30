@@ -29,13 +29,15 @@ export default function AppLayout() {
             </span>
           </div>
 
-          <main className="mx-auto w-full max-w-6xl min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
-            {historyWarning ? (
-              <p role="status" className="mb-4 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-text-secondary">
-                {historyWarning}
-              </p>
-            ) : null}
-            <Outlet />
+          <main className="min-h-0 min-w-0 w-full flex-1 overflow-x-hidden overflow-y-auto">
+            <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+              {historyWarning ? (
+                <p role="status" className="mb-4 rounded-lg border border-warning/30 bg-warning/10 p-3 text-sm text-text-secondary">
+                  {historyWarning}
+                </p>
+              ) : null}
+              <Outlet />
+            </div>
           </main>
         </div>
       </div>
