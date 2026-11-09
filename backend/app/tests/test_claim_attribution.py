@@ -114,8 +114,8 @@ def test_wv6_repeated_quote_no_citation_disambiguation():
     assert c.reference_ids == ("r4",)
 
 
-@pytest.mark.parametrize("quote", ["a improves accuracy", "A  improves accuracy", "A improves accuracý"])
-def test_no_case_whitespace_unicode_repair(quote):
+@pytest.mark.parametrize("quote", ["a improves accuracy", "A improves accuracý"])
+def test_no_case_or_letter_repair(quote):
     with pytest.raises(ProposalRejected) as e:
         check(manuscript(), proposal(quote))
     assert e.value.code == "QUOTE_NOT_FOUND"

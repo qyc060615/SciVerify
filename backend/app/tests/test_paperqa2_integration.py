@@ -226,6 +226,24 @@ async def test_legitimate_irrelevant_context_is_empty_not_failure(paper, config)
     assert result == []
 
 
+@pytest.mark.anyio
+async def test_one_bad_summary_keeps_independent_evidence_with_diagnostics(paper, config):
+    class PartlyMalformed(LocalSummary):
+        async def call_single(self, messages, callbacks=None, name=None, **kwargs):
+            if "Laboratory equipment" in str(messages[-1].content):
+                return LLMResult(model=self.name, text="invalid private response", prompt_count=1, completion_count=1)
+            return await super().call_single(messages, callbacks=callbacks, name=name, **kwargs)
+
+    source, chunks = accepted_source_to_domain(paper)
+    claim = standalone_claim_to_domain(preprocess_claim("Treatment reduces risk."), source)
+    result = await PaperQA2EvidenceRetriever(chunks, config, embedding_model=LocalEmbedding(),
+        summary_model=PartlyMalformed()).retrieve(claim, source, 1)
+    assert len(result) == 1 and result[0].retrieval_score == 8
+    assert result[0].metadata["paperqa_retrieval_incomplete"] is True
+    assert result[0].metadata["paperqa_invalid_summary_count"] >= 1
+    assert result[0].text == next(c.text for c in chunks if c.id == result[0].id)
+
+
 def test_legacy_diagnostics_keep_paperqa_order_and_score_without_ranking(paper, monkeypatch):
     from app.services.evidence_retriever import _score_chunk
     source, chunks = accepted_source_to_domain(paper)

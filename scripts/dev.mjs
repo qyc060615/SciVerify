@@ -26,7 +26,7 @@ function findPython() {
     ...(process.env.CONDA_PREFIX ? [path.join(process.env.CONDA_PREFIX, executable)] : []),
     ...envDirs.map(dir => path.join(dir, 'researchguard', executable)),
     ...(process.env.CONDA_EXE ? [path.join(path.dirname(path.dirname(process.env.CONDA_EXE)), 'envs', 'researchguard', executable)] : []),
-    ...(windows ? ['D:/conda_envs/researchguard/python.exe'] : []),
+    ...(windows ? ['D:/DevTools/CondaEnvs/researchguard/python.exe', 'D:/conda_envs/researchguard/python.exe'] : []),
     'python', ...(windows ? [] : ['python3']),
   ]
   for (const candidate of [...new Set(candidates)]) {

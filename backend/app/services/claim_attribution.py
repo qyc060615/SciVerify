@@ -8,7 +8,7 @@ from app.researchguard.domain import AtomicClaim, AttributionStatus, CitationRes
 from app.services.citation_context import diagnostic, groups
 from app.services.citation_labels import local_label_index, visible_labels
 
-ATTRIBUTION_POLICY_VERSION = "exact-evidence-explicit-local-labels-v6-subsets"
+ATTRIBUTION_POLICY_VERSION = "exact-evidence-explicit-local-labels-v7-recovery"
 _STRONG = re.compile(r";|\b(?:while|whereas|but)\b", re.IGNORECASE)
 
 
@@ -38,6 +38,21 @@ def exact_span(text, quote, focal):
     if len(matches) != 1:
         raise ProposalRejected("QUOTE_AMBIGUOUS")
     return matches[0]
+
+
+def grounded_span(text, quote, focal):
+    """Prefer exact grounding; recover whitespace only with original offsets."""
+    try:
+        return exact_span(text, quote, focal)
+    except ProposalRejected as exc:
+        if exc.code != "QUOTE_NOT_FOUND":
+            raise
+    tokens = list(re.finditer(r"\s+|\S", text[focal.start:focal.end]))
+    canonical = "".join(" " if m.group().isspace() else m.group() for m in tokens)
+    normalized = re.sub(r"\s+", " ", quote)
+    match = exact_span(canonical, normalized, TextSpan(start=0, end=len(canonical)))
+    return TextSpan(start=focal.start + tokens[match.start].start(),
+                    end=focal.start + tokens[match.end - 1].end())
 
 
 def _without_markers(text, start, end, callouts):
@@ -81,7 +96,10 @@ def validate_proposal(parsed, context, proposal) -> ValidatedClaim:
         raise ProposalRejected("UNKNOWN_CITATION_CALLOUT")
     if any(len(labels[label]) != 1 for label in proposal.citation_labels):
         raise ProposalRejected("AMBIGUOUS_CITATION_LABEL")
-    span = exact_span(paragraph.text, proposal.evidence_quote, context.focal_span)
+    span = grounded_span(paragraph.text, proposal.evidence_quote, context.focal_span)
+    recovery_notes = []
+    if paragraph.text[span.start:span.end] != proposal.evidence_quote:
+        recovery_notes.append(diagnostic("QUOTE_WHITESPACE_RECOVERED", context.id, "info"))
     if not _without_markers(paragraph.text, span.start, span.end, local).strip(" ,;.!?()[]"):
         raise ProposalRejected("CITATION_MARKER_AS_SOURCE")
     spans = (span,)
@@ -106,6 +124,17 @@ def validate_proposal(parsed, context, proposal) -> ValidatedClaim:
     candidate_ids = {c.id for group in candidates for c in group}
     if candidates and any(c.id not in candidate_ids for c in selected):
         raise ProposalRejected("WRONG_CITATION_SCOPE")
+    # A trusted sentence with one terminal group may cite parallel clauses.
+    # Never infer labels for uncertain intent, cross sentences, or merge groups.
+    if (not scope or not candidates) and context.scope_kind == "sentence" and selected and len(local_groups) == 1:
+        group = local_groups[0]
+        if (len({rid for c in group for rid in c.reference_ids}) == 1
+                and span.start < group[0].span.start
+                and not paragraph.text[group[-1].span.end:context.focal_span.end].strip(" \t\r\n.!?。！？\"'”’)")
+                and all(c.id in {g.id for g in group} for c in selected)):
+            scope, candidates = (context.focal_span.start, context.focal_span.end), [group]
+            recovery_notes.extend((diagnostic("AMBIGUOUS_CITATION_SCOPE", context.id, "info"),
+                                   diagnostic("SAME_SENTENCE_CITATION_RECOVERED", context.id, "info")))
     # Adjacent occurrences are formatting, not a shared semantic ownership unit.
     # A subset of occurrences is allowed. Within ONE multi-label occurrence,
     # however, only an aggregate target set exists: never guess a per-label
@@ -123,7 +152,7 @@ def validate_proposal(parsed, context, proposal) -> ValidatedClaim:
         manuscript_id=parsed.manuscript.id, paragraph_id=paragraph.id, context_id=context.id,
         text=proposal.text, page=paragraph.page, source_spans=spans, attribution_status=status,
         citation_callout_ids=tuple(c.id for c in selected), reference_ids=reference_ids)
-    return ValidatedClaim(claim, (diagnostic(code, claim.id),) if code else ())
+    return ValidatedClaim(claim, tuple(recovery_notes) + ((diagnostic(code, claim.id),) if code else ()))
 
 
 def validate_result(parsed, result):

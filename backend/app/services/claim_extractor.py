@@ -12,7 +12,7 @@ from app.researchguard.domain import (
 )
 from app.services.citation_context import CONTEXT_POLICY_VERSION, build_contexts, diagnostic, fingerprint, validate_input
 from app.services.claim_attribution import (
-    ATTRIBUTION_POLICY_VERSION, ProposalRejected, exact_span, _without_markers,
+    ATTRIBUTION_POLICY_VERSION, ProposalRejected, grounded_span, _without_markers,
     validate_proposal, validate_result,
 )
 
@@ -51,15 +51,20 @@ async def extract_claims(parsed, *, provider=None, provider_factory=None):
                     context, paragraphs[context.paragraph_id], [calls[cid] for cid in context.citation_callout_ids]))
         except ClaimLLMError as exc:
             return (), ContextExtractionResult(context_id=context.id, status=ExtractionStatus.FAILED,
-                diagnostics=plan.diagnostics + (diagnostic(exc.code, context.id),))
-        accepted, rejected, notes = [], [], list(plan.diagnostics)
-        for i, proposed in enumerate(proposal.claims):
+                diagnostics=plan.diagnostics + (diagnostic(exc.code, context.id),),
+                rejected_proposals=tuple(RejectedClaimProposalSummary(proposal_index=i, reason_code=exc.code)
+                                         for i in exc.rejected_indices))
+        accepted, notes = [], list(plan.diagnostics)
+        rejected = [RejectedClaimProposalSummary(proposal_index=i, reason_code="EXTRACTION_INVALID_RESPONSE")
+                    for i in proposal.rejected_indices]
+        notes.extend(diagnostic("EXTRACTION_INVALID_RESPONSE", context.id) for _ in rejected)
+        for i, proposed in zip(proposal.indices, proposal.claims):
             try:
                 if proposed.attribution_intent == "none":
                     # Exclude before attribution/reference derivation, but keep
                     # the same exact focal grounding and marker-only protection.
                     paragraph = paragraphs[context.paragraph_id]
-                    span = exact_span(paragraph.text, proposed.evidence_quote, context.focal_span)
+                    span = grounded_span(paragraph.text, proposed.evidence_quote, context.focal_span)
                     local = [calls[cid] for cid in context.citation_callout_ids]
                     if not _without_markers(paragraph.text, span.start, span.end, local).strip(" ,;.!?()[]"):
                         raise ProposalRejected("CITATION_MARKER_AS_SOURCE")
@@ -81,6 +86,7 @@ async def extract_claims(parsed, *, provider=None, provider_factory=None):
             status = ExtractionStatus.PARTIAL
         else:
             status = ExtractionStatus.COMPLETED
+        rejected.sort(key=lambda item: item.proposal_index)
         return tuple(accepted), ContextExtractionResult(context_id=context.id, status=status,
             accepted_claim_ids=tuple(c.id for c in accepted), diagnostics=tuple(notes), rejected_proposals=tuple(rejected))
 

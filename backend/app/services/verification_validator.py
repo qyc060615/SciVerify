@@ -261,11 +261,30 @@ def _has_grounded_counterevidence(
     labelling a valid ID as contradicting is no longer sufficient.
     """
     normalize = lambda text: " ".join(text.split())
-    quotes = re.findall(r'"([^"\n]+)"|“([^”\n]+)”', adjudicator.reasoning)
+    quotes = re.findall(r'"([^"]+)"|“([^”]+)”|(?<!\w)\'(.+?)\'(?!\w)|‘(.+?)’|「(.+?)」|『(.+?)』',
+                        adjudicator.reasoning, re.DOTALL)
     cited = [normalize(item.text) for item in evidence
              if item.chunk_id in adjudicator.contradicting_evidence]
-    return any(len(normalize(quote)) >= 12 and normalize(quote) in text
-               for pair in quotes for quote in pair if quote for text in cited)
+    for pair in quotes:
+        for quote in filter(None, pair):
+            quote = normalize(quote)
+            if len(quote) >= 12 and any(quote in text for text in cited):
+                return True  # Preserve the original exact acceptance path.
+            # Only citation-edge prose punctuation; never normalize inner text,
+            # scientific operators, signs, percentages, brackets or units.
+            core = quote.strip(" ,;:!?，。；：！？")
+            if core.endswith(".") and len(core) > 1 and not core[-2].isdigit():
+                core = core[:-1]
+            if len(core) < 12:
+                continue
+            for text in cited:
+                for match in re.finditer(re.escape(core), text):
+                    before, after = text[:match.start()], text[match.end():]
+                    if ((not before or not (before[-1].isalnum() or before[-1] in ".+-−<>≤≥"))
+                            and (not after or not (after[0].isalnum() or after[0] in "%+-−<>≤≥")
+                                 and not re.match(r"[.,]\d", after))):
+                        return True
+    return False
 
 
 def _validate_verdict(

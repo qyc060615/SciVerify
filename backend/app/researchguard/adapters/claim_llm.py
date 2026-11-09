@@ -1,11 +1,13 @@
 """One structured call per context using the existing provider; safe errors only."""
 import json
 from copy import copy
+from dataclasses import dataclass
+from typing import Annotated, Any
 
 import httpx
-from pydantic import ValidationError
+from pydantic import Field, ValidationError
 
-from app.schemas.claim_extraction import ExtractionProposal
+from app.schemas.claim_extraction import ClaimProposal, ExtractionProposal, StrictDTO
 from app.services.citation_labels import visible_labels
 from app.services.llm.provider import (
     LLMProvider, LLMRateLimitError, LLMResponseError, LLMUnavailableError,
@@ -144,10 +146,11 @@ Return only JSON matching the supplied schema.
 
 
 class ClaimLLMError(RuntimeError):
-    def __init__(self, code, status_code=503):
+    def __init__(self, code, status_code=503, *, rejected_indices=()):
         super().__init__("The extraction provider could not complete this context.")
         self.code = code
         self.status_code = status_code
+        self.rejected_indices = tuple(rejected_indices)
 
 
 def safe_provider_error(exc):
@@ -165,6 +168,18 @@ def safe_provider_error(exc):
     return ClaimLLMError("EXTRACTION_PROVIDER_ERROR")
 
 
+class _ProposalEnvelope(StrictDTO):
+    """Parse the list boundary before independently validating each candidate."""
+    claims: Annotated[tuple[Any, ...], Field(max_length=8)]
+
+
+@dataclass(frozen=True)
+class ProposalBatch:
+    claims: tuple
+    indices: tuple
+    rejected_indices: tuple
+
+
 class ClaimLLMAdapter:
     def __init__(self, provider: LLMProvider):
         # Extraction is single-shot even if other workflows enable 429 retries.
@@ -172,7 +187,7 @@ class ClaimLLMAdapter:
         if isinstance(self.provider, OpenAICompatibleLLMProvider):
             self.provider.max_rate_limit_retries = 0
 
-    def propose(self, context, paragraph, callouts) -> ExtractionProposal:
+    def propose(self, context, paragraph, callouts) -> ProposalBatch:
         by_id = {c.id: c for c in callouts}
         callouts = [by_id[cid] for cid in context.citation_callout_ids]
         payload = {
@@ -189,10 +204,19 @@ class ClaimLLMAdapter:
         }
         try:
             result = self.provider.generate(json.dumps(payload, ensure_ascii=False),
-                system=SYSTEM_PROMPT, response_model=ExtractionProposal)
-            if not isinstance(result, ExtractionProposal):
+                system=SYSTEM_PROMPT, response_model=_ProposalEnvelope)
+            if not isinstance(result, (_ProposalEnvelope, ExtractionProposal)):
                 raise TypeError("Unexpected extraction response type")
-            result = ExtractionProposal.model_validate(result.model_dump())
+            envelope = _ProposalEnvelope.model_validate(result.model_dump())
         except Exception as exc:
             raise safe_provider_error(exc) from None
-        return result
+        accepted, indices, rejected = [], [], []
+        for i, candidate in enumerate(envelope.claims):
+            try:
+                accepted.append(ClaimProposal.model_validate(candidate))
+                indices.append(i)
+            except ValidationError:
+                rejected.append(i)
+        if rejected and not accepted:
+            raise ClaimLLMError("EXTRACTION_INVALID_RESPONSE", 502, rejected_indices=rejected)
+        return ProposalBatch(tuple(accepted), tuple(indices), tuple(rejected))

@@ -112,14 +112,15 @@ class PaperQA2Config:
 
 
 class _StrictSummaryModel:
-    """Prevent PaperQA2's context-failure swallowing and content-bearing logs.
+    """Keep provider failures explicit and isolate malformed summaries safely.
 
-    The pinned core retries/drops malformed summaries and some provider failures.
-    Validate/translate before that handler so failures remain explicit.
+    Retrieval must retain partial-failure diagnostics or raise if no usable
+    evidence remains. Invalid model output must never reach content-bearing logs.
     """
 
     def __init__(self, model: Any) -> None:
         self.model = model
+        self.failures = 0
 
     async def call_single(self, **kwargs):
         from paperqa.core import llm_parse_json
@@ -133,8 +134,17 @@ class _StrictSummaryModel:
             score = data["relevance_score"]
             if not isinstance(data["summary"], str) or isinstance(score, bool) or not isinstance(score, (int, float)) or not 0 <= score <= 10:
                 raise ValueError("Invalid summary/score")
-        except (ValueError, KeyError, TypeError) as exc:
-            raise PaperQA2RetrievalError("paperqa2_invalid_summary") from exc
+        except (ValueError, KeyError, TypeError):
+            from paperqa.core import LLMContextError
+
+            class InvalidCandidateSummary(LLMContextError):
+                retryable = False
+                help_message = "Invalid summary candidate isolated; retrieval diagnostics retain failure count."
+
+            self.failures += 1
+            # PaperQA drops only this context. Never fabricate a zero score or
+            # leak malformed output through its exception logger.
+            raise InvalidCandidateSummary("paperqa2_invalid_summary", [result]) from None
         return result
 
 
@@ -168,14 +178,22 @@ class PaperQA2EvidenceRetriever:
                 self._prepare, source_document, top_k
             )
             docs, query_lock = await self._indexed_docs(source_document, docs, doc, texts, settings, embedding)
+            summary_guard = _StrictSummaryModel(summary)
             async with query_lock:
                 session = await docs.aget_evidence(
                     claim.text, settings=settings, embedding_model=embedding,
-                    summary_llm_model=_StrictSummaryModel(summary),
+                    summary_llm_model=summary_guard,
                 )
             # aget_evidence returns an unordered set-derived list. Sort by its
             # relevance score, with a deterministic canonical-ID tie break.
             mapped = [self._map_context(c, source_document, originals) for c in session.contexts]
+            if summary_guard.failures:
+                if not mapped:
+                    raise PaperQA2RetrievalError("paperqa2_invalid_summary")
+                mapped = [chunk.model_copy(update={"metadata": {**chunk.metadata,
+                    "paperqa_retrieval_incomplete": True,
+                    "paperqa_invalid_summary_count": summary_guard.failures}}) for chunk in mapped]
+                logger.warning("paperqa_partial_retrieval invalid_summary_count=%d", summary_guard.failures)
             mapped.sort(key=lambda c: (-c.retrieval_score, c.id))
             selected: list[EvidenceChunk] = []
             seen: set[str] = set()
