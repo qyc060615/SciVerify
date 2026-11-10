@@ -8,7 +8,7 @@ from app.researchguard.domain import AtomicClaim, AttributionStatus, CitationRes
 from app.services.citation_context import diagnostic, groups
 from app.services.citation_labels import local_label_index, visible_labels
 
-ATTRIBUTION_POLICY_VERSION = "exact-evidence-explicit-local-labels-v7-recovery"
+ATTRIBUTION_POLICY_VERSION = "exact-evidence-explicit-local-labels-v8-prefix-recovery"
 _STRONG = re.compile(r";|\b(?:while|whereas|but)\b", re.IGNORECASE)
 
 
@@ -124,6 +124,18 @@ def validate_proposal(parsed, context, proposal) -> ValidatedClaim:
     candidate_ids = {c.id for group in candidates for c in group}
     if candidates and any(c.id not in candidate_ids for c in selected):
         raise ProposalRejected("WRONG_CITATION_SCOPE")
+    # Clear narrative prefixes own the following proposition in the same
+    # sentence. This is a fallback only: never expand competing citation groups.
+    if (not scope or not candidates) and context.scope_kind == "sentence" and selected and len(local_groups) == 1:
+        group = local_groups[0]
+        prefix = paragraph.text[context.focal_span.start:group[0].span.start]
+        if (re.fullmatch(r"\s*(?:In|According to|As (?:shown|described|reported) in)\s+", prefix, re.I)
+                and re.match(r"\s*,\s*", paragraph.text[group[-1].span.end:context.focal_span.end])
+                and len({rid for c in group for rid in c.reference_ids}) == 1
+                and all(c.id in {g.id for g in group} for c in selected)):
+            scope, candidates = (context.focal_span.start, context.focal_span.end), [group]
+            recovery_notes.extend((diagnostic("AMBIGUOUS_CITATION_SCOPE", context.id, "info"),
+                                   diagnostic("NARRATIVE_PREFIX_CITATION_RECOVERED", context.id, "info")))
     # A trusted sentence with one terminal group may cite parallel clauses.
     # Never infer labels for uncertain intent, cross sentences, or merge groups.
     if (not scope or not candidates) and context.scope_kind == "sentence" and selected and len(local_groups) == 1:

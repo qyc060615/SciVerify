@@ -277,6 +277,10 @@ async def verify_manuscript_core(
                     metadata={"legacy_provenance": legacy.model_dump(mode="json", exclude={
                         "claim", "paper", "evidence", "confidence", "reasoning", "summary"})}))
             legacy_verdict = legacy.verdict
+            from app.services.bibliographic_recovery import recover_bibliographic_result
+            result = await to_thread.run_sync(recover_bibliographic_result, claim.text, result, source)
+            if result.traceability.metadata.get("bibliographic_recovery"):
+                legacy_verdict = LegacyVerdict.SUPPORTS
             status = ProcessingStatus.COMPLETED
             reason = "VERIFIED" if evidence else "NO_RELEVANT_EVIDENCE"
         except _PairBlocked:

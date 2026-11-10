@@ -303,6 +303,16 @@ def parse_tei(xml: bytes, manuscript: Manuscript) -> ParsedManuscript:
 
     if body is not None:
         visit(body)
+    from app.services.reference_notice import is_unreferenced_publisher_notice
+    cited_ids = {rid for callout in callouts for rid in callout.reference_ids}
+    notices = [r for r in references if is_unreferenced_publisher_notice(r, cited_ids)]
+    for notice in notices:
+        # Retain original ID/text for inspection without renumbering real entries.
+        diagnostics.append(_diag("PUBLISHER_NOTICE_EXCLUDED",
+            "Unreferenced publisher notice excluded from bibliography. Original entry: " + notice.raw_text,
+            notice.id, "info"))
+    notice_ids = {r.id for r in notices}
+    references = [r for r in references if r.id not in notice_ids]
     if not paragraphs:
         raise ManuscriptParseError("MANUSCRIPT_PARSE_FAILED", "No usable body prose was extracted from the manuscript.", 422)
     if not references:
