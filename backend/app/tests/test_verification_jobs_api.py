@@ -29,7 +29,8 @@ def body():
 
 
 @pytest.mark.anyio
-async def test_api_create_partial_read_events_manual_upload_resume(api, monkeypatch):
+@pytest.mark.parametrize('same_bytes', [True, False])
+async def test_api_create_partial_read_events_manual_upload_resume(api, monkeypatch, same_bytes):
     client, h = api
     payload = body()
     payload["parsed"]["manuscript"]["content_locator"] = "C:/private/client/paper.pdf"
@@ -57,9 +58,21 @@ async def test_api_create_partial_read_events_manual_upload_resume(api, monkeypa
         files={"file": ("ignored.pdf", content, "application/pdf")})
     assert uploaded.status_code == 200 and uploaded.json()["identity_match"] == "doi"
     digest = uploaded.json()["raw_content_sha256"]
-    # Repeating the same existing upload preserves the content-addressed version.
-    repeated = await client.post("/api/sources/manual", data={"doi": doi}, files={"file": ("same.pdf", content)})
-    assert repeated.json()["raw_content_sha256"] == digest
+    old_raw = h.source_store.root / digest / 'source.pdf'
+    old_metadata_path = old_raw.parent / h.source_store._lookup_path(doi).name
+    old_metadata = old_metadata_path.read_bytes()
+    # Repeated uploads either reuse the bytes or publish a new content version.
+    replacement = content if same_bytes else content + b'\n% accepted replacement version\n'
+    repeated = await client.post("/api/sources/manual", data={"doi": doi}, files={"file": ("same.pdf", replacement)})
+    assert repeated.status_code == 200, repeated.text
+    new_digest = repeated.json()["raw_content_sha256"]
+    assert (new_digest == digest) is same_bytes
+    assert old_raw.read_bytes() == content
+    history_path = old_metadata_path.with_suffix('.prev') if same_bytes else old_metadata_path
+    assert history_path.read_bytes() == old_metadata
+    assert h.source_store.get(doi).raw_content_sha256 == new_digest
+    assert h.source_store.get(doi).content == replacement
+    digest = new_digest
     resumed = await client.post(f"/api/verification/jobs/{job_id}/resume", json={
         "expected_revision": waiting.revision, "reference_ids": ["r1"], "source_hashes": {"r1": digest}})
     assert resumed.status_code == 202
@@ -72,6 +85,8 @@ async def test_api_create_partial_read_events_manual_upload_resume(api, monkeypa
     assert all(e["sequence"] > last for e in replay["events"])
     unchanged = await client.post(f"/api/verification/jobs/{job_id}/resume", json={"expected_revision": final.revision})
     assert unchanged.status_code == 202 and unchanged.json()["revision"] == final.revision
+    assert await h.runtime.wait(job_id) == final
+    assert len(h.verified) == 1
 
 
 @pytest.mark.anyio

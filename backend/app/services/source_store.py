@@ -123,7 +123,7 @@ class LocalSourceStore:
         if artifact.origin == 'manual' and metadata_path.exists():
             # An explicit upload may rebind even identical bytes. Preserve the
             # previous acquisition record as well as the immutable raw file.
-            previous = directory / (key + '.previous')
+            previous = metadata_path.with_suffix('.prev')
             if not previous.exists():
                 self._atomic_write(previous, metadata_path.read_bytes())
             self._atomic_write(metadata_path, json.dumps(metadata).encode())

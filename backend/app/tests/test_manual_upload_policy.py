@@ -84,7 +84,7 @@ def test_manual_upload_rebinds_pointer_and_preserves_old_raw_record(monkeypatch,
     assert saved.origin == 'manual' and saved.content == content
     assert raw.read_bytes() == original.content
     if same_bytes:
-        assert (raw.parent / (store._lookup_path(DOI).name + '.previous')).read_bytes() == old_metadata
+        assert (raw.parent / store._lookup_path(DOI).name).with_suffix('.prev').read_bytes() == old_metadata
     else:
         assert (raw.parent / store._lookup_path(DOI).name).read_bytes() == old_metadata
     stage4 = retrieve_reference_source(reference(), local_only=True)
