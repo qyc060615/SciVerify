@@ -209,7 +209,7 @@ def coverage(snapshot):
         total_pairs=len(states), pending_pairs=states.count(TaskState.PENDING),
         running_pairs=states.count(TaskState.RUNNING), completed_pairs=states.count(TaskState.COMPLETED),
         blocked_source_pairs=states.count(TaskState.BLOCKED_SOURCE), failed_pairs=states.count(TaskState.FAILED),
-        ambiguous_claims=sum(c.attribution_status == AttributionStatus.AMBIGUOUS for c in extraction.claims),
+        ambiguous_claims=sum(c.attribution_status == AttributionStatus.AMBIGUOUS and not c.decomposed_into for c in extraction.claims),
         unresolved_claims=sum(c.attribution_status == AttributionStatus.UNRESOLVED for c in extraction.claims),
         failed_extraction_contexts=sum(c.status == ExtractionStatus.FAILED for c in extraction.context_results),
         skipped_extraction_contexts=sum(c.status == ExtractionStatus.SKIPPED for c in extraction.context_results),

@@ -35,6 +35,31 @@ beforeEach(() => {
 })
 afterEach(cleanup)
 
+it('retains decomposed parents without showing a scientific verdict on the parent', () => {
+  const job = structuredClone(jobFixture())
+  const parent = { ...job.claims[0], id: 'original-parent', text: 'Original collective statement',
+    attribution_status: 'ambiguous' as const, reference_ids: [], citation_callout_ids: [],
+    decomposed_into: job.claims.slice(0, 2).map(c => c.id) }
+  job.claims.push(parent)
+  renderReport(job)
+  const card = screen.getByText(parent.text).closest('article')!
+  expect(within(card).getByText(/Their results are shown separately/)).toBeTruthy()
+  expect(within(card).queryByLabelText('Pair verdicts')).toBeNull()
+  expect(within(card).queryByText(/No executable reference pairs/)).toBeNull()
+})
+
+it('shows decomposition in extraction review without calling the parent supported', () => {
+  const extraction = structuredClone(fixture.job_request.extraction) as ExtractionResult
+  const parent = { ...extraction.claims[0], id: 'collective-parent', text: 'Preserved parent statement',
+    attribution_status: 'ambiguous' as const, reference_ids: [], citation_callout_ids: [],
+    decomposed_into: extraction.claims.slice(0, 2).map(c => c.id) }
+  extraction.claims.push(parent)
+  render(<ClaimExtractionPreview parsed={fixture.parse_response.parsed as ParseResponse['parsed']} extraction={extraction} />)
+  const card = screen.getByText(parent.text).closest('article')!
+  expect(within(card).getByText(/This is not a support verdict/)).toBeTruthy()
+  expect(within(card).queryByRole('status')).toBeNull()
+})
+
 async function resolveAndReview() {
   await screen.findByRole('button', { name: 'Continue to Claims' })
   expect(screen.queryByRole('button', { name: 'Extract claims' })).toBeNull()

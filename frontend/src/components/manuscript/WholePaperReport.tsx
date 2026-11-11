@@ -66,7 +66,7 @@ function PairCard({ task, job }: { task: JobTask; job: VerificationJob }) {
 export function WholePaperReport({ job, fileLabel, recovery }: { job: VerificationJob; fileLabel?: string; recovery?: (referenceIds: string[]) => ReactNode }) {
   const coverage = job.coverage
   const plannedClaims = new Set(job.tasks.map(task => task.claim_id))
-  const excluded = job.claims.filter(claim => !plannedClaims.has(claim.id))
+  const excluded = job.claims.filter(claim => !plannedClaims.has(claim.id) && !claim.decomposed_into?.length)
   const recoveryPanel = useRef<HTMLDetailsElement>(null)
   const [selectedReferences, setSelectedReferences] = useState<string[] | null>(null)
   const [showReferences, setShowReferences] = useState(false)
@@ -82,7 +82,7 @@ export function WholePaperReport({ job, fileLabel, recovery }: { job: Verificati
     <Panel className="space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="font-semibold">Verification overview</h2><Badge variant={job.status === 'running' ? 'primary' : job.status === 'failed' ? 'danger' : 'default'}>{job.status.replaceAll('_', ' ')}</Badge></div>
       <p className="break-words text-sm [overflow-wrap:anywhere]">{fileLabel || 'Saved job ' + job.job_id.slice(0, 16) + '…'}</p>
-      <p className="text-sm">{job.claims.length - excluded.length} claims · {coverage.completed_pairs}/{coverage.total_pairs} pairs processed</p>
+      <p className="text-sm">{plannedClaims.size} claims · {coverage.completed_pairs}/{coverage.total_pairs} pairs processed</p>
       {coverage.total_pairs > 0 ? <progress className="h-1.5 w-full accent-primary" value={coverage.completed_pairs} max={coverage.total_pairs} aria-label="Completed Claim–Reference pairs" /> : <p className="text-sm">No executable pairs. Completion percentage is not applicable.</p>}
       {coverage.total_pairs > 0 && <p className="text-xs text-text-muted">Processing progress does not indicate scientific support.</p>}
       {!coverage.coverage_complete && (coverage.ambiguous_claims + coverage.unresolved_claims + coverage.failed_extraction_contexts + coverage.skipped_extraction_contexts > 0) && <p className="text-xs text-warning">Extraction or attribution coverage is incomplete. Review affected claims and diagnostics.</p>}
@@ -98,6 +98,10 @@ export function WholePaperReport({ job, fileLabel, recovery }: { job: Verificati
     </div>}
     <div className="space-y-3" aria-label="Claim results">
       {job.claims.map((claim, index) => {
+        if (claim.decomposed_into?.length) return <article key={claim.id} className="space-y-2 rounded-xl border border-border p-4">
+          <h2 className="text-xs font-semibold">Original statement {index + 1}</h2><p>{claim.text}</p>
+          <p className="text-sm text-text-secondary">See individual claims: {claim.decomposed_into.map(id => job.claims.findIndex(c => c.id === id) + 1).join(', ')}. Their results are shown separately; this statement has no independent verdict.</p>
+        </article>
         if (!plannedClaims.has(claim.id)) return null
         const tasks = job.tasks.filter(task => task.claim_id === claim.id)
         const paragraph = job.paragraphs.find(item => item.id === claim.paragraph_id)

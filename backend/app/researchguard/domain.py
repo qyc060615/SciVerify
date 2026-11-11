@@ -273,6 +273,7 @@ class AtomicClaim(DomainModel):
     page: Page | None = None
     source_spans: tuple[TextSpan, ...] = ()
     attribution_status: AttributionStatus | None = None
+    decomposed_into: Annotated[tuple[Identifier, ...], Field(max_length=8)] = ()
 
 
 class ExtractionStatus(str, Enum):

@@ -23,7 +23,7 @@ export default function WholePaperJobPage() {
   const fileName = (location.state as { manuscriptFileName?: unknown } | null)?.manuscriptFileName
   const fileLabel = typeof fileName === 'string' ? fileName : undefined
   const plannedClaims = new Set(job.data?.tasks.map(task => task.claim_id))
-  const excludedClaims = job.data?.claims.filter(claim => !plannedClaims.has(claim.id)) ?? []
+  const excludedClaims = job.data?.claims.filter(claim => !plannedClaims.has(claim.id) && !claim.decomposed_into?.length) ?? []
   if (!/^job_[0-9a-f]{32}$/.test(jobId)) return <Panel>Invalid job ID.</Panel>
   const parsed: ParsedDTO | null = job.data ? { manuscript: { id: job.data.manuscript_id, title: job.data.manuscript_title ?? null, content_hash: null }, paragraphs: job.data.paragraphs, references: job.data.references, citation_callouts: job.data.citation_callouts, citation_contexts: [] } : null
   return <div className="min-w-0 space-y-5">

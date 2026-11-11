@@ -6,6 +6,10 @@ export function ClaimList({ parsed, claims }: { parsed: ParsedDTO; claims: Claim
   return <div className="divide-y divide-border" aria-label="Claim review list">
     {claims.map((claim, index) => {
       const paragraph = parsed.paragraphs.find(p => p.id === claim.paragraph_id)
+      if (claim.decomposed_into?.length) return <article key={claim.id} className="space-y-2 py-3">
+        <h3 className="text-xs font-semibold">Original statement {index + 1}</h3><p>{claim.text}</p>
+        <p className="text-sm text-text-secondary">Evaluated through individual claims: {claim.decomposed_into.map(id => claims.findIndex(c => c.id === id) + 1).join(', ')}. This is not a support verdict.</p>
+      </article>
       return <article key={claim.id} className="min-w-0 space-y-1.5 py-3">
         <div className="flex items-center justify-between gap-3"><h3 className="text-xs font-semibold text-text-muted">Claim {String(index + 1).padStart(2, '0')}</h3><span role="status" aria-label={claim.attribution_status === 'resolved' ? 'Citation Attributed' : 'Needs Attention'} className={claim.attribution_status === 'resolved' ? 'text-success' : 'text-warning'}>{claim.attribution_status === 'resolved' ? '✓' : '!'}</span></div>
         <p className="break-words text-sm font-medium leading-relaxed [overflow-wrap:anywhere]">{claim.text}</p>
@@ -25,7 +29,8 @@ export function ClaimList({ parsed, claims }: { parsed: ParsedDTO; claims: Claim
 export function ClaimExtractionPreview({ parsed, extraction }: { parsed: ParsedDTO; extraction: ExtractionResult }) {
   return <div className="space-y-4">
     <div className="space-y-2"><h2 className="text-lg font-semibold">Review Claims</h2>
-      <p className="text-sm">{extraction.claims.length} Claims · {extraction.claims.filter(c => c.attribution_status === 'resolved').length} Resolved · {extraction.claims.filter(c => c.attribution_status !== 'resolved').length} Need Attention</p>
+      <p className="text-sm">{extraction.claims.length} Claims · {extraction.claims.filter(c => c.attribution_status === 'resolved').length} Resolved · {extraction.claims.filter(c => c.attribution_status !== 'resolved' && !c.decomposed_into?.length).length} Need Attention</p>
+      {extraction.claims.some(c => c.decomposed_into?.length) && <p className="text-sm text-text-secondary">{extraction.claims.filter(c => c.decomposed_into?.length).length} original statements are retained with their individual claims.</p>}
       {extraction.status !== 'completed' && <p className="text-sm text-warning">Extraction has coverage gaps. Review unresolved claims and context diagnostics before continuing.</p>}
       {extraction.claims.length === 0 && <p className="text-sm">No claims were accepted. No executable pairs can be started.</p>}
     </div>

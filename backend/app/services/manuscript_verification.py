@@ -80,6 +80,8 @@ def plan_manuscript_pairs(parsed, extraction):
     callouts = {c.id: c for c in parsed.citation_callouts}
     plan, blocked = [], []
     for claim in extraction.claims:
+        if claim.decomposed_into:
+            continue
         if claim.attribution_status != AttributionStatus.RESOLVED:
             blocked.append(AttributionBlockedClaim(claim_id=claim.id,
                 reason_code="ATTRIBUTION_" + claim.attribution_status.value.upper()))
@@ -302,7 +304,7 @@ async def verify_manuscript_core(
     coverage = CoreCoverage(claims=len(extraction.claims), references=len(parsed.references), pairs=len(outcomes),
         completed=completed, failed=failed, blocked=len(outcomes) - completed - failed,
         unresolved_claims=sum(c.attribution_status == AttributionStatus.UNRESOLVED for c in extraction.claims),
-        ambiguous_claims=sum(c.attribution_status == AttributionStatus.AMBIGUOUS for c in extraction.claims),
+        ambiguous_claims=sum(c.attribution_status == AttributionStatus.AMBIGUOUS and not c.decomposed_into for c in extraction.claims),
         failed_contexts=sum(c.status == ExtractionStatus.FAILED for c in extraction.context_results),
         skipped_contexts=sum(c.status == ExtractionStatus.SKIPPED for c in extraction.context_results),
         coverage_complete=bool(outcomes) and not blocked and completed == len(outcomes)

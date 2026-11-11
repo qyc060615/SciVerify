@@ -79,10 +79,13 @@ async def extract_claims(parsed, *, provider=None, provider_factory=None):
             except ProposalRejected as exc:
                 rejected.append(RejectedClaimProposalSummary(proposal_index=i, reason_code=exc.code))
                 notes.append(diagnostic(exc.code, context.id))
+        from app.services.claim_decomposition import recover_context
+        accepted, recovery_notes = recover_context(parsed, context, tuple(accepted))
+        notes.extend(recovery_notes)
         if rejected and not accepted:
             status = ExtractionStatus.FAILED
             notes.append(diagnostic("EXTRACTION_VALIDATION_FAILED", context.id))
-        elif rejected or any(c.attribution_status != AttributionStatus.RESOLVED for c in accepted):
+        elif rejected or any(c.attribution_status != AttributionStatus.RESOLVED and not c.decomposed_into for c in accepted):
             status = ExtractionStatus.PARTIAL
         else:
             status = ExtractionStatus.COMPLETED

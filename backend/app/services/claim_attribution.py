@@ -168,6 +168,8 @@ def validate_proposal(parsed, context, proposal) -> ValidatedClaim:
 
 
 def validate_result(parsed, result):
+    from app.services.claim_decomposition import validate_decompositions
+    validate_decompositions(parsed, result)
     paragraphs = {p.id: p for p in parsed.paragraphs}
     calls = {c.id: c for c in parsed.citation_callouts}
     contexts = {c.id: c for c in result.contexts}
