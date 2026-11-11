@@ -141,12 +141,14 @@ async def verify_manuscript_core(
             # A provisional version requires its own content review even when an
             # exact DOI reference happened to prepare that same source earlier.
             memo = (key, reference.id if len(reference_locators(reference)) > 1 or not reference.doi and locator.kind == 'doi' else None)
+            # A resolved bibliographic DOI must not erase the selected URL.
+            # Keep the legacy DOI-only projection for existing DOI paths.
             binding = SourceBinding(reference_id=reference.id, doi=doi,
-                                    locator=locator if not reference.doi else None)
+                                    locator=locator if locator.kind == 'url' or not reference.doi else None)
             if memo not in prepared:
                 # Store only normalized domain data, not mutable provider responses.
                 try:
-                    if reference.doi and source_retriever is not retrieve_paper:
+                    if reference.doi and doi and source_retriever is not retrieve_paper:
                         response = await to_thread.run_sync(source_retriever, doi)
                     else:
                         from functools import partial
@@ -159,8 +161,8 @@ async def verify_manuscript_core(
                     if response.source.provenance:
                         binding = binding.model_copy(update={'provenance': response.source.provenance})
                     if actual_locator in reference_locators(reference):
-                        binding = binding.model_copy(update={'doi': response.paper.doi,
-                            'locator': actual_locator if not reference.doi or actual_locator != locator else None})
+                        binding = binding.model_copy(update={'doi': actual_locator.value if actual_locator.kind == 'doi' else None,
+                            'locator': actual_locator if actual_locator.kind == 'url' or not reference.doi or actual_locator != locator else None})
                     expected_hash = expected_raw_hashes.get(reference.id, expected_raw_hashes.get(key))
                     expected_version = expected_source_versions.get(reference.id, expected_source_versions.get(key))
                     if actual_locator not in reference_locators(reference) or (actual_locator.kind == 'url' and response.paper.doi is not None):
@@ -200,7 +202,7 @@ async def verify_manuscript_core(
                 raise _PairBlocked()
             chosen = selected_locators.get(memo, locator)
             binding = binding.model_copy(update={'doi': chosen.value if chosen.kind == 'doi' else None,
-                'locator': chosen if not reference.doi or chosen != locator else None})
+                'locator': chosen if chosen.kind == 'url' or not reference.doi or chosen != locator else None})
             sources[source.id] = source
             prov = provenance.get(memo)
             if prov:
