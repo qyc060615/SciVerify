@@ -115,3 +115,87 @@ def test_client_cannot_hide_gaps_with_forged_decomposition(forgery):
     if forgery == 'resolved_parent': parent = parent.model_copy(update={'attribution_status': 'resolved'})
     with pytest.raises(ValueError):
         validate_result(parsed, result.model_copy(update={'claims': (parent, a, b)}))
+
+
+@pytest.mark.parametrize('labels', [('3', '4'), ('3',), ()])
+def test_already_split_reporting_recovers_each_named_owner(labels):
+    parsed = manuscript(REPORT)
+    proposals = [dict(text=f'{name} used 8 GPUs.', evidence_quote=REPORT,
+        attribution_intent='cited' if labels else 'uncertain', citation_labels=list(labels))
+        for name in ['Alpha', 'Beta']]
+    result = run(parsed, provider=FakeProvider(lambda _: {'claims': proposals}))
+    assert result.status == 'completed'
+    assert len(result.claims) == 2
+    for claim, ref in zip(result.claims, ['r3', 'r4']):
+        assert claim.attribution_status == 'resolved'
+        assert claim.reference_ids == (ref,) and not claim.decomposed_into
+    plan, blocked = plan_manuscript_pairs(parsed, result)
+    assert not blocked and len(plan) == 2
+    validate_result(parsed, result)
+    context = result.contexts[0]
+    assert recover_context(parsed, context, result.claims)[0] == result.claims
+
+
+@pytest.mark.parametrize('text,claim', [
+    (REPORT, 'Gamma used 8 GPUs.'),
+    (REPORT, 'Alpha used 80 GPUs.'),
+    (REPORT, 'Alpha did not use 8 GPUs.'),
+    (REPORT, 'Alpha used cost-effective GPUs.'),
+    (REPORT.replace('it is stated that they', 'we'), 'Alpha used 8 GPUs.'),
+    (REPORT.replace('used 8 GPUs', 'used 8 GPUs respectively'), 'Alpha used 8 GPUs respectively.'),
+    (REPORT.replace(' and Beta [4]', ', while Beta [4]'), 'Alpha used 8 GPUs.'),
+    (REPORT.replace('Beta [4]', 'Beta [3]'), 'Alpha used 8 GPUs.'),
+])
+def test_already_split_recovery_never_invents_owner_predicate_or_scope(text, claim):
+    parsed = manuscript(text)
+    context = build_contexts(parsed)[0].context
+    original = check(manuscript(REPORT), proposal(claim, REPORT, ('3', '4')))
+    assert original.attribution_status == 'ambiguous'
+    assert recover_context(parsed, context, (original,))[0] == (original,)
+
+
+@pytest.mark.parametrize('case', ['fallback', 'unresolved'])
+def test_already_split_recovery_requires_trusted_resolved_context(case):
+    parsed = manuscript(REPORT, statuses={1: 'unresolved'}) if case == 'unresolved' else manuscript(REPORT)
+    context = build_contexts(parsed)[0].context
+    if case == 'fallback':
+        context = context.model_copy(update={'scope_kind': 'paragraph_fallback'})
+    original = check(manuscript(REPORT), proposal('Alpha used 8 GPUs.', REPORT, ('3', '4')))
+    assert recover_context(parsed, context, (original,))[0] == (original,)
+
+
+@pytest.mark.parametrize('name,verb,gerund,rest', [
+    ('Orion', 'trained', 'training', 'on 12 nodes'),
+    ('Delta', 'applied', 'applying', 'a conditional threshold of 0.8'),
+    ('Cedar', 'used', 'using', 'only 3 samples under low pressure'),
+])
+@pytest.mark.parametrize('frame', [
+    '{name} is cited as {gerund} {rest}.',
+    '{name} is stated to have {verb} {rest}.',
+    'In the {name} paper, it is reported that {name} {verb} {rest}.',
+    'It is stated in {name} [3] that {name} {verb} {rest}.',
+])
+def test_reporting_frames_generalize_without_domain_keywords(name, verb, gerund, rest, frame):
+    text = f'In {name} [3] and Vega [4], it is stated that they {verb} {rest}.'
+    claim = frame.format(name=name, verb=verb, gerund=gerund, rest=rest)
+    result = run(manuscript(text), provider=FakeProvider(lambda _: response(claim, text)))
+    assert result.status == 'completed'
+    assert result.claims[0].text == claim
+    assert result.claims[0].reference_ids == ('r3',)
+    assert result.claims[0].attribution_status == 'resolved'
+
+
+@pytest.mark.parametrize('claim', [
+    'Alpha is proven to have used 8 GPUs.',
+    'Alpha is cited as using 80 GPUs.',
+    'Alpha is cited as not using 8 GPUs.',
+    'Gamma is cited as using 8 GPUs.',
+    'In the Beta paper, it is stated that Alpha used 8 GPUs.',
+    'It is stated in Alpha [4] that Alpha used 8 GPUs.',
+    'Alpha is cited as using 8 cost-effective GPUs.',
+    'Alpha is cited as using GPUs.',
+])
+def test_reporting_frames_do_not_erase_substantive_differences(claim):
+    result = run(manuscript(REPORT), provider=FakeProvider(lambda _: response(claim, REPORT)))
+    assert result.claims[0].attribution_status == 'ambiguous'
+    assert not result.claims[0].reference_ids

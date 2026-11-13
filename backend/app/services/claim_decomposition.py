@@ -16,6 +16,36 @@ def _normal(text):
     return re.sub(r'\s+', ' ', text).strip().rstrip('.').casefold()
 
 
+def _reported_individual(text, name, predicate, call):
+    """Match reporting grammar, not semantic similarity or model confidence.
+
+    Only the reporting frame and a regular past-to-participle transformation
+    vary. The complete predicate (numbers, qualifiers, polarity) stays exact.
+    Citation-bearing frames must repeat the actual owner and its own callout.
+    """
+    text, name, predicate = _normal(text), _normal(name), _normal(predicate)
+    if text == f'{name} {predicate}':
+        return True
+    reporting = r'(?:stated|reported|cited|described)'
+    subject, content = re.escape(name), re.escape(f'{name} {predicate}')
+    citation = re.escape(_normal(call.text))
+    frames = [
+        rf'in (?:the )?{subject} (?:paper|study), it is {reporting} that {content}',
+        rf'it is {reporting} in {subject}(?: {citation})? that {content}',
+    ]
+    # Inflection is deliberately restricted to regular past-tense predicates;
+    # no stemming, synonym substitution or deletion of modal/negative tokens.
+    past = re.fullmatch(r'([a-z]+ed) (.+)', predicate)
+    if past:
+        verb, rest = past.groups()
+        gerund = verb[:-3] + 'ying' if verb.endswith('ied') else verb[:-2] + 'ing'
+        frames.extend([
+            rf'{subject} is {reporting} to have {re.escape(predicate)}',
+            rf'{subject} is {reporting} as {re.escape(gerund + " " + rest)}',
+        ])
+    return any(re.fullmatch(frame, text) for frame in frames)
+
+
 def _named_pair(parsed, context, prefix):
     """Read names next to their own callouts; never map a group by list order."""
     calls = {c.id: c for c in parsed.citation_callouts}
@@ -45,7 +75,21 @@ def recover_context(parsed, context, claims):
         children = []
         if reporting:
             _, owners, tail = reporting
-            match = re.fullmatch(r'\s*,\s*it is (?:stated|reported) that they (?P<predicate>[^.!?;\n]+)\.?\s*', tail, re.I)
+            match = re.fullmatch(r'\s*,\s*it is (?:stated|reported) that they (?P<predicate>(?:[^.!?;\n]|(?<=\d)\.(?=\d))+)\.?\s*', tail, re.I)
+            # The model may already have split the named subjects. Recover only
+            # an exact individual rendering of this same explicit shared clause;
+            # derive its reference from the name's own callout, never list order.
+            if match and not re.search(r'\b(?:while|whereas|but|respectively)\b', match['predicate'], re.I):
+                owner = next((call for name, call in owners
+                    if _reported_individual(parent.text, name, match['predicate'], call)), None)
+                if owner is not None and not parent.decomposed_into:
+                    result[index] = parent.model_copy(update={
+                        'attribution_status': AttributionStatus.RESOLVED,
+                        'citation_callout_ids': (owner.id,), 'reference_ids': owner.reference_ids})
+                    notes.append(ManuscriptDiagnostic(code='NAMED_CITATION_INDIVIDUAL_RECOVERED',
+                        entity_id=parent.id, severity='info',
+                        safe_message='Individual statement attributed through its explicit named citation. This is not a support verdict.'))
+                    continue
             if (match and not re.search(r'\b(?:while|whereas|but|respectively)\b', match['predicate'], re.I)
                     and _normal(parent.text) == _normal(f'{owners[0][0]} and {owners[1][0]} {match["predicate"]}')):
                 for name, call in owners:
