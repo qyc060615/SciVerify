@@ -85,7 +85,7 @@ def accepted_source_to_domain(paper_result: RetrievePaperResponse) -> tuple[Sour
                 "parsed_content_fingerprint": parsed_fingerprint,
                 "source_identity_status": paper_result.source.identity_status,
                 "source_origin": paper_result.source.origin, "source_cache_hit": paper_result.source.cache_hit,
-                **({"source_locator": locator.model_dump(mode='json')} if locator.kind == 'url' else {}),
+                **({"source_locator": locator.model_dump(mode='json')} if locator.kind != 'doi' else {}),
                 **({"source_provenance": paper_result.source.provenance.model_dump(mode='json')}
                    if paper_result.source.provenance else {}),
             },

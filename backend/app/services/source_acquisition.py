@@ -334,6 +334,15 @@ def _cross_work_conflict(reference, record, response):
 @single_source(lambda reference, **kwargs: 'reference:' + reference.id)
 def retrieve_reference_source(reference, *, doi_retriever=None, client=None, candidate_urls=(),
                               citing_publication_date=None, local_only=False):
+    # Read the explicitly associated upload before considering discovered sources.
+    from app.services.source_locator import manual_reference_locator
+    artifact = LocalSourceStore().get_locator(manual_reference_locator(reference))
+    if artifact and artifact.origin == 'manual':
+        from app.services.manual_source import review_manual_response
+        sections = parse_document(artifact.content, artifact.format)
+        chunks = chunk_sections(sections, artifact.paper.paper_id, artifact.source_url)
+        return review_manual_response(reference, artifact.response(
+            cache_hit=True, sections=sections, chunks=chunks), artifact)
     records = reference_candidates(reference)
     valid = [r for r in records if r['locator']]
     if not valid:

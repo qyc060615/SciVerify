@@ -72,7 +72,11 @@ def reference_candidates(reference):
 
 
 def reference_locators(reference):
-    return tuple(SourceLocator.model_validate(r['locator']) for r in reference_candidates(reference) if r['locator'])
+    locators = tuple(SourceLocator.model_validate(r['locator']) for r in reference_candidates(reference) if r['locator'])
+    from app.services.source_store import LocalSourceStore
+    local = manual_reference_locator(reference)
+    artifact = LocalSourceStore().get_locator(local)
+    return (local, *locators) if artifact and artifact.origin == 'manual' else locators
 
 
 def reference_locator(reference) -> SourceLocator | None:
@@ -80,3 +84,13 @@ def reference_locator(reference) -> SourceLocator | None:
     if not locators and reference.doi:
         raise ValueError('DOI_INVALID')
     return locators[0] if locators else None
+
+
+def manual_reference_locator(reference):
+    """Local association only; never a discovered DOI or a remote URL."""
+    import hashlib
+    import json
+    identity = {key: getattr(reference, key) for key in
+                ('manuscript_id', 'id', 'raw_text', 'title', 'authors', 'year', 'doi', 'url')}
+    digest = hashlib.sha256(json.dumps(identity, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
+    return SourceLocator(kind='reference', value=digest)

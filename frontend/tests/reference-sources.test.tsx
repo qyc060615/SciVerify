@@ -243,18 +243,22 @@ it('identity conflict keeps an immediate correct-PDF upload even for ambiguous m
   expect(await screen.findByLabelText('Source PDF for ' + ref.doi)).toBeTruthy()
 })
 
-it('a candidate-only upload requires an explicit target and never defaults to the first candidate', async () => {
+it('candidate-only uploads submit directly against the current reference', async () => {
   const ref = { ...fixture.parse_response.parsed.references[0], doi: null } as Reference
-  actions.prepare.mockResolvedValue({ ...missing, identity: 'CONFLICT', candidates: [
+  actions.prepare.mockResolvedValue({ ...missing, candidates: [
     { locator: { kind: 'doi', value: '10.1234/one' } }, { locator: { kind: 'url', value: 'https://example.org/two.pdf' } },
   ] })
+  actions.status.mockResolvedValue(available)
+  const post = vi.spyOn(apiClient, 'post').mockResolvedValue({ data: { status: 'accepted', reference_id: ref.id, raw_content_sha256: hash } })
   mount(ref)
   fireEvent.click(await screen.findByRole('button', { name: 'Upload file' }))
   fireEvent.change(screen.getByLabelText('Source PDF for ' + ref.id), { target: { files: [new File(['%PDF'], 'candidate.pdf')] } })
-  const select = await screen.findByLabelText('Source to attach') as HTMLSelectElement
-  expect(select.value).toBe('')
-  expect(within(select).getAllByRole('option')).toHaveLength(3)
-  expect(actions.upload).not.toHaveBeenCalled()
+  await screen.findByText(/PDF saved and verified/)
+  const form = post.mock.calls[0][1] as FormData
+  expect(JSON.parse(form.get('reference') as string)).toEqual(ref)
+  expect(form.has('locator')).toBe(false)
+  expect(screen.queryByLabelText('Source to attach')).toBeNull()
+  post.mockRestore()
 })
 
 it('confirmed work stays green while historical version warnings remain visible', async () => {
@@ -353,25 +357,6 @@ it('uses the URL-only manual API with the original reference identity', async ()
 })
 
 
-it('binds candidate-only files to the explicitly selected locator after file selection', async () => {
-  const ref = { ...fixture.parse_response.parsed.references[0], doi: null } as Reference
-  const target = { kind: 'url', value: 'https://example.org/selected.pdf' }
-  actions.prepare.mockResolvedValue({ ...missing, identity: 'CONFLICT', candidates: [
-    { locator: { kind: 'doi', value: '10.1234/other' } }, { locator: target },
-  ] })
-  actions.status.mockResolvedValue(available)
-  const post = vi.spyOn(apiClient, 'post').mockResolvedValue({ data: { status: 'accepted', reference_id: ref.id, raw_content_sha256: hash, locator: target } })
-  mount(ref)
-  fireEvent.click(await screen.findByRole('button', { name: 'Upload file' }))
-  fireEvent.change(screen.getByLabelText('Source PDF for ' + ref.id), { target: { files: [new File(['%PDF'], 'selected.pdf')] } })
-  expect(post).not.toHaveBeenCalled()
-  fireEvent.change(screen.getByLabelText('Source to attach'), { target: { value: JSON.stringify(target) } })
-  fireEvent.click(screen.getByRole('button', { name: 'Confirm source' }))
-  await screen.findByText(/PDF saved and verified/)
-  expect(JSON.parse((post.mock.calls[0][1] as FormData).get('locator') as string)).toEqual(target)
-  expect(screen.getByText('More details').closest('details')?.open).toBe(false)
-  post.mockRestore()
-})
 
 it.each([new File([], 'empty.pdf'), new File(['%PDF'], 'wrong.txt'), new File(['x'.repeat(1001)], 'large.pdf')])('rejects an invalid Reference PDF before uploading: %s', async file => {
   mount()
@@ -416,7 +401,7 @@ it.each([
   mount()
   await screen.findByText('Preparation result: ' + reason_code)
   expect(screen.getByText('1 References · 0 available · 0 missing' + (count ? ' · 1 need attention' : ''))).toBeTruthy()
-  expect(screen.queryByRole('button', { name: 'Upload file' })).toBeNull()
+  expect(!!screen.queryByRole('button', { name: 'Upload file' })).toBe(reason_code === 'SOURCE_LOCATOR_MISSING')
 })
 
 it('keeps aggregate categories mutually exclusive for ready, missing, conflict, candidate and manual issues', async () => {
@@ -434,7 +419,7 @@ it('keeps aggregate categories mutually exclusive for ready, missing, conflict, 
   await screen.findByText('5 References · 1 available · 2 missing · 1 need attention')
   expect(screen.getByRole('status', { name: 'Source Identity Conflict' }).className).toContain('text-danger')
   expect(screen.getByRole('status', { name: 'Full Text Unavailable' }).className).toContain('text-danger')
-  expect(screen.getAllByRole('button', { name: 'Upload file' })).toHaveLength(2)
+  expect(screen.getAllByRole('button', { name: 'Upload file' })).toHaveLength(3)
 })
 
 it.each([

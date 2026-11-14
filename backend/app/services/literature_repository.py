@@ -67,7 +67,7 @@ def list_literature(source_store=None, job_store=None):
                     raise ValueError()
                 locator = SourceLocator.model_validate(data['locator']) if data.get('locator') else SourceLocator(kind='doi', value=doi)
                 if (locator.kind == 'doi' and locator.value != doi
-                        or locator.kind == 'url' and (doi is not None or paper.paper_id != locator.key)):
+                        or locator.kind in {'url', 'reference'} and (doi is not None or paper.paper_id != locator.key)):
                     raise ValueError()
                 key = digest + ':' + locator.key
                 rows[key] = {

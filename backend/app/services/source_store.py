@@ -37,7 +37,7 @@ class AcceptedSourceArtifact:
                locator=None, provenance=None):
         normalized = normalize_doi(doi) if doi else None
         locator = SourceLocator.model_validate(locator) if locator is not None else None
-        if normalized is None and (locator is None or locator.kind != 'url'):
+        if normalized is None and (locator is None or locator.kind not in {'url', 'reference'}):
             raise ValueError('Artifact needs a DOI or URL locator')
         return cls(normalized, hashlib.sha256(content).hexdigest(), format,
                    content, source_url, provider, origin, paper.model_copy(deep=True), locator, provenance)
@@ -72,7 +72,7 @@ class LocalSourceStore:
         if locator.kind == 'doi':
             return self._lookup_path(locator.value)
         key = hashlib.sha256(locator.value.encode()).hexdigest()
-        return self.root / 'url' / ('url-' + key + '.json')
+        return self.root / locator.kind / (locator.kind + '-' + key + '.json')
 
     @staticmethod
     def _atomic_write(target: Path, content: bytes):
@@ -96,7 +96,7 @@ class LocalSourceStore:
             raise ValueError("Invalid source identity")
         locator = artifact.source_locator
         if (locator.kind == 'doi' and normalize_doi(artifact.paper.doi) != locator.value
-                or locator.kind == 'url' and (artifact.doi is not None or artifact.paper.paper_id != locator.key)):
+                or locator.kind in {'url', 'reference'} and (artifact.doi is not None or artifact.paper.paper_id != locator.key)):
             raise ValueError('Invalid artifact locator')
         directory = self.root / artifact.raw_content_sha256
         metadata = {
@@ -164,7 +164,7 @@ class LocalSourceStore:
             stored_locator = SourceLocator.model_validate(data['locator']) if data['version'] == 2 else None
             if (stored_locator or SourceLocator(kind='doi', value=normalized)) != locator:
                 return None
-            if locator.kind == 'url' and paper.paper_id != locator.key:
+            if locator.kind in {'url', 'reference'} and paper.paper_id != locator.key:
                 return None
             provenance = SourceProvenance.model_validate(data['provenance']) if data.get('provenance') else None
             if provenance and provenance.retrieved_version not in {None, 'sha256:' + digest}:

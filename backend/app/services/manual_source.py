@@ -193,22 +193,27 @@ def accept_manual_pdf(doi: str, content: bytes, *, reference=None) -> dict:
 
 def accept_reference_pdf(reference, content: bytes, *, locator=None) -> dict:
     """Keep the user-selected reference binding; reject only positive conflicts."""
-    from app.services.source_locator import reference_locator, reference_locators
+    from app.services.source_locator import reference_locators, manual_reference_locator
     explicit = locator is not None
     if explicit and locator not in reference_locators(reference):
         raise ManualSourceError('SOURCE_NOT_CITED', "Choose one of this reference's discovered source targets.")
-    locator = locator or reference_locator(reference)
+    # Never bind an upload to an unconfirmed search candidate.
+    if locator is None:
+        from app.researchguard.source_locator import SourceLocator
+        url = (reference.resolution.source_url if reference.resolution else None) or reference.url
+        locator = (SourceLocator(kind='doi', value=reference.doi) if reference.doi else
+                   SourceLocator(kind='url', value=url) if url else manual_reference_locator(reference))
     if locator and locator.kind == 'doi':
         accepted = accept_manual_pdf(locator.value, content, reference=reference)
         return {**accepted, 'reference_id': reference.id, 'locator': locator.model_dump()}
-    if locator is None or locator.kind != 'url':
+    if locator is None or locator.kind not in {'url', 'reference'}:
         raise ManualSourceError('SOURCE_URL_REQUIRED', 'A cited public URL is required.')
     sections, header, metadata = _read_manual_pdf(content)
     review = _manual_identity(None, reference, header, metadata)
     if review['match'] is None:
         raise ManualSourceError('SOURCE_MISMATCH', 'The PDF identifies a different paper.')
     paper = PaperMetadata(paper_id=locator.key, title=reference.title, authors=list(reference.authors),
-        year=reference.year, url=locator.value,
+        year=reference.year, url=locator.value if locator.kind == 'url' else None,
         full_text_available=True, full_text_format='pdf')
     if not chunk_sections(sections, paper.paper_id):
         raise ManualSourceError('INVALID_PDF', 'The PDF contains no usable full text.')

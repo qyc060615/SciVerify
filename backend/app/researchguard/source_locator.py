@@ -36,7 +36,7 @@ def canonical_url(value: str) -> str:
 
 class SourceLocator(BaseModel):
     model_config = ConfigDict(extra='forbid', frozen=True)
-    kind: Literal['doi', 'url']
+    kind: Literal['doi', 'url', 'reference']
     value: str
 
     @model_validator(mode='after')
@@ -46,6 +46,9 @@ class SourceLocator(BaseModel):
             normal = re.sub(r'^doi:\s*|^https?://(?:dx\.)?doi\.org/\s*', '', normal, flags=re.I).strip().rstrip('.,;').lower()
             if not re.fullmatch(r'10\.\d{4,9}/\S+', normal):
                 raise ValueError('DOI_INVALID')
+        elif self.kind == 'reference':
+            if not re.fullmatch(r'[a-f0-9]{64}', normal):
+                raise ValueError('REFERENCE_BINDING_INVALID')
         else:
             normal = canonical_url(normal)
         if normal != self.value:
@@ -55,7 +58,7 @@ class SourceLocator(BaseModel):
     @property
     def key(self) -> str:
         # Preserve existing DOI cache, source/evidence identities and expectation keys.
-        return self.value if self.kind == 'doi' else 'url:' + hashlib.sha256(self.value.encode()).hexdigest()
+        return self.value if self.kind == 'doi' else self.kind + ':' + hashlib.sha256(self.value.encode()).hexdigest()
 
 
 class SourceProvenance(BaseModel):

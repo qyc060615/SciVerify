@@ -28,28 +28,22 @@ function ReferenceItem({ reference: ref, index, status, automatic, anchors, onBu
   const active = useRef(false)
   const mounted = useRef(true)
   useEffect(() => { mounted.current = true; return () => { mounted.current = false } }, [])
-  const [file, setFile] = useState<File | null>(null)
   const [busy, setBusy] = useState(false)
   const [uploadPhase, setUploadPhase] = useState<'uploading' | 'validating' | null>(null)
   const [uploadFailed, setUploadFailed] = useState(false)
   const [message, setMessage] = useState('')
-  const [uploadTarget, setUploadTarget] = useState('')
   const limits = useQuery({ queryKey: ['manuscript-upload-limits'], queryFn: ({ signal }) => getUploadLimits(signal), enabled: automatic && !status.isFetching && (status.isError || sourceNeedsUpload(status.data)), retry: false })
   const display = referenceSourceDisplay(status)
   const { ready: confirmed, missing } = display
-  const uploadOptions = [...new Map((status.data?.candidates ?? []).filter(candidate => candidate.locator).map(candidate => [JSON.stringify(candidate.locator), candidate.locator!])).entries()]
-  const requiresTarget = !ref.doi && !(ref.resolution?.source_url || ref.url)
-  const canUpload = !!referenceLocator(ref) || uploadOptions.length > 0
-  async function upload(selected: File, targetValue = uploadTarget) {
+  async function upload(selected: File) {
     if (active.current) return
-    if (requiresTarget && !targetValue) { setFile(selected); return }
     active.current = true; setBusy(true); setUploadPhase('uploading'); setUploadFailed(false); onBusy?.(ref.id, true); setMessage('')
     try {
       const uploadLimits = limits.data ?? await getUploadLimits()
       const invalid = validatePdf(selected, uploadLimits.source_max_bytes)
       if (invalid) throw new Error(invalid)
       await client.cancelQueries({ predicate: query => query.queryKey[0] === 'reference-source' && query.queryKey[2] === JSON.stringify(ref) })
-      const hash = requiresTarget ? await uploadReferenceSource(ref, selected, JSON.parse(targetValue)) : await uploadReferenceSource(ref, selected)
+      const hash = await uploadReferenceSource(ref, selected)
       if (!mounted.current) return
       if (!/^[a-f0-9]{64}$/.test(hash)) throw new Error('The upload did not return a valid source hash.')
       setUploadPhase('validating')
@@ -57,7 +51,7 @@ function ReferenceItem({ reference: ref, index, status, automatic, anchors, onBu
       if (!mounted.current) return
       if (!sourceAvailable(checked) || sourceNeedsUpload(checked) || checked.raw_content_sha256 !== hash) throw new Error('Upload accepted, but the matching saved file could not be confirmed. Retry the local source check.')
       client.setQueriesData({ predicate: query => query.queryKey[0] === 'reference-source' && query.queryKey[2] === JSON.stringify(ref) }, checked)
-      const target = requiresTarget ? JSON.parse(targetValue) as { kind: 'doi' | 'url'; value: string } : referenceLocator(ref)
+      const target = referenceLocator(ref)
       void client.invalidateQueries({ predicate: query => {
         if (query.queryKey[0] !== 'reference-source' || query.queryKey[2] === JSON.stringify(ref)) return false
         try {
@@ -65,7 +59,7 @@ function ReferenceItem({ reference: ref, index, status, automatic, anchors, onBu
           return !!target && other?.kind === target.kind && (target.kind === 'doi' ? other.value.toLowerCase() === target.value.toLowerCase() : other.value === target.value)
         } catch { return false }
       } })
-      setMessage('PDF saved and verified in the local source store.'); setFile(null)
+      setMessage('PDF saved and verified in the local source store.')
       void client.invalidateQueries({ queryKey: ['local-literature-repository'] })
     } catch (error) { if (mounted.current) { setMessage(wholePaperError(error)); setUploadFailed(true) } }
     finally { active.current = false; if (mounted.current) { setBusy(false); setUploadPhase(null); onBusy?.(ref.id, false) } }
@@ -75,7 +69,7 @@ function ReferenceItem({ reference: ref, index, status, automatic, anchors, onBu
     <div className="flex flex-col items-end gap-1">
       {uploadPhase ? <span role="status" aria-label={uploadPhase === 'uploading' ? 'Uploading PDF...' : 'Validating Source...'} className="flex items-center gap-2 text-xs text-primary"><Spinner size="sm" />{uploadPhase === 'uploading' ? 'Uploading PDF...' : 'Validating Source...'}</span>
         : <span role="status" aria-label={display.label} className={'flex flex-wrap items-center justify-end gap-2 text-xs ' + display.color}><span aria-hidden="true" className="text-lg">{display.mark}</span>{display.label}</span>}
-      {automatic && missing && canUpload && <Button type="button" size="sm" variant="outline" disabled={busy} onClick={event => { event.preventDefault(); event.stopPropagation(); inputRef.current?.click() }}>Upload file</Button>}
+      {automatic && (missing || status.data?.reason_code === 'SOURCE_LOCATOR_MISSING') && <Button type="button" size="sm" variant="outline" disabled={busy} onClick={event => { event.preventDefault(); event.stopPropagation(); inputRef.current?.click() }}>Upload file</Button>}
       <input ref={inputRef} type="file" accept=".pdf,application/pdf" onClick={event => event.stopPropagation()} hidden aria-label={'Source PDF for ' + (ref.doi ?? ref.id)} disabled={busy} onChange={event => {
         const selected = event.currentTarget.files?.[0]
         event.currentTarget.value = ''
@@ -83,15 +77,7 @@ function ReferenceItem({ reference: ref, index, status, automatic, anchors, onBu
       }} />
       {automatic && missing && (status.isError || status.data?.retryable) && <Button size="sm" variant="ghost" disabled={busy} onClick={() => void status.refetch()}>Retry</Button>}
     </div>
-    {file && requiresTarget && <div className="col-span-2 space-y-2" role="group" aria-label="Select upload source">
-      <label>Source to attach<select aria-label="Source to attach" value={uploadTarget} disabled={busy} onChange={event => setUploadTarget(event.target.value)} className="block w-full min-w-0 border border-border p-2">
-        <option value="">Choose a discovered source</option>{uploadOptions.map(([key, target]) => <option key={key} value={key}>{target.kind}: {target.value}</option>)}
-      </select></label>
-      <Button type="button" size="sm" disabled={busy || !uploadTarget} onClick={() => void upload(file)}>Confirm source</Button>
-      <Button type="button" size="sm" variant="ghost" disabled={busy} onClick={() => setFile(null)}>Cancel</Button>
-    </div>}
     {message && <p role={uploadFailed ? 'alert' : 'status'} className={'col-span-2 text-xs ' + (uploadFailed ? 'text-danger' : '')}>{message}</p>}
-    {automatic && missing && !canUpload && <p className="col-span-2 text-xs">A reliable DOI or a sufficiently specific cited title and URL is required to validate a manual PDF.</p>}
     <details className="col-span-2 mt-1 min-w-0 text-xs text-text-secondary"><summary className="cursor-pointer text-primary">More details</summary><div className="mt-2 space-y-2 break-words [overflow-wrap:anywhere]">
             <p>Reference ID: {ref.id}</p><p>Original reference: {ref.raw_text}</p>
             <p>{ref.authors.join(', ')} · {ref.year ?? 'Year unavailable'} · {ref.journal ?? 'Journal unavailable'}</p>
