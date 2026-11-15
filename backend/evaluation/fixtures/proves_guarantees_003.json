@@ -1,0 +1,79 @@
+{
+  "status": "success",
+  "claim": "The AlphaFold2 data proves the mechanism guarantees perfect protein structure prediction.",
+  "verdict": "OVERSTATED",
+  "confidence": 0.73,
+  "summary": "Benchmark summary.",
+  "reasoning": "Benchmark reasoning.",
+  "paper": {
+    "paper_id": "10.1126/science.1225829",
+    "doi": "10.1126/science.1225829",
+    "title": "A programmable dual-RNA-guided DNA endonuclease in adaptive bacterial immunity"
+  },
+  "evidence": [
+    {
+      "chunk_id": "c1",
+      "section": "Results",
+      "chunk_index": 0,
+      "text": "AlphaFold2 achieved high accuracy but the paper acknowledges limitations and does not guarantee perfection.",
+      "relevance_score": 0.72,
+      "claim_overlap": 0.52,
+      "numeric_overlap": 0.0,
+      "claim_numbers": [],
+      "evidence_numbers": [],
+      "source_url": null,
+      "page": null
+    }
+  ],
+  "prosecutor": {
+    "agent": "prosecutor",
+    "analysis": "Benchmark prosecutor analysis.",
+    "stance": "neutral",
+    "key_points": [],
+    "supporting_evidence": [],
+    "contradicting_evidence": [],
+    "confidence": 0.65
+  },
+  "defender": {
+    "agent": "defender",
+    "analysis": "Benchmark defender analysis.",
+    "stance": "supportive",
+    "key_points": [],
+    "supporting_evidence": [
+      "c1"
+    ],
+    "contradicting_evidence": [],
+    "confidence": 0.7
+  },
+  "adjudicator": {
+    "agent": "adjudicator",
+    "analysis": "Benchmark adjudicator analysis.",
+    "verdict": "OVERSTATED",
+    "confidence": 0.73,
+    "reasoning": "Benchmark reasoning.",
+    "supporting_evidence": [
+      "c1"
+    ],
+    "contradicting_evidence": [],
+    "suggested_correction": null
+  },
+  "suggested_correction": null,
+  "agent_agreement": true,
+  "validation_warnings": null,
+  "claim_traceability": {
+    "segments": [
+      {
+        "id": "segment_1",
+        "text": "The AlphaFold2 data proves the mechanism guarantees perfect protein structure prediction.",
+        "status": "PARTIALLY_SUPPORTED",
+        "coverage_score": 0.48,
+        "evidence_ids": [
+          "c1"
+        ]
+      }
+    ],
+    "overall_coverage": 0.48,
+    "warnings": []
+  },
+  "detail": null
+}

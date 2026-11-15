@@ -1,0 +1,79 @@
+{
+  "status": "success",
+  "claim": "The BRCA1 mutation always increases enzyme activity in DNA repair pathways.",
+  "verdict": "CONTRADICTS",
+  "confidence": 0.82,
+  "summary": "Benchmark summary.",
+  "reasoning": "Benchmark reasoning.",
+  "paper": {
+    "paper_id": "10.1126/science.1225829",
+    "doi": "10.1126/science.1225829",
+    "title": "A programmable dual-RNA-guided DNA endonuclease in adaptive bacterial immunity"
+  },
+  "evidence": [
+    {
+      "chunk_id": "c1",
+      "section": "Results",
+      "chunk_index": 0,
+      "text": "BRCA1 mutations are associated with reduced DNA repair capacity, not increased activity.",
+      "relevance_score": 0.84,
+      "claim_overlap": 0.79,
+      "numeric_overlap": 0.0,
+      "claim_numbers": [],
+      "evidence_numbers": [],
+      "source_url": null,
+      "page": null
+    }
+  ],
+  "prosecutor": {
+    "agent": "prosecutor",
+    "analysis": "Benchmark prosecutor analysis.",
+    "stance": "neutral",
+    "key_points": [],
+    "supporting_evidence": [],
+    "contradicting_evidence": [],
+    "confidence": 0.65
+  },
+  "defender": {
+    "agent": "defender",
+    "analysis": "Benchmark defender analysis.",
+    "stance": "supportive",
+    "key_points": [],
+    "supporting_evidence": [
+      "c1"
+    ],
+    "contradicting_evidence": [],
+    "confidence": 0.7
+  },
+  "adjudicator": {
+    "agent": "adjudicator",
+    "analysis": "Benchmark adjudicator analysis.",
+    "verdict": "CONTRADICTS",
+    "confidence": 0.82,
+    "reasoning": "Benchmark reasoning.",
+    "supporting_evidence": [
+      "c1"
+    ],
+    "contradicting_evidence": [],
+    "suggested_correction": null
+  },
+  "suggested_correction": null,
+  "agent_agreement": true,
+  "validation_warnings": null,
+  "claim_traceability": {
+    "segments": [
+      {
+        "id": "segment_1",
+        "text": "The BRCA1 mutation always increases enzyme activity in DNA repair pathways.",
+        "status": "CONTRADICTED",
+        "coverage_score": 0.78,
+        "evidence_ids": [
+          "c1"
+        ]
+      }
+    ],
+    "overall_coverage": 0.78,
+    "warnings": []
+  },
+  "detail": null
+}

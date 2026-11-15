@@ -1,0 +1,28 @@
+{
+  "case_count": 30,
+  "verdict_accuracy": 1.0,
+  "per_verdict_accuracy": {
+    "SUPPORTS": 1.0,
+    "OVERSTATED": 1.0,
+    "CONTRADICTS": 1.0,
+    "INSUFFICIENT": 1.0,
+    "FABRICATED": 1.0
+  },
+  "average_evidence_count": 0.9,
+  "average_duplicate_rate": 0.0,
+  "average_relevance": 0.615,
+  "average_claim_overlap": 0.5459999999999999,
+  "traceability_completeness": 0.9666666666666667,
+  "average_overall_coverage": 0.4886206896551724,
+  "average_evidence_coverage_rate": 0.5666666666666667,
+  "average_traceability_link_rate": 0.4166666666666667,
+  "confidence_risk_rate": 0.03333333333333333,
+  "unsupported_claim_detection_rate": 1.0,
+  "validation_override_rate": 0.0,
+  "validation_warning_rate": 0.1,
+  "agent_agreement_rate": 0.8571428571428571,
+  "average_confidence": 0.702,
+  "average_correct_confidence": 0.702,
+  "average_incorrect_confidence": null,
+  "average_confidence_error": 0.298
+}

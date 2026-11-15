@@ -1,0 +1,208 @@
+{
+  "provenance": "Human-labeled synthetic scientific cases for fixture/provider boundary regression. Not live model accuracy measurements.",
+  "cases": [
+    {
+      "id": "synonym",
+      "expected": "SUPPORTS",
+      "claim": "The intervention lowered death rates.",
+      "text": "The intervention reduced mortality.",
+      "reason": "Death rates and mortality express the same endpoint."
+    },
+    {
+      "id": "summary",
+      "expected": "SUPPORTS",
+      "claim": "The method improved benchmark performance.",
+      "text": "Accuracy improved on each of the three benchmarks.",
+      "reason": "Faithful summary of the reported findings."
+    },
+    {
+      "id": "approximate",
+      "expected": "SUPPORTS",
+      "claim": "Efficacy was approximately 95%.",
+      "text": "Vaccine efficacy was 94.8%.",
+      "reason": "Reasonable approximation."
+    },
+    {
+      "id": "rounding",
+      "expected": "SUPPORTS",
+      "claim": "About 200 participants were randomized.",
+      "text": "A total of 195 participants underwent randomization.",
+      "reason": "Reasonable approximate count, not an exact count claim."
+    },
+    {
+      "id": "passive_voice",
+      "expected": "SUPPORTS",
+      "claim": "The investigators evaluated the model on three datasets.",
+      "text": "The model was evaluated on three datasets.",
+      "reason": "Same evaluation and count."
+    },
+    {
+      "id": "nonliteral_result",
+      "expected": "SUPPORTS",
+      "claim": "The treatment improved survival.",
+      "text": "Median survival increased from 8 to 12 months with treatment.",
+      "reason": "The survival finding supports the core meaning."
+    },
+    {
+      "id": "noncritical_qualifier",
+      "expected": "SUPPORTS",
+      "claim": "The assay detected the target protein.",
+      "text": "The assay detected the target protein using freshly prepared buffer.",
+      "reason": "Buffer preparation does not change the stated core finding."
+    },
+    {
+      "id": "same_finding",
+      "expected": "SUPPORTS",
+      "claim": "Participants mounted a neutralizing antibody response.",
+      "text": "Neutralizing antibody titers increased after vaccination.",
+      "reason": "Equivalent description of the immune response."
+    },
+    {
+      "id": "direction_reversed",
+      "expected": "CONTRADICTS",
+      "claim": "Treatment reduced mortality.",
+      "text": "Treatment increased mortality in the prespecified population.",
+      "reason": "The same endpoint and population have the opposite direction."
+    },
+    {
+      "id": "critical_number",
+      "expected": "CONTRADICTS",
+      "claim": "The model was evaluated on twenty datasets.",
+      "text": "The model was evaluated on three datasets.",
+      "reason": "The same evaluation has incompatible exact counts."
+    },
+    {
+      "id": "wrong_entity",
+      "expected": "CONTRADICTS",
+      "claim": "The experiment used BNT162b2 exclusively.",
+      "text": "The experiment used BNT162b1 exclusively.",
+      "reason": "The same experiment explicitly identifies a different exclusive vaccine."
+    },
+    {
+      "id": "significance_reversed",
+      "expected": "CONTRADICTS",
+      "claim": "Treatment significantly improved survival.",
+      "text": "Treatment did not significantly improve survival.",
+      "reason": "The same survival test explicitly denies significance."
+    },
+    {
+      "id": "same_basis_conflict",
+      "expected": "CONTRADICTS",
+      "claim": "All participants received two doses.",
+      "text": "In this trial, all participants received one dose only.",
+      "reason": "The same population and schedule explicitly conflict."
+    },
+    {
+      "id": "datasets_scope",
+      "expected": "OVERSTATED",
+      "claim": "The method significantly improved all datasets.",
+      "text": "Significant improvements occurred in two of three datasets.",
+      "reason": "The claim expands two datasets to all three."
+    },
+    {
+      "id": "population_scope",
+      "expected": "OVERSTATED",
+      "claim": "The treatment works in all age groups.",
+      "text": "Benefit was demonstrated only in adults aged 18 to 55; other ages were not studied.",
+      "reason": "The untested ages are a material population expansion."
+    },
+    {
+      "id": "causality",
+      "expected": "OVERSTATED",
+      "claim": "The exposure causes disease.",
+      "text": "Exposure was associated with disease in an observational analysis; causality was not established.",
+      "reason": "Association is expanded into a causal conclusion."
+    },
+    {
+      "id": "comprehensive_effect",
+      "expected": "OVERSTATED",
+      "claim": "The intervention has proven comprehensive lifelong protection.",
+      "text": "The trial demonstrated protection against symptomatic disease over two months.",
+      "reason": "Duration and endpoints materially exceed the evidence."
+    },
+    {
+      "id": "no_evidence",
+      "expected": "INSUFFICIENT",
+      "claim": "Treatment improves survival.",
+      "text": "",
+      "reason": "No evidence was retrieved."
+    },
+    {
+      "id": "background_only",
+      "expected": "INSUFFICIENT",
+      "claim": "Treatment improves survival.",
+      "text": "The disease is common in older adults.",
+      "reason": "Background prevalence does not settle treatment efficacy."
+    },
+    {
+      "id": "incomplete_chunk",
+      "expected": "INSUFFICIENT",
+      "claim": "Treatment improves survival.",
+      "text": "Survival was measured as a secondary endpoint.",
+      "reason": "An endpoint definition does not give its result."
+    },
+    {
+      "id": "different_research",
+      "expected": "INSUFFICIENT",
+      "claim": "The treatment improves human survival.",
+      "text": "The assay measured protein concentration in cultured cells.",
+      "reason": "The study does not establish the human endpoint."
+    },
+    {
+      "id": "indirect_only",
+      "expected": "INSUFFICIENT",
+      "claim": "The intervention prevents hospitalization.",
+      "text": "Antibody levels increased in the assay.",
+      "reason": "No established relationship to the hospitalization endpoint is supplied."
+    },
+    {
+      "id": "previously_relative_to_manuscript",
+      "expected": "SUPPORTS",
+      "claim": "In the December 2020 manuscript, the authors previously reported phase 1 results.",
+      "text": "The October 2020 report presents the phase 1 safety and immunogenicity results.",
+      "reason": "The October report predates the December manuscript; it need not predate itself."
+    },
+    {
+      "id": "earlier_study",
+      "expected": "SUPPORTS",
+      "claim": "The earlier study reported neutralizing antibodies before this December 2020 manuscript.",
+      "text": "The October 2020 study reported neutralizing antibody responses.",
+      "reason": "October is earlier than the manuscript reference point."
+    },
+    {
+      "id": "subsequent_study",
+      "expected": "SUPPORTS",
+      "claim": "A subsequent March 2021 study extended the October 2020 study.",
+      "text": "The March 2021 report extended the October 2020 cohort.",
+      "reason": "Subsequent refers to the October study."
+    },
+    {
+      "id": "before_publication",
+      "expected": "SUPPORTS",
+      "claim": "Results were available before the December 2020 publication.",
+      "text": "These results were published online in October 2020.",
+      "reason": "Online October precedes December publication."
+    },
+    {
+      "id": "after_publication",
+      "expected": "CONTRADICTS",
+      "claim": "Results appeared after the December 2020 manuscript publication.",
+      "text": "The results appeared online on October 14, 2020.",
+      "reason": "October online publication precedes the stated December reference, contrary to after."
+    },
+    {
+      "id": "unknown_time_reference",
+      "expected": "INSUFFICIENT",
+      "claim": "The authors previously reported this result.",
+      "text": "The study reports the result, but no reporting dates or manuscript reference point are supplied.",
+      "reason": "Essential chronology is unknown."
+    },
+    {
+      "id": "before_same_source",
+      "expected": "CONTRADICTS",
+      "claim": "This report states the BNT162b2 findings were published before this same October 2020 report.",
+      "text": "This is the first report of these BNT162b2 findings; no earlier report exists.",
+      "reason": "An explicit first-report assertion rules out the claimed earlier report at the same reference point."
+    }
+  ]
+}

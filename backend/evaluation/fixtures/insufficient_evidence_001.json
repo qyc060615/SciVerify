@@ -1,0 +1,34 @@
+{
+  "status": "insufficient_evidence",
+  "claim": "The ENCODE project proves that 80% of the human genome is functional.",
+  "verdict": "INSUFFICIENT",
+  "confidence": 0.0,
+  "summary": "Insufficient evidence.",
+  "reasoning": "Not enough evidence.",
+  "paper": {
+    "paper_id": "10.1126/science.1225829",
+    "doi": "10.1126/science.1225829",
+    "title": "A programmable dual-RNA-guided DNA endonuclease in adaptive bacterial immunity"
+  },
+  "evidence": [],
+  "prosecutor": null,
+  "defender": null,
+  "adjudicator": null,
+  "suggested_correction": null,
+  "agent_agreement": null,
+  "validation_warnings": null,
+  "claim_traceability": {
+    "segments": [
+      {
+        "id": "segment_1",
+        "text": "The ENCODE project proves that 80% of the human genome is functional.",
+        "status": "UNSUPPORTED",
+        "coverage_score": 0.0,
+        "evidence_ids": []
+      }
+    ],
+    "overall_coverage": 0.0,
+    "warnings": []
+  },
+  "detail": null
+}

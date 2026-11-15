@@ -1,0 +1,352 @@
+{
+  "providers": "forced unavailable",
+  "network": "forbidden",
+  "models_called": false,
+  "source_store": "C:\\Users\\31147\\Desktop\\coding_project\\ResearchGuard\\backend\\data\\researchguard\\sources",
+  "source_store_unchanged": true,
+  "provider_failures_for_other_references": [
+    {
+      "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:9",
+      "provider": "crossref"
+    },
+    {
+      "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:9",
+      "provider": "openalex"
+    },
+    {
+      "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:10",
+      "provider": "crossref"
+    },
+    {
+      "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:10",
+      "provider": "openalex"
+    },
+    {
+      "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:11",
+      "provider": "crossref"
+    },
+    {
+      "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:11",
+      "provider": "openalex"
+    },
+    {
+      "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:16",
+      "provider": "crossref"
+    },
+    {
+      "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:16",
+      "provider": "openalex"
+    }
+  ],
+  "results": [
+    {
+      "reference_number": 16,
+      "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:15",
+      "title": "Structured attention networks",
+      "before": {
+        "locator": null,
+        "state": "needs_attention",
+        "identity": "UNAVAILABLE",
+        "reason_code": "SOURCE_LOCATOR_MISSING",
+        "format": null,
+        "raw_content_sha256": null
+      },
+      "after": {
+        "locator": {
+          "kind": "doi",
+          "value": "10.48550/arxiv.1702.00887"
+        },
+        "state": "available",
+        "identity": "CONFIRMED",
+        "reason_code": "SOURCE_PERSISTED",
+        "format": "pdf",
+        "raw_content_sha256": "1cb48e40e523d1994f38211edd30f92b0f01f0a25c2990bc8d84a9b684e95135"
+      },
+      "resolution": {
+        "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:15",
+        "status": "resolved",
+        "original_doi": null,
+        "resolved_doi": "10.48550/arxiv.1702.00887",
+        "matched_title": "Structured Attention Networks",
+        "provider": "local_cache",
+        "source_type": "doi",
+        "source_url": null,
+        "match_reason": "LOCAL_CACHE_DOCUMENT_VERIFIED",
+        "match_confidence": null,
+        "diagnostics": [
+          "LOCAL_SOURCE_LOCATOR_RECOVERED",
+          "DOCUMENT_TITLE_DIRECT_MATCH",
+          "LOCAL_DOCUMENT_AUTHORS_MATCH",
+          "LOCAL_SOURCE_SHA256:1cb48e40e523d1994f38211edd30f92b0f01f0a25c2990bc8d84a9b684e95135"
+        ],
+        "candidates": []
+      },
+      "step4_source_preparation": {
+        "cache_hit": true,
+        "source_version": "sha256:1cb48e40e523d1994f38211edd30f92b0f01f0a25c2990bc8d84a9b684e95135",
+        "evidence_chunks": 108
+      },
+      "raw_file": "C:\\Users\\31147\\Desktop\\coding_project\\ResearchGuard\\backend\\data\\researchguard\\sources\\1cb48e40e523d1994f38211edd30f92b0f01f0a25c2990bc8d84a9b684e95135\\source.pdf",
+      "actual_file_sha256": "1cb48e40e523d1994f38211edd30f92b0f01f0a25c2990bc8d84a9b684e95135",
+      "file_unchanged": true
+    },
+    {
+      "reference_number": 20,
+      "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:19",
+      "title": "Can active memory replace attention?",
+      "before": {
+        "locator": null,
+        "state": "needs_attention",
+        "identity": "UNAVAILABLE",
+        "reason_code": "SOURCE_LOCATOR_MISSING",
+        "format": null,
+        "raw_content_sha256": null
+      },
+      "after": {
+        "locator": {
+          "kind": "doi",
+          "value": "10.48550/arxiv.1610.08613"
+        },
+        "state": "available",
+        "identity": "CONFIRMED",
+        "reason_code": "SOURCE_PERSISTED",
+        "format": "pdf",
+        "raw_content_sha256": "57567c72c96fc255a98674520460665d013e11a8c77b962b1f90bce443de73d9"
+      },
+      "resolution": {
+        "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:19",
+        "status": "resolved",
+        "original_doi": null,
+        "resolved_doi": "10.48550/arxiv.1610.08613",
+        "matched_title": "Can Active Memory Replace Attention?",
+        "provider": "local_cache",
+        "source_type": "doi",
+        "source_url": null,
+        "match_reason": "LOCAL_CACHE_DOCUMENT_VERIFIED",
+        "match_confidence": null,
+        "diagnostics": [
+          "LOCAL_SOURCE_LOCATOR_RECOVERED",
+          "DOCUMENT_TITLE_DIRECT_MATCH",
+          "LOCAL_DOCUMENT_AUTHORS_MATCH",
+          "LOCAL_SOURCE_SHA256:57567c72c96fc255a98674520460665d013e11a8c77b962b1f90bce443de73d9"
+        ],
+        "candidates": []
+      },
+      "step4_source_preparation": {
+        "cache_hit": true,
+        "source_version": "sha256:57567c72c96fc255a98674520460665d013e11a8c77b962b1f90bce443de73d9",
+        "evidence_chunks": 56
+      },
+      "raw_file": "C:\\Users\\31147\\Desktop\\coding_project\\ResearchGuard\\backend\\data\\researchguard\\sources\\57567c72c96fc255a98674520460665d013e11a8c77b962b1f90bce443de73d9\\source.pdf",
+      "actual_file_sha256": "57567c72c96fc255a98674520460665d013e11a8c77b962b1f90bce443de73d9",
+      "file_unchanged": true
+    },
+    {
+      "reference_number": 22,
+      "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:21",
+      "title": "A decomposable attention model",
+      "before": {
+        "locator": null,
+        "state": "needs_attention",
+        "identity": "UNAVAILABLE",
+        "reason_code": "SOURCE_LOCATOR_MISSING",
+        "format": null,
+        "raw_content_sha256": null
+      },
+      "after": {
+        "locator": {
+          "kind": "doi",
+          "value": "10.18653/v1/d16-1244"
+        },
+        "state": "available",
+        "identity": "CONFIRMED",
+        "reason_code": "SOURCE_PERSISTED",
+        "format": "pdf",
+        "raw_content_sha256": "9e827ba3a55769e29f58299d479df36deefc500a1dab2b34c53b32ad52c30579"
+      },
+      "resolution": {
+        "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:21",
+        "status": "resolved",
+        "original_doi": null,
+        "resolved_doi": "10.18653/v1/d16-1244",
+        "matched_title": "A Decomposable Attention Model for Natural Language Inference",
+        "provider": "local_cache",
+        "source_type": "doi",
+        "source_url": null,
+        "match_reason": "LOCAL_CACHE_DOCUMENT_VERIFIED",
+        "match_confidence": null,
+        "diagnostics": [
+          "LOCAL_SOURCE_LOCATOR_RECOVERED",
+          "DOCUMENT_TITLE_AND_AUTHORS_MATCH",
+          "LOCAL_DOCUMENT_AUTHORS_MATCH",
+          "LOCAL_SOURCE_SHA256:9e827ba3a55769e29f58299d479df36deefc500a1dab2b34c53b32ad52c30579",
+          "LOCAL_HISTORICAL_CITATION_MATCH"
+        ],
+        "candidates": []
+      },
+      "step4_source_preparation": {
+        "cache_hit": true,
+        "source_version": "sha256:9e827ba3a55769e29f58299d479df36deefc500a1dab2b34c53b32ad52c30579",
+        "evidence_chunks": 44
+      },
+      "raw_file": "C:\\Users\\31147\\Desktop\\coding_project\\ResearchGuard\\backend\\data\\researchguard\\sources\\9e827ba3a55769e29f58299d479df36deefc500a1dab2b34c53b32ad52c30579\\source.pdf",
+      "actual_file_sha256": "9e827ba3a55769e29f58299d479df36deefc500a1dab2b34c53b32ad52c30579",
+      "file_unchanged": true
+    },
+    {
+      "reference_number": 27,
+      "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:26",
+      "title": "Dropout: a simple way to prevent neural networks from overfitting",
+      "before": {
+        "locator": null,
+        "state": "needs_attention",
+        "identity": "UNAVAILABLE",
+        "reason_code": "SOURCE_LOCATOR_MISSING",
+        "format": null,
+        "raw_content_sha256": null
+      },
+      "after": {
+        "locator": {
+          "kind": "url",
+          "value": "https://jmlr.csail.mit.edu/papers/volume15/srivastava14a/srivastava14a.pdf"
+        },
+        "state": "available",
+        "identity": "CONFIRMED",
+        "reason_code": "SOURCE_PERSISTED",
+        "format": "pdf",
+        "raw_content_sha256": "9c196ccbe6c6a595a1adba6cd030d35f7c2e548bbf5e7f1278b0109d8dd9ebaa"
+      },
+      "resolution": {
+        "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:26",
+        "status": "non_doi_source",
+        "original_doi": null,
+        "resolved_doi": null,
+        "matched_title": "Journal of Machine Learning Research 15 (2014) 1929-1958 Submitted 11/13; Published 6/14 Dropout: A Simple Way to Prevent Neural Networks from Overﬁtting Nitish Srivastava nitish@cs.toronto.edu Geoﬀrey Hinton hinton@cs.toronto.edu Alex Krizhevsky kriz@cs.toronto.edu Ilya Sutskever ilya@cs.toronto.edu Ruslan Salakhutdinov rsalakhu@cs.toronto.edu",
+        "provider": "local_cache",
+        "source_type": "url",
+        "source_url": "https://jmlr.csail.mit.edu/papers/volume15/srivastava14a/srivastava14a.pdf",
+        "match_reason": "LOCAL_CACHE_DOCUMENT_VERIFIED",
+        "match_confidence": null,
+        "diagnostics": [
+          "LOCAL_SOURCE_LOCATOR_RECOVERED",
+          "DOCUMENT_TITLE_DIRECT_MATCH",
+          "LOCAL_DOCUMENT_AUTHORS_MATCH",
+          "LOCAL_SOURCE_SHA256:9c196ccbe6c6a595a1adba6cd030d35f7c2e548bbf5e7f1278b0109d8dd9ebaa",
+          "LOCAL_HISTORICAL_CITATION_MATCH"
+        ],
+        "candidates": []
+      },
+      "step4_source_preparation": {
+        "cache_hit": true,
+        "source_version": "sha256:9c196ccbe6c6a595a1adba6cd030d35f7c2e548bbf5e7f1278b0109d8dd9ebaa",
+        "evidence_chunks": 119
+      },
+      "raw_file": "C:\\Users\\31147\\Desktop\\coding_project\\ResearchGuard\\backend\\data\\researchguard\\sources\\9c196ccbe6c6a595a1adba6cd030d35f7c2e548bbf5e7f1278b0109d8dd9ebaa\\source.pdf",
+      "actual_file_sha256": "9c196ccbe6c6a595a1adba6cd030d35f7c2e548bbf5e7f1278b0109d8dd9ebaa",
+      "file_unchanged": true
+    },
+    {
+      "reference_number": 28,
+      "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:27",
+      "title": "End-to-end memory networks",
+      "before": {
+        "locator": null,
+        "state": "needs_attention",
+        "identity": "UNAVAILABLE",
+        "reason_code": "SOURCE_LOCATOR_MISSING",
+        "format": null,
+        "raw_content_sha256": null
+      },
+      "after": {
+        "locator": {
+          "kind": "doi",
+          "value": "10.48550/arxiv.1503.08895"
+        },
+        "state": "available",
+        "identity": "CONFIRMED",
+        "reason_code": "SOURCE_PERSISTED",
+        "format": "pdf",
+        "raw_content_sha256": "8eddaf2a441092955d10aa34a9f2b690aaaecee9097a47693366e0c5b8ff36a0"
+      },
+      "resolution": {
+        "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:27",
+        "status": "resolved",
+        "original_doi": null,
+        "resolved_doi": "10.48550/arxiv.1503.08895",
+        "matched_title": "End-To-End Memory Networks",
+        "provider": "local_cache",
+        "source_type": "doi",
+        "source_url": null,
+        "match_reason": "LOCAL_CACHE_DOCUMENT_VERIFIED",
+        "match_confidence": null,
+        "diagnostics": [
+          "LOCAL_SOURCE_LOCATOR_RECOVERED",
+          "DOCUMENT_TITLE_DIRECT_MATCH",
+          "LOCAL_DOCUMENT_AUTHORS_MATCH",
+          "LOCAL_SOURCE_SHA256:8eddaf2a441092955d10aa34a9f2b690aaaecee9097a47693366e0c5b8ff36a0"
+        ],
+        "candidates": []
+      },
+      "step4_source_preparation": {
+        "cache_hit": true,
+        "source_version": "sha256:8eddaf2a441092955d10aa34a9f2b690aaaecee9097a47693366e0c5b8ff36a0",
+        "evidence_chunks": 71
+      },
+      "raw_file": "C:\\Users\\31147\\Desktop\\coding_project\\ResearchGuard\\backend\\data\\researchguard\\sources\\8eddaf2a441092955d10aa34a9f2b690aaaecee9097a47693366e0c5b8ff36a0\\source.pdf",
+      "actual_file_sha256": "8eddaf2a441092955d10aa34a9f2b690aaaecee9097a47693366e0c5b8ff36a0",
+      "file_unchanged": true
+    },
+    {
+      "reference_number": 29,
+      "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:28",
+      "title": "Sequence to sequence learning with neural networks",
+      "before": {
+        "locator": null,
+        "state": "needs_attention",
+        "identity": "UNAVAILABLE",
+        "reason_code": "SOURCE_LOCATOR_MISSING",
+        "format": null,
+        "raw_content_sha256": null
+      },
+      "after": {
+        "locator": {
+          "kind": "url",
+          "value": "http://arxiv.org/pdf/1409.3215.pdf"
+        },
+        "state": "available",
+        "identity": "CONFIRMED",
+        "reason_code": "SOURCE_PERSISTED",
+        "format": "pdf",
+        "raw_content_sha256": "5c74e1db863e2d61b869c9b0603494b34c41fb05db1a4fa7f9a83d5a42b7350f"
+      },
+      "resolution": {
+        "reference_id": "reference:manuscript:d87d482d5ae7960e2e43d7dd6d21377e60e73e8fce1bf2a01aff7aca8a08c537:grobid-0.9.1-body-prose-v1:28",
+        "status": "non_doi_source",
+        "original_doi": null,
+        "resolved_doi": null,
+        "matched_title": "arXiv:1409.3215v3  [cs.CL]  14 Dec 2014",
+        "provider": "local_cache",
+        "source_type": "url",
+        "source_url": "http://arxiv.org/pdf/1409.3215.pdf",
+        "match_reason": "LOCAL_CACHE_DOCUMENT_VERIFIED",
+        "match_confidence": null,
+        "diagnostics": [
+          "LOCAL_SOURCE_LOCATOR_RECOVERED",
+          "DOCUMENT_TITLE_DIRECT_MATCH",
+          "LOCAL_DOCUMENT_AUTHORS_MATCH",
+          "LOCAL_SOURCE_SHA256:5c74e1db863e2d61b869c9b0603494b34c41fb05db1a4fa7f9a83d5a42b7350f",
+          "LOCAL_HISTORICAL_CITATION_MATCH"
+        ],
+        "candidates": []
+      },
+      "step4_source_preparation": {
+        "cache_hit": true,
+        "source_version": "sha256:5c74e1db863e2d61b869c9b0603494b34c41fb05db1a4fa7f9a83d5a42b7350f",
+        "evidence_chunks": 49
+      },
+      "raw_file": "C:\\Users\\31147\\Desktop\\coding_project\\ResearchGuard\\backend\\data\\researchguard\\sources\\5c74e1db863e2d61b869c9b0603494b34c41fb05db1a4fa7f9a83d5a42b7350f\\source.pdf",
+      "actual_file_sha256": "5c74e1db863e2d61b869c9b0603494b34c41fb05db1a4fa7f9a83d5a42b7350f",
+      "file_unchanged": true
+    }
+  ]
+}

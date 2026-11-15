@@ -1,0 +1,182 @@
+{
+  "baseline": "071f22cb9bc967e5055ef05e72868031fee2d414",
+  "baseline_validator_sha256": "ad0659bd9b1824b5133645c24e55670f528cd4de6f790b12eb9493be3432a30f",
+  "real_llm_calls": 0,
+  "cases": [
+    {
+      "case": "C4",
+      "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+      "proposal": {
+        "text": "The cumulative recovery rate curves are in Fig. 2A of the original paper.",
+        "evidence_quote": "To this end, we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper [1,6].",
+        "attribution_intent": "cited",
+        "citation_labels": [
+          "1"
+        ]
+      },
+      "before": {
+        "status": "ambiguous",
+        "references": []
+      },
+      "after": {
+        "status": "resolved",
+        "references": [
+          1
+        ]
+      },
+      "planned_reference_numbers": [
+        1
+      ],
+      "blocked_count": 0,
+      "semantics": "Deterministic contract only, not a new LLM result."
+    },
+    {
+      "case": "C4",
+      "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+      "proposal": {
+        "text": "The cumulative recovery rate curves are in Fig. 2A of the original paper.",
+        "evidence_quote": "To this end, we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper [1,6].",
+        "attribution_intent": "cited",
+        "citation_labels": [
+          "6"
+        ]
+      },
+      "before": {
+        "status": "ambiguous",
+        "references": []
+      },
+      "after": {
+        "status": "resolved",
+        "references": [
+          6
+        ]
+      },
+      "planned_reference_numbers": [
+        6
+      ],
+      "blocked_count": 0,
+      "semantics": "R6-only is deliberately wrong-but-local; structural acceptance does not certify correctness."
+    },
+    {
+      "case": "C4",
+      "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+      "proposal": {
+        "text": "The cumulative recovery rate curves are in Fig. 2A of the original paper.",
+        "evidence_quote": "To this end, we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper [1,6].",
+        "attribution_intent": "cited",
+        "citation_labels": [
+          "1",
+          "6"
+        ]
+      },
+      "before": {
+        "status": "resolved",
+        "references": [
+          1,
+          6
+        ]
+      },
+      "after": {
+        "status": "resolved",
+        "references": [
+          1,
+          6
+        ]
+      },
+      "planned_reference_numbers": [
+        1,
+        6
+      ],
+      "blocked_count": 0,
+      "semantics": "Deterministic contract only, not a new LLM result."
+    },
+    {
+      "case": "C5",
+      "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+      "proposal": {
+        "text": "The survival curves are in Supplementary Fig. S3 of the original paper.",
+        "evidence_quote": "To this end, we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper [1,6].",
+        "attribution_intent": "cited",
+        "citation_labels": [
+          "1"
+        ]
+      },
+      "before": {
+        "status": "ambiguous",
+        "references": []
+      },
+      "after": {
+        "status": "resolved",
+        "references": [
+          1
+        ]
+      },
+      "planned_reference_numbers": [
+        1
+      ],
+      "blocked_count": 0,
+      "semantics": "Deterministic contract only, not a new LLM result."
+    },
+    {
+      "case": "C5",
+      "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+      "proposal": {
+        "text": "The survival curves are in Supplementary Fig. S3 of the original paper.",
+        "evidence_quote": "To this end, we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper [1,6].",
+        "attribution_intent": "cited",
+        "citation_labels": [
+          "6"
+        ]
+      },
+      "before": {
+        "status": "ambiguous",
+        "references": []
+      },
+      "after": {
+        "status": "resolved",
+        "references": [
+          6
+        ]
+      },
+      "planned_reference_numbers": [
+        6
+      ],
+      "blocked_count": 0,
+      "semantics": "R6-only is deliberately wrong-but-local; structural acceptance does not certify correctness."
+    },
+    {
+      "case": "C5",
+      "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+      "proposal": {
+        "text": "The survival curves are in Supplementary Fig. S3 of the original paper.",
+        "evidence_quote": "To this end, we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper [1,6].",
+        "attribution_intent": "cited",
+        "citation_labels": [
+          "1",
+          "6"
+        ]
+      },
+      "before": {
+        "status": "resolved",
+        "references": [
+          1,
+          6
+        ]
+      },
+      "after": {
+        "status": "resolved",
+        "references": [
+          1,
+          6
+        ]
+      },
+      "planned_reference_numbers": [
+        1,
+        6
+      ],
+      "blocked_count": 0,
+      "semantics": "Deterministic contract only, not a new LLM result."
+    }
+  ],
+  "single_multi_label_occurrence_limit": "Without a per-label target mapping, an opaque aggregate occurrence cannot safely yield one selected reference; do not infer targets from order."
+}

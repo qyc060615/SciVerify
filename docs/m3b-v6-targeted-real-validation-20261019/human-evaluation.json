@@ -1,0 +1,42 @@
+{
+  "cases": {
+    "C1": {
+      "decision": "PASS",
+      "ownership_improved": true,
+      "whole_group_attribution": false,
+      "over_abstention": "No: collective per-reference uncertainty is allowed.",
+      "citation_backed_loss": "No individually established source ownership was available.",
+      "fidelity": "Four examples retained. Examples include is context-dependent, so standalone wording is weaker than historical text; no invented content.",
+      "severe_new_error": false
+    },
+    "C4-C5": {
+      "decision": "PARTIAL",
+      "ownership_improved": true,
+      "whole_group_attribution": false,
+      "over_abstention": "Yes at extraction coverage level: only author scanning actions survive as none; external figure-location propositions are not independently retained as uncertain.",
+      "citation_backed_loss": "The original data-source figure-location facts and their potential legitimate R1 verification are lost; not repaired by selecting half a group.",
+      "fidelity": "Scanning actions are faithful. First proposal omits of the original paper and leaves figure identity less explicit. No method claim was invented.",
+      "severe_new_error": false
+    },
+    "C6": {
+      "decision": "PASS",
+      "ownership_improved": true,
+      "whole_group_attribution": false,
+      "over_abstention": "No: specific current-manuscript panel contents are manuscript-owned.",
+      "citation_backed_loss": "No explicit standalone method proposition in the focal text was dropped.",
+      "fidelity": "Clinical state, mean time, day-28 horizon and panels preserved; no area-under-curve method proposition imported from neighbor.",
+      "severe_new_error": false
+    }
+  },
+  "V6_REAL_MODEL_EFFECT": "PASS",
+  "M3B_TARGETED_REPAIR": "PARTIAL",
+  "scope": "One real request per selected context; not a cross-paper accuracy or stability estimate.",
+  "request_payloads_identical_to_historical_except_system_prompt": {
+    "context:6541b560fbf347a4ccdca5faeebd8aa66aab68905580c017fe917924460678dc": true,
+    "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682": true,
+    "context:fb486bac7ee255cc5579c142ef540aa78c9d84b025f84012e6907b397a79731f": true
+  },
+  "historical_candidate_reference_links": 12,
+  "current_cited_reference_links": 0,
+  "warning": "12-to-0 includes loss of potentially legitimate data-source pairs; it is not twelve false-pair corrections."
+}

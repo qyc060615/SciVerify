@@ -1,0 +1,202 @@
+"""Exact grounding and local citation integrity, never semantic verification."""
+import hashlib
+import json
+import re
+from dataclasses import dataclass
+
+from app.researchguard.domain import AtomicClaim, AttributionStatus, CitationResolutionStatus, TextSpan
+from app.services.citation_context import diagnostic, groups
+from app.services.citation_labels import local_label_index, visible_labels
+
+ATTRIBUTION_POLICY_VERSION = "exact-evidence-explicit-local-labels-v8-prefix-recovery"
+_STRONG = re.compile(r";|\b(?:while|whereas|but)\b", re.IGNORECASE)
+
+
+class ProposalRejected(ValueError):
+    def __init__(self, code):
+        super().__init__("An extraction proposal did not satisfy grounding or attribution policy.")
+        self.code = code
+
+
+@dataclass(frozen=True)
+class ValidatedClaim:
+    claim: AtomicClaim
+    diagnostics: tuple = ()
+
+
+def exact_span(text, quote, focal):
+    matches, offset = [], focal.start
+    while offset < focal.end:
+        position = text.find(quote, offset, focal.end)
+        if position < 0:
+            break
+        end = position + len(quote)
+        matches.append(TextSpan(start=position, end=end))
+        offset = position + 1  # Enumerate every occurrence, including overlapping matches.
+    if not matches:
+        raise ProposalRejected("QUOTE_NOT_FOUND")
+    if len(matches) != 1:
+        raise ProposalRejected("QUOTE_AMBIGUOUS")
+    return matches[0]
+
+
+def grounded_span(text, quote, focal):
+    """Prefer exact grounding; recover whitespace only with original offsets."""
+    try:
+        return exact_span(text, quote, focal)
+    except ProposalRejected as exc:
+        if exc.code != "QUOTE_NOT_FOUND":
+            raise
+    tokens = list(re.finditer(r"\s+|\S", text[focal.start:focal.end]))
+    canonical = "".join(" " if m.group().isspace() else m.group() for m in tokens)
+    normalized = re.sub(r"\s+", " ", quote)
+    match = exact_span(canonical, normalized, TextSpan(start=0, end=len(canonical)))
+    return TextSpan(start=focal.start + tokens[match.start].start(),
+                    end=focal.start + tokens[match.end - 1].end())
+
+
+def _without_markers(text, start, end, callouts):
+    chars = list(text[start:end])
+    for c in callouts:
+        for i in range(max(start, c.span.start), min(end, c.span.end)):
+            chars[i - start] = " "
+    return "".join(chars)
+
+
+def _scopes(text, focal, callouts, paragraph_fallback=False):
+    cuts = {focal.start, focal.end}
+    for match in _STRONG.finditer(text, focal.start, focal.end):
+        cuts.add(match.start())
+        cuts.add(match.end())
+    if paragraph_fallback:
+        # A conservative attribution barrier, not inferred sentence spans. Without
+        # trusted boundaries, never associate across explicit terminal punctuation.
+        # Decimal points are exempt; abbreviations may intentionally cause abstention.
+        for match in re.finditer(r"(?<!\d)[.!?]|[.!?](?!\d)", text[focal.start:focal.end]):
+            cuts.add(focal.start + match.end())
+    # A marker followed by a comma and substantive prose is an explicit new clause.
+    # Commas between adjacent refs never form this boundary.
+    for group in groups(text, callouts):
+        end = group[-1].span.end
+        match = re.match(r"\s*,\s*", text[end:focal.end])
+        if match and not any(c.span.start == end + match.end() for c in callouts):
+            cuts.add(end + match.end())
+    ordered = sorted(cuts)
+    return [(a, b) for a, b in zip(ordered, ordered[1:])
+            if _without_markers(text, a, b, callouts).strip(" ,;.!?")]
+
+
+def validate_proposal(parsed, context, proposal) -> ValidatedClaim:
+    paragraph = next(p for p in parsed.paragraphs if p.id == context.paragraph_id)
+    calls = {c.id: c for c in parsed.citation_callouts}
+    local = [calls[cid] for cid in context.citation_callout_ids]
+    labels = local_label_index(local)
+    if (len(set(proposal.citation_labels)) != len(proposal.citation_labels)
+            or not set(proposal.citation_labels) <= labels.keys()):
+        raise ProposalRejected("UNKNOWN_CITATION_CALLOUT")
+    if any(len(labels[label]) != 1 for label in proposal.citation_labels):
+        raise ProposalRejected("AMBIGUOUS_CITATION_LABEL")
+    span = grounded_span(paragraph.text, proposal.evidence_quote, context.focal_span)
+    recovery_notes = []
+    if paragraph.text[span.start:span.end] != proposal.evidence_quote:
+        recovery_notes.append(diagnostic("QUOTE_WHITESPACE_RECOVERED", context.id, "info"))
+    if not _without_markers(paragraph.text, span.start, span.end, local).strip(" ,;.!?()[]"):
+        raise ProposalRejected("CITATION_MARKER_AS_SOURCE")
+    spans = (span,)
+    scopes = _scopes(paragraph.text, context.focal_span, local,
+                     context.scope_kind == "paragraph_fallback")
+    # Evidence may contain markers or a full sentence. Only substantive evidence
+    # must fit one ownership region; citation positions never disambiguate quotes.
+    scope = next(((a, b) for a, b in scopes
+                  if not _without_markers(paragraph.text, span.start, min(span.end, a), local).strip(" ,;.!?")
+                  and not _without_markers(paragraph.text, max(span.start, b), span.end, local).strip(" ,;.!?")), None)
+    selected_ids = {labels[x][0].id for x in proposal.citation_labels}
+    selected = [c for c in local if c.id in selected_ids]
+    code, status = None, AttributionStatus.RESOLVED
+    local_groups = groups(paragraph.text, local)
+    candidates = []
+    if scope:
+        candidates = [g for g in local_groups
+                      if scope[0] <= g[0].span.start and g[-1].span.end <= scope[1]]
+    if context.scope_kind == "trailing_marker" and scope:
+        # Explicit attachment is the only supported citation-after-sentence exception.
+        candidates = local_groups
+    candidate_ids = {c.id for group in candidates for c in group}
+    if candidates and any(c.id not in candidate_ids for c in selected):
+        raise ProposalRejected("WRONG_CITATION_SCOPE")
+    # Clear narrative prefixes own the following proposition in the same
+    # sentence. This is a fallback only: never expand competing citation groups.
+    if (not scope or not candidates) and context.scope_kind == "sentence" and selected and len(local_groups) == 1:
+        group = local_groups[0]
+        prefix = paragraph.text[context.focal_span.start:group[0].span.start]
+        if (re.fullmatch(r"\s*(?:In|According to|As (?:shown|described|reported) in)\s+", prefix, re.I)
+                and re.match(r"\s*,\s*", paragraph.text[group[-1].span.end:context.focal_span.end])
+                and len({rid for c in group for rid in c.reference_ids}) == 1
+                and all(c.id in {g.id for g in group} for c in selected)):
+            scope, candidates = (context.focal_span.start, context.focal_span.end), [group]
+            recovery_notes.extend((diagnostic("AMBIGUOUS_CITATION_SCOPE", context.id, "info"),
+                                   diagnostic("NARRATIVE_PREFIX_CITATION_RECOVERED", context.id, "info")))
+    # A trusted sentence with one terminal group may cite parallel clauses.
+    # Never infer labels for uncertain intent, cross sentences, or merge groups.
+    if (not scope or not candidates) and context.scope_kind == "sentence" and selected and len(local_groups) == 1:
+        group = local_groups[0]
+        if (len({rid for c in group for rid in c.reference_ids}) == 1
+                and span.start < group[0].span.start
+                and not paragraph.text[group[-1].span.end:context.focal_span.end].strip(" \t\r\n.!?。！？\"'”’)")
+                and all(c.id in {g.id for g in group} for c in selected)):
+            scope, candidates = (context.focal_span.start, context.focal_span.end), [group]
+            recovery_notes.extend((diagnostic("AMBIGUOUS_CITATION_SCOPE", context.id, "info"),
+                                   diagnostic("SAME_SENTENCE_CITATION_RECOVERED", context.id, "info")))
+    # Adjacent occurrences are formatting, not a shared semantic ownership unit.
+    # A subset of occurrences is allowed. Within ONE multi-label occurrence,
+    # however, only an aggregate target set exists: never guess a per-label
+    # target mapping or silently expand a selected label to unrelated targets.
+    if (not scope or not candidates or not selected
+            or any(not set(visible_labels(c.text)) <= set(proposal.citation_labels) for c in selected)):
+        code, status = "AMBIGUOUS_CITATION_SCOPE", AttributionStatus.AMBIGUOUS
+        selected = []
+    elif any(c.resolution_status != CitationResolutionStatus.RESOLVED for c in selected):
+        code, status = "INCOMPLETE_CITATION_TARGET", AttributionStatus.UNRESOLVED
+    reference_ids = tuple(dict.fromkeys(r for c in selected for r in c.reference_ids))
+    identity = json.dumps([context.id, proposal.text, [(s.start, s.end) for s in spans],
+                           [c.id for c in selected], status.value, ATTRIBUTION_POLICY_VERSION])
+    claim = AtomicClaim(id="claim:" + hashlib.sha256(identity.encode()).hexdigest(),
+        manuscript_id=parsed.manuscript.id, paragraph_id=paragraph.id, context_id=context.id,
+        text=proposal.text, page=paragraph.page, source_spans=spans, attribution_status=status,
+        citation_callout_ids=tuple(c.id for c in selected), reference_ids=reference_ids)
+    return ValidatedClaim(claim, tuple(recovery_notes) + ((diagnostic(code, claim.id),) if code else ()))
+
+
+def validate_result(parsed, result):
+    from app.services.claim_decomposition import validate_decompositions
+    validate_decompositions(parsed, result)
+    paragraphs = {p.id: p for p in parsed.paragraphs}
+    calls = {c.id: c for c in parsed.citation_callouts}
+    contexts = {c.id: c for c in result.contexts}
+    for context in result.contexts:
+        p = paragraphs[context.paragraph_id]
+        if context.text != p.text[context.span.start:context.span.end]:
+            raise ValueError("Context must exactly slice canonical paragraph")
+        for cid in context.citation_callout_ids:
+            c = calls[cid]
+            if c.paragraph_id != p.id or not context.focal_span.start <= c.span.start < c.span.end <= context.focal_span.end:
+                raise ValueError("Context occurrence must be inside focal")
+    for claim in result.claims:
+        context = contexts[claim.context_id]
+        if (len(set(claim.citation_callout_ids)) != len(claim.citation_callout_ids)
+                or not set(claim.citation_callout_ids) <= set(context.citation_callout_ids)):
+            raise ValueError("Claim occurrences must belong to focal context")
+        if claim.paragraph_id != context.paragraph_id or claim.manuscript_id != parsed.manuscript.id:
+            raise ValueError("Claim must belong to its context and manuscript")
+        p = paragraphs[claim.paragraph_id]
+        if (len(claim.source_spans) != 1
+                or any(not context.focal_span.start <= s.start < s.end <= context.focal_span.end <= len(p.text)
+                       for s in claim.source_spans)):
+            raise ValueError("Claim evidence must be one exact focal span")
+        selected = [calls[cid] for cid in claim.citation_callout_ids]
+        expected = tuple(dict.fromkeys(r for c in selected for r in c.reference_ids))
+        if claim.reference_ids != expected:
+            raise ValueError("References must be derived from selected occurrences")
+        if claim.attribution_status == AttributionStatus.RESOLVED and (not selected or any(c.resolution_status != CitationResolutionStatus.RESOLVED for c in selected)):
+            raise ValueError("Incomplete targets cannot form resolved attribution")
+    return result

@@ -1,0 +1,247 @@
+{
+  "mode": "Offline deterministic replay + human-labeled agent fixtures; no live model evaluation",
+  "historical_replay": {
+    "original_verdict": "CONTRADICTS",
+    "original_confidence": 0.98,
+    "validated_verdict": "INSUFFICIENT",
+    "validated_confidence": 0.5,
+    "warnings": [
+      "Verdict adjusted from CONTRADICTS to INSUFFICIENT: negative judgment requires relevant adjudicator-cited counterevidence and a verbatim source excerpt in reasoning; agent stance/IDs alone are insufficient.",
+      "Suggested correction removed because verdict is INSUFFICIENT."
+    ]
+  },
+  "old_jobs": [
+    {
+      "job_id": "job_355c3d27d93e47ecaa4126378989f61b",
+      "load": "PASS",
+      "roundtrip": true,
+      "state": "waiting_for_source",
+      "tasks": 15,
+      "persisted_verdicts": [
+        "CONTRADICTED",
+        "INSUFFICIENT",
+        "INSUFFICIENT",
+        "INSUFFICIENT",
+        "SUPPORTED"
+      ]
+    },
+    {
+      "job_id": "job_3dbc1247f5f34c20b65a81831455e40f",
+      "load": "PASS",
+      "roundtrip": true,
+      "state": "partially_completed",
+      "tasks": 13,
+      "persisted_verdicts": [
+        "OVERSTATED"
+      ]
+    }
+  ],
+  "protected_file_count": 24,
+  "protected_files_unchanged": true,
+  "changed_protected_files": [],
+  "fixture_cases": [
+    {
+      "case": "synonym",
+      "expected": "SUPPORTS",
+      "actual": "SUPPORTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "summary",
+      "expected": "SUPPORTS",
+      "actual": "SUPPORTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "approximate",
+      "expected": "SUPPORTS",
+      "actual": "SUPPORTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "rounding",
+      "expected": "SUPPORTS",
+      "actual": "SUPPORTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "passive_voice",
+      "expected": "SUPPORTS",
+      "actual": "SUPPORTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "nonliteral_result",
+      "expected": "SUPPORTS",
+      "actual": "SUPPORTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "noncritical_qualifier",
+      "expected": "SUPPORTS",
+      "actual": "SUPPORTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "same_finding",
+      "expected": "SUPPORTS",
+      "actual": "SUPPORTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "direction_reversed",
+      "expected": "CONTRADICTS",
+      "actual": "CONTRADICTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "critical_number",
+      "expected": "CONTRADICTS",
+      "actual": "CONTRADICTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "wrong_entity",
+      "expected": "CONTRADICTS",
+      "actual": "CONTRADICTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "significance_reversed",
+      "expected": "CONTRADICTS",
+      "actual": "CONTRADICTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "same_basis_conflict",
+      "expected": "CONTRADICTS",
+      "actual": "CONTRADICTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "datasets_scope",
+      "expected": "OVERSTATED",
+      "actual": "OVERSTATED",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "population_scope",
+      "expected": "OVERSTATED",
+      "actual": "OVERSTATED",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "causality",
+      "expected": "OVERSTATED",
+      "actual": "OVERSTATED",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "comprehensive_effect",
+      "expected": "OVERSTATED",
+      "actual": "OVERSTATED",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "no_evidence",
+      "expected": "INSUFFICIENT",
+      "actual": "INSUFFICIENT",
+      "confidence": 0.0,
+      "pass": true
+    },
+    {
+      "case": "background_only",
+      "expected": "INSUFFICIENT",
+      "actual": "INSUFFICIENT",
+      "confidence": 0.0,
+      "pass": true
+    },
+    {
+      "case": "incomplete_chunk",
+      "expected": "INSUFFICIENT",
+      "actual": "INSUFFICIENT",
+      "confidence": 0.0,
+      "pass": true
+    },
+    {
+      "case": "different_research",
+      "expected": "INSUFFICIENT",
+      "actual": "INSUFFICIENT",
+      "confidence": 0.0,
+      "pass": true
+    },
+    {
+      "case": "indirect_only",
+      "expected": "INSUFFICIENT",
+      "actual": "INSUFFICIENT",
+      "confidence": 0.0,
+      "pass": true
+    },
+    {
+      "case": "previously_relative_to_manuscript",
+      "expected": "SUPPORTS",
+      "actual": "SUPPORTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "earlier_study",
+      "expected": "SUPPORTS",
+      "actual": "SUPPORTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "subsequent_study",
+      "expected": "SUPPORTS",
+      "actual": "SUPPORTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "before_publication",
+      "expected": "SUPPORTS",
+      "actual": "SUPPORTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "after_publication",
+      "expected": "CONTRADICTS",
+      "actual": "CONTRADICTS",
+      "confidence": 0.833,
+      "pass": true
+    },
+    {
+      "case": "unknown_time_reference",
+      "expected": "INSUFFICIENT",
+      "actual": "INSUFFICIENT",
+      "confidence": 0.0,
+      "pass": true
+    },
+    {
+      "case": "before_same_source",
+      "expected": "CONTRADICTS",
+      "actual": "CONTRADICTS",
+      "confidence": 0.833,
+      "pass": true
+    }
+  ]
+}

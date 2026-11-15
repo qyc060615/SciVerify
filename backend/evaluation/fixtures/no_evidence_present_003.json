@@ -1,0 +1,59 @@
+{
+  "status": "success",
+  "claim": "The molecule binds irreversibly to the BCR-ABL kinase domain.",
+  "verdict": "FABRICATED",
+  "confidence": 0.66,
+  "summary": "Benchmark summary.",
+  "reasoning": "Benchmark reasoning.",
+  "paper": {
+    "paper_id": "10.1126/science.1225829",
+    "doi": "10.1126/science.1225829",
+    "title": "A programmable dual-RNA-guided DNA endonuclease in adaptive bacterial immunity"
+  },
+  "evidence": [],
+  "prosecutor": {
+    "agent": "prosecutor",
+    "analysis": "Benchmark prosecutor analysis.",
+    "stance": "neutral",
+    "key_points": [],
+    "supporting_evidence": [],
+    "contradicting_evidence": [],
+    "confidence": 0.65
+  },
+  "defender": {
+    "agent": "defender",
+    "analysis": "Benchmark defender analysis.",
+    "stance": "supportive",
+    "key_points": [],
+    "supporting_evidence": [],
+    "contradicting_evidence": [],
+    "confidence": 0.7
+  },
+  "adjudicator": {
+    "agent": "adjudicator",
+    "analysis": "Benchmark adjudicator analysis.",
+    "verdict": "FABRICATED",
+    "confidence": 0.66,
+    "reasoning": "Benchmark reasoning.",
+    "supporting_evidence": [],
+    "contradicting_evidence": [],
+    "suggested_correction": null
+  },
+  "suggested_correction": null,
+  "agent_agreement": true,
+  "validation_warnings": null,
+  "claim_traceability": {
+    "segments": [
+      {
+        "id": "segment_1",
+        "text": "The molecule binds irreversibly to the BCR-ABL kinase domain.",
+        "status": "UNSUPPORTED",
+        "coverage_score": 0.03,
+        "evidence_ids": []
+      }
+    ],
+    "overall_coverage": 0.03,
+    "warnings": []
+  },
+  "detail": null
+}

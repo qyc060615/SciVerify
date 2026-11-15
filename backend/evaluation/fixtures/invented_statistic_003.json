@@ -1,0 +1,79 @@
+{
+  "status": "success",
+  "claim": "The SPRINT trial achieved an 87% five-year survival rate in the intensive treatment group.",
+  "verdict": "FABRICATED",
+  "confidence": 0.68,
+  "summary": "Benchmark summary.",
+  "reasoning": "Benchmark reasoning.",
+  "paper": {
+    "paper_id": "10.1126/science.1225829",
+    "doi": "10.1126/science.1225829",
+    "title": "A programmable dual-RNA-guided DNA endonuclease in adaptive bacterial immunity"
+  },
+  "evidence": [
+    {
+      "chunk_id": "c1",
+      "section": "Results",
+      "chunk_index": 0,
+      "text": "The SPRINT trial did not report this specific five-year survival rate.",
+      "relevance_score": 0.25,
+      "claim_overlap": 0.1,
+      "numeric_overlap": 0.0,
+      "claim_numbers": [],
+      "evidence_numbers": [],
+      "source_url": null,
+      "page": null
+    }
+  ],
+  "prosecutor": {
+    "agent": "prosecutor",
+    "analysis": "Benchmark prosecutor analysis.",
+    "stance": "neutral",
+    "key_points": [],
+    "supporting_evidence": [],
+    "contradicting_evidence": [],
+    "confidence": 0.65
+  },
+  "defender": {
+    "agent": "defender",
+    "analysis": "Benchmark defender analysis.",
+    "stance": "supportive",
+    "key_points": [],
+    "supporting_evidence": [
+      "c1"
+    ],
+    "contradicting_evidence": [],
+    "confidence": 0.7
+  },
+  "adjudicator": {
+    "agent": "adjudicator",
+    "analysis": "Benchmark adjudicator analysis.",
+    "verdict": "FABRICATED",
+    "confidence": 0.68,
+    "reasoning": "Benchmark reasoning.",
+    "supporting_evidence": [
+      "c1"
+    ],
+    "contradicting_evidence": [],
+    "suggested_correction": null
+  },
+  "suggested_correction": null,
+  "agent_agreement": true,
+  "validation_warnings": [
+    "Survival statistic not supported by cited evidence."
+  ],
+  "claim_traceability": {
+    "segments": [
+      {
+        "id": "segment_1",
+        "text": "The SPRINT trial achieved an 87% five-year survival rate in the intensive treatment group.",
+        "status": "UNSUPPORTED",
+        "coverage_score": 0.06,
+        "evidence_ids": []
+      }
+    ],
+    "overall_coverage": 0.06,
+    "warnings": []
+  },
+  "detail": null
+}

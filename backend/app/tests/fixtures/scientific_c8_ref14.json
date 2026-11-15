@@ -1,0 +1,483 @@
+{
+  "provenance": "Unmodified subset of real job_9fcae7ea95174d2b9d4a08755ad8b0a8 before targeted repair; not synthetic model output",
+  "claim": {
+    "attribution_status": "resolved",
+    "citation_callout_ids": [
+      "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:15"
+    ],
+    "context_id": "context:5c040a01304d795700a6ec0bead524ab3d81c2884f8fddcb0889267767ba426a",
+    "id": "claim:faca882ed3d7e85b06c1407a5442a617b0aa2ddfb87dcbcd2a5e1b90e0c9ffc7",
+    "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+    "page": null,
+    "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+    "reference_ids": [
+      "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:13"
+    ],
+    "source_spans": [
+      {
+        "end": 543,
+        "start": 472
+      }
+    ],
+    "text": "The areas below the cumulative incidence curves in Figures 3B and 3C represent the mean event-free survival times up to day 28."
+  },
+  "paragraph": {
+    "id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+    "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+    "order": 4,
+    "page": null,
+    "section": "Example",
+    "sentence_spans": [
+      {
+        "end": 202,
+        "start": 0
+      },
+      {
+        "end": 310,
+        "start": 203
+      },
+      {
+        "end": 414,
+        "start": 311
+      },
+      {
+        "end": 471,
+        "start": 415
+      },
+      {
+        "end": 543,
+        "start": 472
+      },
+      {
+        "end": 607,
+        "start": 544
+      },
+      {
+        "end": 698,
+        "start": 608
+      },
+      {
+        "end": 826,
+        "start": 699
+      },
+      {
+        "end": 1054,
+        "start": 827
+      },
+      {
+        "end": 1143,
+        "start": 1055
+      }
+    ],
+    "text": "Now, to analyze the event-free survival times across the 28 days of follow-up, Fig. 3A presents the cumulative incidence curves for the proportion of patients surviving and not receiving attentive care. In contrast to Fig. 2A, these curves are constructed while treating death as a competing risk [11][12][13]. That is, patients who die were removed from the risk set and no longer eligible to experience recovery. The areas below these cumulative incidence curves (Figs. 3B & C) represent the mean event-free survival times up to day 28 [14]. These were 11.9 days for placebo, and 14.2 days for remdesivir. The difference was 2.2 days (95% CI, 0.89 to 3.52 days; P < 0.001) in favor of remdesivir. Thus, on average, patients receiving remdesivir survived event-free for an additional 2.2 days across the 28 days of follow-up. Note that the difference in mean event-free survival is highly statistically significant in favor of remdesivir in contrast to the moderately significant difference obtained using the duration of the need for medical attention. This may reflect the fact that remdesivir numerically prolonged patients' survival [14]."
+  },
+  "context": {
+    "citation_callout_ids": [
+      "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:15"
+    ],
+    "focal_span": {
+      "end": 543,
+      "start": 472
+    },
+    "id": "context:5c040a01304d795700a6ec0bead524ab3d81c2884f8fddcb0889267767ba426a",
+    "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+    "page": null,
+    "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+    "scope_kind": "sentence",
+    "span": {
+      "end": 607,
+      "start": 415
+    },
+    "text": "The areas below these cumulative incidence curves (Figs. 3B & C) represent the mean event-free survival times up to day 28 [14]. These were 11.9 days for placebo, and 14.2 days for remdesivir."
+  },
+  "reference": {
+    "authors": [
+      "Z R Mccaw",
+      "L Tian",
+      "J L Vassay"
+    ],
+    "doi": "10.7326/m20-4044",
+    "id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:13",
+    "journal": "Ann. Intern. Med",
+    "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+    "raw_text": "Z.R. McCaw, L. Tian, J.L. Vassay, et al., How to quantify and interpret treatment effects in comparative clinical studies of COVID-19, Ann. Intern. Med. (2020), https://doi.org/10.7326/M20-4044.",
+    "resolution": {
+      "candidates": [],
+      "diagnostics": [],
+      "match_confidence": null,
+      "match_reason": "ORIGINAL_DOI_PRESERVED",
+      "matched_title": null,
+      "original_doi": "10.7326/m20-4044",
+      "provider": "original",
+      "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:13",
+      "resolved_doi": "10.7326/m20-4044",
+      "source_type": "doi",
+      "source_url": "https://doi.org/10.7326/M20-4044",
+      "status": "resolved"
+    },
+    "title": "How to quantify and interpret treatment effects in comparative clinical studies of COVID-19",
+    "url": "https://doi.org/10.7326/M20-4044",
+    "year": 2020
+  },
+  "original_verification": {
+    "claim_id": "claim:faca882ed3d7e85b06c1407a5442a617b0aa2ddfb87dcbcd2a5e1b90e0c9ffc7",
+    "confidence": 0.95,
+    "evidence_chunks": [
+      {
+        "id": "evidence:480f710af1316540ac783d6186ed2e0c981396033926e6fd1c672a458107b3ca",
+        "metadata": {
+          "content_hash_kind": "raw_bytes",
+          "legacy_chunk_id": "10.7326/m20-4044:Summarizing Cumulative Recovery Curves: Alternatives to the Hazard Ratio for Time to Recovery:24",
+          "legacy_chunk_index": 24,
+          "legacy_metadata": {
+            "section_order": 3
+          },
+          "paperqa_context_id": "pqac-07a78f14",
+          "paperqa_context_summary": "The excerpt discusses quantifying treatment effects using the area under the cumulative incidence/recovery curve up to 28 days. It states that a larger area indicates better therapy. In the presented analysis, the areas were 14.1 days for remdesivir and 11.9 days for placebo, interpreted as the average postrecovery time patients spent during the 28-day follow-up. The difference of 2.2 days (CI, 0.89 to 3.52 days; P < 0.001) favored remdesivir. This directly relates to interpreting areas below cumulative curves as summary measures over 28 days, though the excerpt frames it as postrecovery time rather than event-free survival time.",
+          "paperqa_docname": "source:008395bd012f1d200bd27731d3a0c6c8ab572a331c970dae25390f770deb9a62",
+          "paperqa_score": 8,
+          "paperqa_text_name": "evidence:480f710af1316540ac783d6186ed2e0c981396033926e6fd1c672a458107b3ca",
+          "paperqa_version": "2026.8.12",
+          "parsed_content_fingerprint": "5df7f5f5b5f9cb7020b99e8a846503c77776bbfd54753ccc2e1e9fd8ab46d9cc",
+          "source_cache_hit": false,
+          "source_format": "html",
+          "source_identity_status": "confirmed",
+          "source_origin": "remote",
+          "source_provenance": {
+            "document_kind": "ARTICLE_FULL_TEXT",
+            "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7350552/",
+            "identity": "EXACT_IDENTITY",
+            "identity_confidence": null,
+            "match_evidence": [
+              "ARTICLE_DOI_MATCH"
+            ],
+            "matched_doi": "10.7326/m20-4044",
+            "original_citation": "Z.R. McCaw, L. Tian, J.L. Vassay, et al., How to quantify and interpret treatment effects in comparative clinical studies of COVID-19, Ann. Intern. Med. (2020), https://doi.org/10.7326/M20-4044.",
+            "publication_date": "2020-09-24",
+            "retrieved_at": "2026-10-19T07:14:42.642280+00:00",
+            "retrieved_title": "How to Quantify and Interpret Treatment Effects in Comparative Clinical Studies of COVID-19",
+            "retrieved_version": "sha256:a5702d00cbe9e03f54b02205ce8953f096aae8cc385cb1e4bafc8d1f42353d2e",
+            "source_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/7350552",
+            "warnings": [
+              "ORIGINAL_CITATION_VERSION_UNCONFIRMED"
+            ]
+          }
+        },
+        "page": null,
+        "retrieval_score": 8,
+        "section": "Summarizing Cumulative Recovery Curves: Alternatives to the Hazard Ratio for Time to Recovery",
+        "source_document_id": "source:008395bd012f1d200bd27731d3a0c6c8ab572a331c970dae25390f770deb9a62",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7350552/",
+        "text": "fference is 4.7 percentage points (CI, −2.8 to 11.6 percentage points;\n= 0.20). Thus, whether remdesivir was superior to placebo with respect to the cumulative recovery rate on day 28 is inconclusive.\n\nAn alternative summary of the cumulative recovery rate over time is the area under the cumulative incidence curve up to 28 days. Intuitively, the larger the area, the better the therapy. In\nB\nand\nC\n, we present these areas of 11.9 and 14.1 days for the remdesivir and placebo groups, respectively. The clinical interpretation is informative; the area under the cumulative recovery curve is the average postrecovery time that study patients spent, as displayed for hypothetical patients on the right-hand side of\nFigure 1\n. Therefore, across the 28 days of follow-up, patients receiving remdesivir spent 14.1 postrecovery days, on average, whereas patients receiving placebo spent only 11.9 days. The difference of 2.2 days (CI, 0.89 to 3.52 days;\n< 0.001) favors remdesivir. Zhao and\ncolleagues (\n12\n) recently presented a similarly intuitive summary measure for cardiovascular clinical studies in the presence of competing risks."
+      },
+      {
+        "id": "evidence:df1244871b3f4ed45f28e762129313751423a9268308c89bc3c2435ac1aa715f",
+        "metadata": {
+          "content_hash_kind": "raw_bytes",
+          "legacy_chunk_id": "10.7326/m20-4044:Figure 3. Cumulative incidence curves ( A ) and mean postrecovery times ( B and C ).:17",
+          "legacy_chunk_index": 17,
+          "legacy_metadata": {
+            "section_order": 0
+          },
+          "paperqa_context_id": "pqac-9e3fd91b",
+          "paperqa_context_summary": "The excerpt states that Figures 3B and 3C show mean time in recovery, calculated as the area under the cumulative incidence curve across the 28 days of study follow-up. Figure 3A shows cumulative incidence curves from ACTT-1 for the proportion of patients recovered, treating death as a competing risk and depicting days corresponding to median recovery. Thus, the relevant text describes the areas under the cumulative incidence curves in 3B and 3C as representing mean time in recovery over 28 days, rather than explicitly labeling them mean event-free survival times.",
+          "paperqa_docname": "source:008395bd012f1d200bd27731d3a0c6c8ab572a331c970dae25390f770deb9a62",
+          "paperqa_score": 8,
+          "paperqa_text_name": "evidence:df1244871b3f4ed45f28e762129313751423a9268308c89bc3c2435ac1aa715f",
+          "paperqa_version": "2026.8.12",
+          "parsed_content_fingerprint": "5df7f5f5b5f9cb7020b99e8a846503c77776bbfd54753ccc2e1e9fd8ab46d9cc",
+          "source_cache_hit": false,
+          "source_format": "html",
+          "source_identity_status": "confirmed",
+          "source_origin": "remote",
+          "source_provenance": {
+            "document_kind": "ARTICLE_FULL_TEXT",
+            "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7350552/",
+            "identity": "EXACT_IDENTITY",
+            "identity_confidence": null,
+            "match_evidence": [
+              "ARTICLE_DOI_MATCH"
+            ],
+            "matched_doi": "10.7326/m20-4044",
+            "original_citation": "Z.R. McCaw, L. Tian, J.L. Vassay, et al., How to quantify and interpret treatment effects in comparative clinical studies of COVID-19, Ann. Intern. Med. (2020), https://doi.org/10.7326/M20-4044.",
+            "publication_date": "2020-09-24",
+            "retrieved_at": "2026-10-19T07:14:42.642280+00:00",
+            "retrieved_title": "How to Quantify and Interpret Treatment Effects in Comparative Clinical Studies of COVID-19",
+            "retrieved_version": "sha256:a5702d00cbe9e03f54b02205ce8953f096aae8cc385cb1e4bafc8d1f42353d2e",
+            "source_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/7350552",
+            "warnings": [
+              "ORIGINAL_CITATION_VERSION_UNCONFIRMED"
+            ]
+          }
+        },
+        "page": null,
+        "retrieval_score": 8,
+        "section": "Figure 3. Cumulative incidence curves ( A ) and mean postrecovery times ( B and C ).",
+        "source_document_id": "source:008395bd012f1d200bd27731d3a0c6c8ab572a331c970dae25390f770deb9a62",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7350552/",
+        "text": "A.\nCumulative incidence curves from ACTT-1 (Adaptive COVID-19 Treatment Trial) for the proportion of patients recovered, treating death as a competing risk and depicting days corresponding to the median recovery.\nB and C.\nMean time in recovery, as the area under the cumulative incidence curve, across the 28 days of study follow-up."
+      },
+      {
+        "id": "evidence:80eb3e57d978c84370f1d67302b5fb0f634f1a9387341286604d582e6c8129a1",
+        "metadata": {
+          "content_hash_kind": "raw_bytes",
+          "legacy_chunk_id": "10.7326/m20-4044:Survival Analysis via the Mean Survival Time Across the Study Period:26",
+          "legacy_chunk_index": 26,
+          "legacy_metadata": {
+            "section_order": 0
+          },
+          "paperqa_context_id": "pqac-cae22653",
+          "paperqa_context_summary": "The excerpt states that for overall survival, as for recovery, higher Kaplan–Meier curves indicate better treatment, and the area under the curve over a specific time window is the restricted mean survival time. Using reconstructed ACTT-1 data, the 28-day restricted mean survival times were 26.1 days for remdesivir and 25.3 days for placebo, a difference of 0.76 days (CI, −0.09 to 1.61; p=0.079). This supports interpreting areas under curves up to day 28 as summary mean survival/event-free times, although the excerpt does not specifically mention Figures 3B and 3C or cumulative incidence curves.",
+          "paperqa_docname": "source:008395bd012f1d200bd27731d3a0c6c8ab572a331c970dae25390f770deb9a62",
+          "paperqa_score": 6,
+          "paperqa_text_name": "evidence:80eb3e57d978c84370f1d67302b5fb0f634f1a9387341286604d582e6c8129a1",
+          "paperqa_version": "2026.8.12",
+          "parsed_content_fingerprint": "5df7f5f5b5f9cb7020b99e8a846503c77776bbfd54753ccc2e1e9fd8ab46d9cc",
+          "source_cache_hit": false,
+          "source_format": "html",
+          "source_identity_status": "confirmed",
+          "source_origin": "remote",
+          "source_provenance": {
+            "document_kind": "ARTICLE_FULL_TEXT",
+            "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7350552/",
+            "identity": "EXACT_IDENTITY",
+            "identity_confidence": null,
+            "match_evidence": [
+              "ARTICLE_DOI_MATCH"
+            ],
+            "matched_doi": "10.7326/m20-4044",
+            "original_citation": "Z.R. McCaw, L. Tian, J.L. Vassay, et al., How to quantify and interpret treatment effects in comparative clinical studies of COVID-19, Ann. Intern. Med. (2020), https://doi.org/10.7326/M20-4044.",
+            "publication_date": "2020-09-24",
+            "retrieved_at": "2026-10-19T07:14:42.642280+00:00",
+            "retrieved_title": "How to Quantify and Interpret Treatment Effects in Comparative Clinical Studies of COVID-19",
+            "retrieved_version": "sha256:a5702d00cbe9e03f54b02205ce8953f096aae8cc385cb1e4bafc8d1f42353d2e",
+            "source_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/7350552",
+            "warnings": [
+              "ORIGINAL_CITATION_VERSION_UNCONFIRMED"
+            ]
+          }
+        },
+        "page": null,
+        "retrieval_score": 6,
+        "section": "Survival Analysis via the Mean Survival Time Across the Study Period",
+        "source_document_id": "source:008395bd012f1d200bd27731d3a0c6c8ab572a331c970dae25390f770deb9a62",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7350552/",
+        "text": "For the standard overall survival time in these examples, competing risks are not present and the standard Kaplan–Meier curves are appropriate. For overall survival, as for recovery, the higher the curve, the better the treatment. Thus, the area under the overall survival curve also provides a summary of treatment efficacy. In fact, the area under the Kaplan–Meier curve across a specific time window is the restricted mean survival time, which has been discussed extensively in the literature (\n15–18\n). For ACTT-1, by using reconstructed data from Figure S3 in the original paper (\n5\n), the 28-day restricted mean survival times were 26.1 days for remdesivir and 25.3 days for placebo (\nSupplement\nFigure 3 in Part G of the\nSupplement\n, available at Annals.org). The difference was 0.76 days (CI, −0.09 to 1.61 days;\n= 0.079). That is, across the 28 days of follow-up, patients receiving remdesivir survived 0.76 days longer, on average, than those receiving placebo. These summaries are much eas"
+      },
+      {
+        "id": "evidence:f38cd95c94970a1979e0ecc5aee0f7d639c9089326698a5ce764f1f1412b256f",
+        "metadata": {
+          "content_hash_kind": "raw_bytes",
+          "legacy_chunk_id": "10.7326/m20-4044:Discussion:33",
+          "legacy_chunk_index": 33,
+          "legacy_metadata": {
+            "section_order": 4
+          },
+          "paperqa_context_id": "pqac-3210bea4",
+          "paperqa_context_summary": "The excerpt describes methods for quantifying treatment effects in COVID-19 studies using differences in areas under cumulative incidence curves, then averaging stratum-specific differences weighted by stratum sizes. It notes that cumulative incidence curves were estimated with the cmprsk package, while survival differences and restricted mean survival time analyses used surv2sampleComp. Software for analyzing the area under the cumulative incidence curve was made publicly available. The excerpt does not explicitly mention Figures 3B and 3C or state that areas below those curves represent mean event-free survival times up to day 28, though it discusses related area-under-curve and restricted mean survival time methods.",
+          "paperqa_docname": "source:008395bd012f1d200bd27731d3a0c6c8ab572a331c970dae25390f770deb9a62",
+          "paperqa_score": 5,
+          "paperqa_text_name": "evidence:f38cd95c94970a1979e0ecc5aee0f7d639c9089326698a5ce764f1f1412b256f",
+          "paperqa_version": "2026.8.12",
+          "parsed_content_fingerprint": "5df7f5f5b5f9cb7020b99e8a846503c77776bbfd54753ccc2e1e9fd8ab46d9cc",
+          "source_cache_hit": false,
+          "source_format": "html",
+          "source_identity_status": "confirmed",
+          "source_origin": "remote",
+          "source_provenance": {
+            "document_kind": "ARTICLE_FULL_TEXT",
+            "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7350552/",
+            "identity": "EXACT_IDENTITY",
+            "identity_confidence": null,
+            "match_evidence": [
+              "ARTICLE_DOI_MATCH"
+            ],
+            "matched_doi": "10.7326/m20-4044",
+            "original_citation": "Z.R. McCaw, L. Tian, J.L. Vassay, et al., How to quantify and interpret treatment effects in comparative clinical studies of COVID-19, Ann. Intern. Med. (2020), https://doi.org/10.7326/M20-4044.",
+            "publication_date": "2020-09-24",
+            "retrieved_at": "2026-10-19T07:14:42.642280+00:00",
+            "retrieved_title": "How to Quantify and Interpret Treatment Effects in Comparative Clinical Studies of COVID-19",
+            "retrieved_version": "sha256:a5702d00cbe9e03f54b02205ce8953f096aae8cc385cb1e4bafc8d1f42353d2e",
+            "source_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/7350552",
+            "warnings": [
+              "ORIGINAL_CITATION_VERSION_UNCONFIRMED"
+            ]
+          }
+        },
+        "page": null,
+        "retrieval_score": 5,
+        "section": "Discussion",
+        "source_document_id": "source:008395bd012f1d200bd27731d3a0c6c8ab572a331c970dae25390f770deb9a62",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7350552/",
+        "text": "ce in the areas under the cumulative incidence curves. We then summarize the overall treatment effect via the average of the aforementioned stratum-specific differences, weighted by the stratum sizes.\n\nAll our analyses were performed in the R statistical computing environment (3.6.2; R Foundation for Statistical Computing) (\n20\n). Kaplan–Meier curves were constructed by using the\nsurvival\npackage (\n21\n), cumulative incidence curves were estimated by using the\ncmprsk\npackage (\n22\n), and survival differences and restricted mean survival time analyses were conducted by using the\nsurv2sampleComp\npackage (\n23\n). We have made software for analyzing the area under the cumulative incidence curve publicly available (\n24\n)."
+      },
+      {
+        "id": "evidence:cc321a7e06c5e8b5ec104843350b164e6d29a46019bda3978f15943b83bfde46",
+        "metadata": {
+          "content_hash_kind": "raw_bytes",
+          "legacy_chunk_id": "10.7326/m20-4044:Summarizing Cumulative Recovery Curves: Alternatives to the Hazard Ratio for Time to Recovery:23",
+          "legacy_chunk_index": 23,
+          "legacy_metadata": {
+            "section_order": 2
+          },
+          "paperqa_context_id": "pqac-aebfc968",
+          "paperqa_context_summary": "The excerpt discusses cumulative recovery rates by day 28 as a summary when time to recovery is not of primary interest. It states that these estimates correspond to the vertical distance from the x-axis to the cumulative incidence curves. In the example, day-28 recovery rates were 74% for remdesivir and 70% for placebo, a difference of 4.7 percentage points (CI, −2.8 to 11.6; p=0.20), making superiority inconclusive. It also notes that median estimates are often imprecise with wide CIs and cannot be empirically estimated if the day-28 recovery rate is below 50%. The excerpt does not discuss areas below curves as mean event-free survival times.",
+          "paperqa_docname": "source:008395bd012f1d200bd27731d3a0c6c8ab572a331c970dae25390f770deb9a62",
+          "paperqa_score": 4,
+          "paperqa_text_name": "evidence:cc321a7e06c5e8b5ec104843350b164e6d29a46019bda3978f15943b83bfde46",
+          "paperqa_version": "2026.8.12",
+          "parsed_content_fingerprint": "5df7f5f5b5f9cb7020b99e8a846503c77776bbfd54753ccc2e1e9fd8ab46d9cc",
+          "source_cache_hit": false,
+          "source_format": "html",
+          "source_identity_status": "confirmed",
+          "source_origin": "remote",
+          "source_provenance": {
+            "document_kind": "ARTICLE_FULL_TEXT",
+            "final_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7350552/",
+            "identity": "EXACT_IDENTITY",
+            "identity_confidence": null,
+            "match_evidence": [
+              "ARTICLE_DOI_MATCH"
+            ],
+            "matched_doi": "10.7326/m20-4044",
+            "original_citation": "Z.R. McCaw, L. Tian, J.L. Vassay, et al., How to quantify and interpret treatment effects in comparative clinical studies of COVID-19, Ann. Intern. Med. (2020), https://doi.org/10.7326/M20-4044.",
+            "publication_date": "2020-09-24",
+            "retrieved_at": "2026-10-19T07:14:42.642280+00:00",
+            "retrieved_title": "How to Quantify and Interpret Treatment Effects in Comparative Clinical Studies of COVID-19",
+            "retrieved_version": "sha256:a5702d00cbe9e03f54b02205ce8953f096aae8cc385cb1e4bafc8d1f42353d2e",
+            "source_url": "https://www.ncbi.nlm.nih.gov/pmc/articles/7350552",
+            "warnings": [
+              "ORIGINAL_CITATION_VERSION_UNCONFIRMED"
+            ]
+          }
+        },
+        "page": null,
+        "retrieval_score": 4,
+        "section": "Summarizing Cumulative Recovery Curves: Alternatives to the Hazard Ratio for Time to Recovery",
+        "source_document_id": "source:008395bd012f1d200bd27731d3a0c6c8ab572a331c970dae25390f770deb9a62",
+        "source_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7350552/",
+        "text": "ecision of a median estimate is often quite low, as reflected by the wide CI. Moreover, if the recovery rate on day 28 was less than 50%, then the median recovery time cannot be empirically estimated.\n\nThe cumulative recovery rate on day 28 is also a reasonable summary if the time to recovery during the study is not of primary interest. Estimates for these rates correspond to the vertical distance from the\nx\n-axis to the cumulative incidence curves in\nA\n. In the present case, these were 74% and 70%, respectively, for remdesivir and placebo. The difference is 4.7 percentage points (CI, −2.8 to 11.6 percentage points;\n= 0.20). Thus, whether remdesivir was superior to placebo with respect to the cumulative recovery rate on day 28 is inconclusive."
+      }
+    ],
+    "explanation": "The source Figure 3 caption states: \"B and C. Mean time in recovery, as the area under the cumulative incidence curve, across the 28 days of study follow-up.\" The text similarly states: \"the area under the cumulative recovery curve is the average postrecovery time that study patients spent.\" These statements refer to the same entity as the claim: the areas under the cumulative incidence curves in Figures 3B and 3C for the ACTT-1 recovery analysis over 28 days. The source defines that area as mean time in recovery / average postrecovery time, not mean event-free survival time. Calling it event-free survival changes the outcome being summarized and is therefore substantively incompatible with the source, rather than an ordinary paraphrase.",
+    "processing_status": "completed",
+    "traceability": {
+      "evidence_ids": [
+        "evidence:480f710af1316540ac783d6186ed2e0c981396033926e6fd1c672a458107b3ca",
+        "evidence:df1244871b3f4ed45f28e762129313751423a9268308c89bc3c2435ac1aa715f",
+        "evidence:80eb3e57d978c84370f1d67302b5fb0f634f1a9387341286604d582e6c8129a1",
+        "evidence:f38cd95c94970a1979e0ecc5aee0f7d639c9089326698a5ce764f1f1412b256f",
+        "evidence:cc321a7e06c5e8b5ec104843350b164e6d29a46019bda3978f15943b83bfde46"
+      ],
+      "metadata": {
+        "legacy_provenance": {
+          "adjudicator": {
+            "agent": "adjudicator",
+            "analysis": "The claim identifies the correct figure panels and time window but mislabels the quantity represented by the areas under the cumulative incidence curves. The source explicitly defines panels B and C as showing mean time in recovery, not event-free survival. This is a substantive scientific mischaracterization of the same ACTT-1 recovery-curve analysis over 28 days.",
+            "confidence": 0.95,
+            "contradicting_evidence": [
+              "evidence:df1244871b3f4ed45f28e762129313751423a9268308c89bc3c2435ac1aa715f",
+              "evidence:480f710af1316540ac783d6186ed2e0c981396033926e6fd1c672a458107b3ca"
+            ],
+            "reasoning": "The source Figure 3 caption states: \"B and C. Mean time in recovery, as the area under the cumulative incidence curve, across the 28 days of study follow-up.\" The text similarly states: \"the area under the cumulative recovery curve is the average postrecovery time that study patients spent.\" These statements refer to the same entity as the claim: the areas under the cumulative incidence curves in Figures 3B and 3C for the ACTT-1 recovery analysis over 28 days. The source defines that area as mean time in recovery / average postrecovery time, not mean event-free survival time. Calling it event-free survival changes the outcome being summarized and is therefore substantively incompatible with the source, rather than an ordinary paraphrase.",
+            "suggested_correction": "The areas under the cumulative incidence curves in Figures 3B and 3C represent mean time in recovery / average postrecovery time up to day 28, not mean event-free survival times.",
+            "supporting_evidence": [],
+            "verdict": "CONTRADICTS"
+          },
+          "agent_agreement": true,
+          "claim_traceability": {
+            "overall_coverage": 0.6552,
+            "segments": [
+              {
+                "coverage_score": 0.5994,
+                "evidence_ids": [
+                  "evidence:480f710af1316540ac783d6186ed2e0c981396033926e6fd1c672a458107b3ca",
+                  "evidence:df1244871b3f4ed45f28e762129313751423a9268308c89bc3c2435ac1aa715f",
+                  "evidence:f38cd95c94970a1979e0ecc5aee0f7d639c9089326698a5ce764f1f1412b256f",
+                  "evidence:cc321a7e06c5e8b5ec104843350b164e6d29a46019bda3978f15943b83bfde46",
+                  "evidence:80eb3e57d978c84370f1d67302b5fb0f634f1a9387341286604d582e6c8129a1"
+                ],
+                "id": "segment_1",
+                "status": "CONTRADICTED",
+                "text": "The areas below the cumulative incidence curves in Figures 3B"
+              },
+              {
+                "coverage_score": 0.5645,
+                "evidence_ids": [
+                  "evidence:80eb3e57d978c84370f1d67302b5fb0f634f1a9387341286604d582e6c8129a1",
+                  "evidence:f38cd95c94970a1979e0ecc5aee0f7d639c9089326698a5ce764f1f1412b256f",
+                  "evidence:480f710af1316540ac783d6186ed2e0c981396033926e6fd1c672a458107b3ca",
+                  "evidence:df1244871b3f4ed45f28e762129313751423a9268308c89bc3c2435ac1aa715f"
+                ],
+                "id": "segment_2",
+                "status": "PARTIALLY_SUPPORTED",
+                "text": "3C represent the mean event-free survival times up"
+              },
+              {
+                "coverage_score": 0.8018,
+                "evidence_ids": [
+                  "evidence:480f710af1316540ac783d6186ed2e0c981396033926e6fd1c672a458107b3ca",
+                  "evidence:80eb3e57d978c84370f1d67302b5fb0f634f1a9387341286604d582e6c8129a1",
+                  "evidence:df1244871b3f4ed45f28e762129313751423a9268308c89bc3c2435ac1aa715f",
+                  "evidence:cc321a7e06c5e8b5ec104843350b164e6d29a46019bda3978f15943b83bfde46",
+                  "evidence:f38cd95c94970a1979e0ecc5aee0f7d639c9089326698a5ce764f1f1412b256f"
+                ],
+                "id": "segment_3",
+                "status": "CONTRADICTED",
+                "text": "to day 28."
+              }
+            ],
+            "warnings": [
+              "Part of the claim has limited evidence coverage.",
+              "A claim segment is linked to contradicting evidence."
+            ]
+          },
+          "defender": {
+            "agent": "defender",
+            "analysis": "The cited paper directly describes the same figure panels: \"B and C. Mean time in recovery, as the area under the cumulative incidence curve, across the 28 days of study follow-up.\" The text likewise states that \"the area under the cumulative recovery curve is the average postrecovery time that study patients spent\" and reports that \"patients receiving remdesivir spent 14.1 postrecovery days, on average, whereas patients receiving placebo spent only 11.9 days.\" This supports the geometric area and the 28-day window, but it rules out the claim's core characterization as \"mean event-free survival times.\" In the same ACTT-1 recovery-curve analysis, the area under the cumulative incidence of recovery is post-recovery time, not event-free survival time; event-free survival would correspond to the complement/area under the not-recovered curve. Thus the source's explicit interpretation is substantively incompatible with 'event-free survival.'",
+            "confidence": 0.9,
+            "contradicting_evidence": [
+              "evidence:df1244871b3f4ed45f28e762129313751423a9268308c89bc3c2435ac1aa715f",
+              "evidence:480f710af1316540ac783d6186ed2e0c981396033926e6fd1c672a458107b3ca"
+            ],
+            "key_points": [
+              "Figures 3B and 3C are indeed the cumulative incidence-curve panels, and their areas are summarized over 28 days.",
+              "The source defines the area as 'mean time in recovery' or 'average postrecovery time,' not as event-free survival time.",
+              "The reported mean values (11.9 and 14.1 days; the manuscript rounds 14.1 to 14.2) refer to postrecovery days, which changes the interpretation."
+            ],
+            "stance": "contradicts",
+            "supporting_evidence": []
+          },
+          "detail": null,
+          "prosecutor": {
+            "agent": "prosecutor",
+            "analysis": "The claim mislabels the quantity represented by the areas under the cumulative incidence curves. The cited source explicitly states that \"the area under the cumulative recovery curve is the average postrecovery time that study patients spent\" and the Figure 3 caption calls panels B and C \"Mean time in recovery, as the area under the cumulative incidence curve, across the 28 days of study follow-up.\" This is not the mean event-free survival time; it is restricted mean time in recovery / average postrecovery time. The same entity is at issue: Figures 3B and 3C for the ACTT-1 recovery cumulative incidence curves over 28 days. Calling this \"event-free survival\" changes the outcome being summarized and would mislead readers about the direction and meaning of the area. The numerical discrepancy between 14.1 and 14.2 days is minor and not the core problem.",
+            "confidence": 0.92,
+            "contradicting_evidence": [
+              "evidence:480f710af1316540ac783d6186ed2e0c981396033926e6fd1c672a458107b3ca",
+              "evidence:df1244871b3f4ed45f28e762129313751423a9268308c89bc3c2435ac1aa715f"
+            ],
+            "key_points": [
+              "Figures 3B and 3C are described by the source as showing mean time in recovery / average postrecovery time, not mean event-free survival time.",
+              "The area under a cumulative recovery incidence curve measures time spent recovered up to day 28; a restricted mean event-free survival quantity would come from a survival curve, not a recovery cumulative incidence curve.",
+              "This is a material scientific mislabeling rather than a faithful paraphrase or ordinary simplification.",
+              "The 14.1 vs 14.2 day difference is minor/rounding and not the basis for the objection."
+            ],
+            "stance": "CONTRADICTS",
+            "supporting_evidence": []
+          },
+          "source_recovery": null,
+          "status": "success",
+          "suggested_correction": "The areas under the cumulative incidence curves in Figures 3B and 3C represent mean time in recovery / average postrecovery time up to day 28, not mean event-free survival times.",
+          "validation_warnings": null,
+          "verdict": "CONTRADICTS"
+        }
+      },
+      "method": "paperqa2+prepared_verifier",
+      "warnings": [
+        "ORIGINAL_CITATION_VERSION_UNCONFIRMED"
+      ]
+    },
+    "verdict": "CONTRADICTED"
+  }
+}

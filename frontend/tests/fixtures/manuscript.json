@@ -1,0 +1,289 @@
+{
+  "parse_response": {
+    "schema_version": 1,
+    "scope": "body_prose",
+    "offset_unit": "python_unicode_code_point",
+    "status": "partial",
+    "parsed": {
+      "manuscript": {
+        "id": "m",
+        "title": null,
+        "content_hash": null
+      },
+      "paragraphs": [
+        {
+          "id": "p",
+          "manuscript_id": "m",
+          "text": "研究🧪 Treatment reduces risk [3,4].",
+          "order": 0,
+          "page": null,
+          "section": null,
+          "sentence_spans": [
+            {
+              "start": 0,
+              "end": 33
+            }
+          ]
+        }
+      ],
+      "references": [
+        {
+          "id": "r3",
+          "manuscript_id": "m",
+          "raw_text": "Fixture r3",
+          "doi": "10.1234/local",
+          "title": null,
+          "authors": [],
+          "year": null,
+          "journal": null
+        },
+        {
+          "id": "r4",
+          "manuscript_id": "m",
+          "raw_text": "Fixture r4",
+          "doi": null,
+          "title": null,
+          "authors": [],
+          "year": null,
+          "journal": null
+        }
+      ],
+      "citation_callouts": [
+        {
+          "id": "callout:0",
+          "manuscript_id": "m",
+          "paragraph_id": "p",
+          "text": "[3,4]",
+          "reference_ids": [
+            "r3",
+            "r4"
+          ],
+          "page": null,
+          "span": {
+            "start": 27,
+            "end": 32
+          },
+          "order": 0,
+          "resolution_status": "resolved"
+        }
+      ],
+      "citation_contexts": []
+    },
+    "diagnostics": [
+      {
+        "code": "REVIEW_STRUCTURE",
+        "severity": "warning",
+        "entity_id": null,
+        "safe_message": "Review the parsed reference structure."
+      }
+    ]
+  },
+  "extraction_request": {
+    "schema_version": 1,
+    "scope": "body_prose",
+    "offset_unit": "python_unicode_code_point",
+    "parsed": {
+      "manuscript": {
+        "id": "m",
+        "title": null,
+        "content_hash": null
+      },
+      "paragraphs": [
+        {
+          "id": "p",
+          "manuscript_id": "m",
+          "text": "研究🧪 Treatment reduces risk [3,4].",
+          "order": 0,
+          "page": null,
+          "section": null,
+          "sentence_spans": [
+            {
+              "start": 0,
+              "end": 33
+            }
+          ]
+        }
+      ],
+      "references": [
+        {
+          "id": "r3",
+          "manuscript_id": "m",
+          "raw_text": "Fixture r3",
+          "doi": "10.1234/local",
+          "title": null,
+          "authors": [],
+          "year": null,
+          "journal": null
+        },
+        {
+          "id": "r4",
+          "manuscript_id": "m",
+          "raw_text": "Fixture r4",
+          "doi": null,
+          "title": null,
+          "authors": [],
+          "year": null,
+          "journal": null
+        }
+      ],
+      "citation_callouts": [
+        {
+          "id": "callout:0",
+          "manuscript_id": "m",
+          "paragraph_id": "p",
+          "text": "[3,4]",
+          "reference_ids": [
+            "r3",
+            "r4"
+          ],
+          "page": null,
+          "span": {
+            "start": 27,
+            "end": 32
+          },
+          "order": 0,
+          "resolution_status": "resolved"
+        }
+      ],
+      "citation_contexts": []
+    }
+  },
+  "job_request": {
+    "parsed": {
+      "manuscript": {
+        "id": "m",
+        "content_locator": "submitted:client-structure",
+        "title": null,
+        "content_hash": null
+      },
+      "paragraphs": [
+        {
+          "id": "p",
+          "manuscript_id": "m",
+          "text": "研究🧪 Treatment reduces risk [3,4].",
+          "order": 0,
+          "page": null,
+          "section": null,
+          "sentence_spans": [
+            {
+              "start": 0,
+              "end": 33
+            }
+          ]
+        }
+      ],
+      "references": [
+        {
+          "id": "r3",
+          "manuscript_id": "m",
+          "raw_text": "Fixture r3",
+          "doi": "10.1234/local",
+          "title": null,
+          "authors": [],
+          "year": null,
+          "journal": null
+        },
+        {
+          "id": "r4",
+          "manuscript_id": "m",
+          "raw_text": "Fixture r4",
+          "doi": null,
+          "title": null,
+          "authors": [],
+          "year": null,
+          "journal": null
+        }
+      ],
+      "citation_callouts": [
+        {
+          "id": "callout:0",
+          "manuscript_id": "m",
+          "paragraph_id": "p",
+          "text": "[3,4]",
+          "reference_ids": [
+            "r3",
+            "r4"
+          ],
+          "page": null,
+          "span": {
+            "start": 27,
+            "end": 32
+          },
+          "order": 0,
+          "resolution_status": "resolved"
+        }
+      ],
+      "citation_contexts": [],
+      "diagnostics": []
+    },
+    "extraction": {
+      "manuscript_id": "m",
+      "status": "completed",
+      "contexts": [
+        {
+          "id": "context:bd55b74d3479f44798b32fe0b5f91cb5e071852002fc4a6ea68a8046a6702dea",
+          "manuscript_id": "m",
+          "paragraph_id": "p",
+          "text": "研究🧪 Treatment reduces risk [3,4].",
+          "citation_callout_ids": [
+            "callout:0"
+          ],
+          "page": null,
+          "span": {
+            "start": 0,
+            "end": 33
+          },
+          "focal_span": {
+            "start": 0,
+            "end": 33
+          },
+          "scope_kind": "sentence"
+        }
+      ],
+      "claims": [
+        {
+          "id": "claim:6a5bf45bf84f095c6980099c9f493435bde991388a234f7dadeb0f4b9aa6a5d0",
+          "manuscript_id": "m",
+          "text": "研究🧪 Treatment reduces risk",
+          "paragraph_id": "p",
+          "context_id": "context:bd55b74d3479f44798b32fe0b5f91cb5e071852002fc4a6ea68a8046a6702dea",
+          "citation_callout_ids": [
+            "callout:0"
+          ],
+          "reference_ids": [
+            "r3",
+            "r4"
+          ],
+          "page": null,
+          "source_spans": [
+            {
+              "start": 0,
+              "end": 26
+            }
+          ],
+          "attribution_status": "resolved"
+        }
+      ],
+      "context_results": [
+        {
+          "context_id": "context:bd55b74d3479f44798b32fe0b5f91cb5e071852002fc4a6ea68a8046a6702dea",
+          "status": "completed",
+          "accepted_claim_ids": [
+            "claim:6a5bf45bf84f095c6980099c9f493435bde991388a234f7dadeb0f4b9aa6a5d0"
+          ],
+          "diagnostics": [],
+          "rejected_proposals": []
+        }
+      ],
+      "diagnostics": [],
+      "metadata": {
+        "model": "offline-fake",
+        "prompt_version": "focal-atomic-visible-labels-v4",
+        "context_policy_version": "citation-sentence-boundary-v2-quality-v1",
+        "attribution_policy_version": "exact-evidence-visible-labels-v4",
+        "input_fingerprint": "sha256:cd24428ad3543b5077be51d0adea6acb75a44d4c053fc22766c0707a5fe8d496",
+        "input_provenance": "client_supplied"
+      }
+    }
+  }
+}

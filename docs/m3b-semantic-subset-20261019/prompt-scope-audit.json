@@ -1,0 +1,10 @@
+{
+  "baseline": "071f22cb9bc967e5055ef05e72868031fee2d414",
+  "only_group_subset_semantics_changed": true,
+  "synchronized_locations": 4,
+  "other_prompt_text_identical": true,
+  "schema_unchanged": true,
+  "new_prompt_version": "focal-atomic-semantic-ownership-v7",
+  "new_attribution_policy_version": "exact-evidence-explicit-local-labels-v6-subsets",
+  "real_llm_calls": 0
+}

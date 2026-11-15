@@ -1,0 +1,30 @@
+{
+  "head": "071f22cb9bc967e5055ef05e72868031fee2d414",
+  "production_modified_files": [
+    "backend/app/researchguard/adapters/claim_llm.py",
+    "backend/app/services/claim_attribution.py"
+  ],
+  "targeted": {
+    "passed": 331,
+    "failures": 0,
+    "warnings": 1
+  },
+  "backend": {
+    "passed": 1515,
+    "skipped": 1,
+    "failures": 0,
+    "warnings": 1,
+    "seconds": 43.99
+  },
+  "real_llm_calls": 0,
+  "protected_files_checked": 419,
+  "changed_protected_files": [],
+  "git_diff_check": "PASS",
+  "credential_scan": "PASS",
+  "semantic_subset": "PASS",
+  "hard_integrity": "PASS",
+  "nejm_regression": "PASS",
+  "wrapp_regression": "PASS",
+  "patch": "PASS",
+  "commit_push": false
+}

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic, manually authored TEI contract fixture. Not a recorded GROBID run. -->
+<TEI xmlns="http://www.tei-c.org/ns/1.0">
+  <teiHeader><fileDesc><titleStmt><title>Offline manuscript fixture</title></titleStmt></fileDesc></teiHeader>
+  <text>
+    <front><abstract><p>Excluded abstract.</p></abstract></front>
+    <body>
+      <div><head>Introduction</head>
+        <p>
+          <s>A &amp; B 😊 improve <hi>accuracy</hi> <ref type="bibr" target="#b12">[3]</ref>.</s>
+          <s>B reduces latency <ref type="bibr" target="#b12">[3]</ref>.</s>
+        </p>
+        <div><head>Prior work</head>
+          <p><s>Joint evidence <ref type="bibr" target="#b12 #b13">[3–5]</ref> is cited.</s></p>
+        </div>
+        <p>Unsegmented prose with <ref type="figure" target="#fig1">Fig. 1</ref>.</p>
+        <note><p>Excluded footnote.</p></note>
+        <figure><head>Figure caption</head><p>Excluded figure.</p></figure>
+        <table><p>Excluded table.</p></table>
+        <formula><p>Excluded formula.</p></formula>
+      </div>
+    </body>
+    <back><div><listBibl>
+      <biblStruct xml:id="b12">
+        <analytic><title level="a">Accuracy study</title><author><persName><forename>Ada</forename><surname>Lovelace</surname></persName></author></analytic>
+        <monogr><title level="j">Example Journal</title><imprint><date when="2020-04-01"/></imprint></monogr>
+        <idno type="DOI">https://doi.org/10.1234/SHARED.</idno>
+        <note type="raw_reference">Lovelace A. Accuracy study. Example Journal. 2020.</note>
+      </biblStruct>
+      <biblStruct xml:id="b13">
+        <monogr><title level="m">Latency book</title><author><persName><forename>Grace</forename><surname>Hopper</surname></persName></author><imprint><date>2021</date></imprint></monogr>
+        <idno type="DOI">10.1234/shared</idno>
+      </biblStruct>
+    </listBibl></div></back>
+  </text>
+</TEI>

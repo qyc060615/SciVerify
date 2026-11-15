@@ -1,0 +1,26 @@
+[
+  {
+    "case": "C1",
+    "context_id": "context:6541b560fbf347a4ccdca5faeebd8aa66aab68905580c017fe917924460678dc",
+    "started_at": "2026-10-19T12:01:40.090000+00:00",
+    "request_number": 1,
+    "status_code": 200,
+    "elapsed_to_headers_seconds": 0.234
+  },
+  {
+    "case": "C4-C5",
+    "context_id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+    "started_at": "2026-10-19T12:01:51.319180+00:00",
+    "request_number": 2,
+    "status_code": 200,
+    "elapsed_to_headers_seconds": 0.157
+  },
+  {
+    "case": "C6",
+    "context_id": "context:fb486bac7ee255cc5579c142ef540aa78c9d84b025f84012e6907b397a79731f",
+    "started_at": "2026-10-19T12:02:41.829238+00:00",
+    "request_number": 3,
+    "status_code": 200,
+    "elapsed_to_headers_seconds": 0.141
+  }
+]

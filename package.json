@@ -1,0 +1,9 @@
+{
+  "name": "sciverify",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "build": "cd frontend && npm install && npm run build",
+    "dev": "node scripts/dev.mjs"
+  }
+}

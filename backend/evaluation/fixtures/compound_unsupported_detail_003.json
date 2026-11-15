@@ -1,0 +1,86 @@
+{
+  "status": "success",
+  "claim": "CRISPR-Cas9 editing is highly efficient and has no off-target effects in human cells.",
+  "verdict": "OVERSTATED",
+  "confidence": 0.79,
+  "summary": "Benchmark summary.",
+  "reasoning": "Benchmark reasoning.",
+  "paper": {
+    "paper_id": "10.1126/science.1225829",
+    "doi": "10.1126/science.1225829",
+    "title": "A programmable dual-RNA-guided DNA endonuclease in adaptive bacterial immunity"
+  },
+  "evidence": [
+    {
+      "chunk_id": "c1",
+      "section": "Results",
+      "chunk_index": 0,
+      "text": "CRISPR-Cas9 editing showed high efficiency in targeted loci.",
+      "relevance_score": 0.85,
+      "claim_overlap": 0.8,
+      "numeric_overlap": 0.0,
+      "claim_numbers": [],
+      "evidence_numbers": [],
+      "source_url": null,
+      "page": null
+    }
+  ],
+  "prosecutor": {
+    "agent": "prosecutor",
+    "analysis": "Benchmark prosecutor analysis.",
+    "stance": "neutral",
+    "key_points": [],
+    "supporting_evidence": [],
+    "contradicting_evidence": [],
+    "confidence": 0.65
+  },
+  "defender": {
+    "agent": "defender",
+    "analysis": "Benchmark defender analysis.",
+    "stance": "supportive",
+    "key_points": [],
+    "supporting_evidence": [
+      "c1"
+    ],
+    "contradicting_evidence": [],
+    "confidence": 0.7
+  },
+  "adjudicator": {
+    "agent": "adjudicator",
+    "analysis": "Benchmark adjudicator analysis.",
+    "verdict": "OVERSTATED",
+    "confidence": 0.79,
+    "reasoning": "Benchmark reasoning.",
+    "supporting_evidence": [
+      "c1"
+    ],
+    "contradicting_evidence": [],
+    "suggested_correction": null
+  },
+  "suggested_correction": null,
+  "agent_agreement": true,
+  "validation_warnings": null,
+  "claim_traceability": {
+    "segments": [
+      {
+        "id": "segment_1",
+        "text": "CRISPR editing is efficient",
+        "status": "SUPPORTED",
+        "coverage_score": 0.82,
+        "evidence_ids": [
+          "c1"
+        ]
+      },
+      {
+        "id": "segment_2",
+        "text": "has no off-target effects",
+        "status": "UNSUPPORTED",
+        "coverage_score": 0.1,
+        "evidence_ids": []
+      }
+    ],
+    "overall_coverage": 0.45999999999999996,
+    "warnings": []
+  },
+  "detail": null
+}

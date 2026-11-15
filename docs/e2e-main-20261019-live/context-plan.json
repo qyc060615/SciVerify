@@ -1,0 +1,209 @@
+[
+  {
+    "context": {
+      "id": "context:6541b560fbf347a4ccdca5faeebd8aa66aab68905580c017fe917924460678dc",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:0",
+      "text": "When assessing a new treatment vs. standard care in comparative clinical trials for COVID-19, certain key secondary endpoints are related to the duration of specific, undesirable events over the study period. Examples include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay [1][2][3][4]. Heuristically, the longer the duration, the worse the study therapy.",
+      "citation_callout_ids": [
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:0",
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:1",
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:2",
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:3"
+      ],
+      "page": null,
+      "span": {
+        "start": 0,
+        "end": 415
+      },
+      "focal_span": {
+        "start": 209,
+        "end": 346
+      },
+      "scope_kind": "sentence"
+    },
+    "skip_code": null
+  },
+  {
+    "context": {
+      "id": "context:888e466f8e3f6257b5f900e57907f4fa43b6ef1c809764c7b01ba03688c9e319",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:2",
+      "text": "We now use a recent large clinical trial, ACTT-1 [1], to illustrate the advantages of using the event-free survival time for assessing treatment efficacy. Adaptive COVID-19 Treatment Trial (ACTT-1) is an ongoing, double-blinded, randomized, placebo-controlled trial of remdesivir versus placebo among patients hospitalized with COVID-19.",
+      "citation_callout_ids": [
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4"
+      ],
+      "page": null,
+      "span": {
+        "start": 0,
+        "end": 337
+      },
+      "focal_span": {
+        "start": 0,
+        "end": 154
+      },
+      "scope_kind": "sentence"
+    },
+    "skip_code": null
+  },
+  {
+    "context": {
+      "id": "context:2d8dcb477db5e8788fd6afbbe1fa855234eb2e6b211df427534888e4ff3408d4",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:2",
+      "text": "There were 538 and 521 patients assigned to remdesivir and placebo, respectively. Although not yet reported, key secondary endpoints discussed in the trial protocol included the durations of hospitalization, supplemental oxygen, and mechanical ventilation [5].",
+      "citation_callout_ids": [
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:5"
+      ],
+      "page": null,
+      "span": {
+        "start": 886,
+        "end": 1146
+      },
+      "focal_span": {
+        "start": 968,
+        "end": 1146
+      },
+      "scope_kind": "sentence"
+    },
+    "skip_code": null
+  },
+  {
+    "context": {
+      "id": "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:3",
+      "text": "This undesirable endpoint is complementary to the study's primary endpoint of time to recovery. To this end, we scanned the cumulative recovery rate curves in Fig. 2A and also the survival curves in Supplementary Fig. S3 of the original paper [1,6]. The reconstructed data consist of the patient's duration of the above undesirable event (hospitalized and receiving supplemental oxygen or ongoing medical care).",
+      "citation_callout_ids": [
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:6",
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:7"
+      ],
+      "page": null,
+      "span": {
+        "start": 254,
+        "end": 665
+      },
+      "focal_span": {
+        "start": 350,
+        "end": 503
+      },
+      "scope_kind": "sentence"
+    },
+    "skip_code": null
+  },
+  {
+    "context": {
+      "id": "context:fb486bac7ee255cc5579c142ef540aa78c9d84b025f84012e6907b397a79731f",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:3",
+      "text": "The areas above the cumulative incidence curves (Figs. 2B & C) represent the mean times, up to day 28, that patients spent in hospital receiving attentive care [7][8][9][10]. These were 13.4 days for placebo, and 12.0 days for remdesivir.",
+      "citation_callout_ids": [
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:8",
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:9",
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:10",
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:11"
+      ],
+      "page": null,
+      "span": {
+        "start": 1079,
+        "end": 1317
+      },
+      "focal_span": {
+        "start": 1134,
+        "end": 1253
+      },
+      "scope_kind": "sentence"
+    },
+    "skip_code": null
+  },
+  {
+    "context": {
+      "id": "context:40791ae60ac96f0e46b8de44fc2cfff20d0bd900e2248bb9ecf56756593e1e6d",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+      "text": "Now, to analyze the event-free survival times across the 28 days of follow-up, Fig. 3A presents the cumulative incidence curves for the proportion of patients surviving and not receiving attentive care. In contrast to Fig. 2A, these curves are constructed while treating death as a competing risk [11][12][13]. That is, patients who die were removed from the risk set and no longer eligible to experience recovery.",
+      "citation_callout_ids": [
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:12",
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:13",
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:14"
+      ],
+      "page": null,
+      "span": {
+        "start": 0,
+        "end": 414
+      },
+      "focal_span": {
+        "start": 203,
+        "end": 310
+      },
+      "scope_kind": "sentence"
+    },
+    "skip_code": null
+  },
+  {
+    "context": {
+      "id": "context:5c040a01304d795700a6ec0bead524ab3d81c2884f8fddcb0889267767ba426a",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+      "text": "The areas below these cumulative incidence curves (Figs. 3B & C) represent the mean event-free survival times up to day 28 [14]. These were 11.9 days for placebo, and 14.2 days for remdesivir.",
+      "citation_callout_ids": [
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:15"
+      ],
+      "page": null,
+      "span": {
+        "start": 415,
+        "end": 607
+      },
+      "focal_span": {
+        "start": 472,
+        "end": 543
+      },
+      "scope_kind": "sentence"
+    },
+    "skip_code": null
+  },
+  {
+    "context": {
+      "id": "context:e0c954837ace2e53a44f76fe67092e7974cca9f149e9eba1a98ad21d6eddd189",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:4",
+      "text": "Note that the difference in mean event-free survival is highly statistically significant in favor of remdesivir in contrast to the moderately significant difference obtained using the duration of the need for medical attention. This may reflect the fact that remdesivir numerically prolonged patients' survival [14].",
+      "citation_callout_ids": [
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:16"
+      ],
+      "page": null,
+      "span": {
+        "start": 827,
+        "end": 1143
+      },
+      "focal_span": {
+        "start": 1055,
+        "end": 1143
+      },
+      "scope_kind": "sentence"
+    },
+    "skip_code": null
+  },
+  {
+    "context": {
+      "id": "context:81c144218096b5eeb20cf81ae358759d51b0e69e34adf2cae2fc8ebacabc619d",
+      "manuscript_id": "manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f",
+      "paragraph_id": "paragraph:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:6",
+      "text": "When dealing with, for example, the duration of ICU stay or oxygen utilization, the data are more complex than those from the endpoint discussed above since patients may enter the ICU during the study. This complexity extends to other cases where initiation of the event of interest does not necessarily start when the patient enters the study [15]. patient's eventual outcome, such as hospital discharge or death.",
+      "citation_callout_ids": [
+        "callout:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:17"
+      ],
+      "page": null,
+      "span": {
+        "start": 0,
+        "end": 414
+      },
+      "focal_span": {
+        "start": 202,
+        "end": 349
+      },
+      "scope_kind": "sentence"
+    },
+    "skip_code": null
+  }
+]

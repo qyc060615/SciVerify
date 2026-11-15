@@ -1,0 +1,440 @@
+{
+  "summary": {
+    "total_cases": 30,
+    "healthy_cases": 15,
+    "unindexed_cases": 11,
+    "paywalled_cases": 4,
+    "blocked_cases": 0,
+    "unknown_cases": 0
+  },
+  "cases": [
+    {
+      "case_id": "cas9_supports_001",
+      "doi": "10.1126/science.1225829",
+      "health_status": "HEALTHY",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 5,
+      "accessible_candidates": 2,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 5 full-text candidates via OpenAlex",
+        "Accessible candidate from pmc",
+        "Accessible candidate from europepmc",
+        "Case appears healthy with 2 accessible candidates"
+      ]
+    },
+    {
+      "case_id": "accuracy_overstated_001",
+      "doi": "10.1038/s41586-021-03819-2",
+      "health_status": "HEALTHY",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 6,
+      "accessible_candidates": 2,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 6 full-text candidates via OpenAlex",
+        "Accessible candidate from pmc",
+        "Accessible candidate from europepmc",
+        "Case appears healthy with 2 accessible candidates"
+      ]
+    },
+    {
+      "case_id": "mortality_contradicts_001",
+      "doi": "10.1056/nejmoa1511936",
+      "health_status": "UNINDEXED",
+      "doi_resolved": false,
+      "doi_provider": null,
+      "full_text_candidates": 0,
+      "accessible_candidates": 0,
+      "details": [
+        "DOI not found in Crossref or OpenAlex"
+      ]
+    },
+    {
+      "case_id": "insufficient_evidence_001",
+      "doi": "10.1126/science.1225829",
+      "health_status": "HEALTHY",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 5,
+      "accessible_candidates": 2,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 5 full-text candidates via OpenAlex",
+        "Accessible candidate from pmc",
+        "Accessible candidate from europepmc",
+        "Case appears healthy with 2 accessible candidates"
+      ]
+    },
+    {
+      "case_id": "fabricated_claim_001",
+      "doi": "10.1126/science.1225829",
+      "health_status": "HEALTHY",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 5,
+      "accessible_candidates": 2,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 5 full-text candidates via OpenAlex",
+        "Accessible candidate from pmc",
+        "Accessible candidate from europepmc",
+        "Case appears healthy with 2 accessible candidates"
+      ]
+    },
+    {
+      "case_id": "numeric_supports_001",
+      "doi": "10.1038/s41586-021-03819-2",
+      "health_status": "HEALTHY",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 6,
+      "accessible_candidates": 2,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 6 full-text candidates via OpenAlex",
+        "Accessible candidate from pmc",
+        "Accessible candidate from europepmc",
+        "Case appears healthy with 2 accessible candidates"
+      ]
+    },
+    {
+      "case_id": "universal_overstated_001",
+      "doi": "10.1056/nejmoa1511936",
+      "health_status": "UNINDEXED",
+      "doi_resolved": false,
+      "doi_provider": null,
+      "full_text_candidates": 0,
+      "accessible_candidates": 0,
+      "details": [
+        "DOI not found in Crossref or OpenAlex"
+      ]
+    },
+    {
+      "case_id": "weak_insufficient_001",
+      "doi": "10.1126/science.1225829",
+      "health_status": "HEALTHY",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 5,
+      "accessible_candidates": 2,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 5 full-text candidates via OpenAlex",
+        "Accessible candidate from pmc",
+        "Accessible candidate from europepmc",
+        "Case appears healthy with 2 accessible candidates"
+      ]
+    },
+    {
+      "case_id": "mechanism_supports_002",
+      "doi": "10.1038/35002107",
+      "health_status": "UNINDEXED",
+      "doi_resolved": false,
+      "doi_provider": null,
+      "full_text_candidates": 0,
+      "accessible_candidates": 0,
+      "details": [
+        "DOI not found in Crossref or OpenAlex"
+      ]
+    },
+    {
+      "case_id": "direction_contradicts_002",
+      "doi": "10.1016/0092-8674(93)90500-p",
+      "health_status": "PAYWALLED",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 0,
+      "accessible_candidates": 0,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 0 full-text candidates via OpenAlex",
+        "No full-text candidates found"
+      ]
+    },
+    {
+      "case_id": "magnitude_overstated_002",
+      "doi": "10.1126/science.1225829",
+      "health_status": "HEALTHY",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 5,
+      "accessible_candidates": 2,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 5 full-text candidates via OpenAlex",
+        "Accessible candidate from pmc",
+        "Accessible candidate from europepmc",
+        "Case appears healthy with 2 accessible candidates"
+      ]
+    },
+    {
+      "case_id": "legacy_no_traceability_001",
+      "doi": "10.1021/acs.jproteome.8b00173",
+      "health_status": "PAYWALLED",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 0,
+      "accessible_candidates": 0,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 0 full-text candidates via OpenAlex",
+        "No full-text candidates found"
+      ]
+    },
+    {
+      "case_id": "conditional_supports_003",
+      "doi": "10.1016/s0092-8674(00)00169-9",
+      "health_status": "UNINDEXED",
+      "doi_resolved": false,
+      "doi_provider": null,
+      "full_text_candidates": 0,
+      "accessible_candidates": 0,
+      "details": [
+        "DOI not found in Crossref or OpenAlex"
+      ]
+    },
+    {
+      "case_id": "dose_response_supports_003",
+      "doi": "10.1056/nejm199805073381901",
+      "health_status": "PAYWALLED",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 2,
+      "accessible_candidates": 0,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 2 full-text candidates via OpenAlex",
+        "Candidates exist but may be paywalled"
+      ]
+    },
+    {
+      "case_id": "photosynthesis_supports_003",
+      "doi": "10.1126/science.1225829",
+      "health_status": "HEALTHY",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 5,
+      "accessible_candidates": 2,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 5 full-text candidates via OpenAlex",
+        "Accessible candidate from pmc",
+        "Accessible candidate from europepmc",
+        "Case appears healthy with 2 accessible candidates"
+      ]
+    },
+    {
+      "case_id": "conclusion_reversal_003",
+      "doi": "10.1056/nejmoa1511936",
+      "health_status": "UNINDEXED",
+      "doi_resolved": false,
+      "doi_provider": null,
+      "full_text_candidates": 0,
+      "accessible_candidates": 0,
+      "details": [
+        "DOI not found in Crossref or OpenAlex"
+      ]
+    },
+    {
+      "case_id": "opposite_direction_003",
+      "doi": "10.1126/science.274.5286.548",
+      "health_status": "UNINDEXED",
+      "doi_resolved": false,
+      "doi_provider": null,
+      "full_text_candidates": 0,
+      "accessible_candidates": 0,
+      "details": [
+        "DOI not found in Crossref or OpenAlex"
+      ]
+    },
+    {
+      "case_id": "safety_contradicts_003",
+      "doi": "10.1016/s0092-8674(00)00169-9",
+      "health_status": "UNINDEXED",
+      "doi_resolved": false,
+      "doi_provider": null,
+      "full_text_candidates": 0,
+      "accessible_candidates": 0,
+      "details": [
+        "DOI not found in Crossref or OpenAlex"
+      ]
+    },
+    {
+      "case_id": "always_eliminates_003",
+      "doi": "10.1126/science.1225829",
+      "health_status": "HEALTHY",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 5,
+      "accessible_candidates": 2,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 5 full-text candidates via OpenAlex",
+        "Accessible candidate from pmc",
+        "Accessible candidate from europepmc",
+        "Case appears healthy with 2 accessible candidates"
+      ]
+    },
+    {
+      "case_id": "proves_guarantees_003",
+      "doi": "10.1038/s41586-021-03819-2",
+      "health_status": "HEALTHY",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 6,
+      "accessible_candidates": 2,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 6 full-text candidates via OpenAlex",
+        "Accessible candidate from pmc",
+        "Accessible candidate from europepmc",
+        "Case appears healthy with 2 accessible candidates"
+      ]
+    },
+    {
+      "case_id": "compound_unsupported_detail_003",
+      "doi": "10.1126/science.1225829",
+      "health_status": "HEALTHY",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 5,
+      "accessible_candidates": 2,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 5 full-text candidates via OpenAlex",
+        "Accessible candidate from pmc",
+        "Accessible candidate from europepmc",
+        "Case appears healthy with 2 accessible candidates"
+      ]
+    },
+    {
+      "case_id": "multi_assertion_one_supported_003",
+      "doi": "10.1056/nejmoa2035389",
+      "health_status": "HEALTHY",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 4,
+      "accessible_candidates": 2,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 4 full-text candidates via OpenAlex",
+        "Accessible candidate from pmc",
+        "Accessible candidate from europepmc",
+        "Case appears healthy with 2 accessible candidates"
+      ]
+    },
+    {
+      "case_id": "related_not_establishing_003",
+      "doi": "10.1016/0092-8674(93)90500-p",
+      "health_status": "PAYWALLED",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 0,
+      "accessible_candidates": 0,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 0 full-text candidates via OpenAlex",
+        "No full-text candidates found"
+      ]
+    },
+    {
+      "case_id": "tangential_topic_003",
+      "doi": "10.1126/science.1225829",
+      "health_status": "HEALTHY",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 5,
+      "accessible_candidates": 2,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 5 full-text candidates via OpenAlex",
+        "Accessible candidate from pmc",
+        "Accessible candidate from europepmc",
+        "Case appears healthy with 2 accessible candidates"
+      ]
+    },
+    {
+      "case_id": "unrelated_numbers_003",
+      "doi": "10.1038/s41586-021-03819-2",
+      "health_status": "HEALTHY",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 6,
+      "accessible_candidates": 2,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 6 full-text candidates via OpenAlex",
+        "Accessible candidate from pmc",
+        "Accessible candidate from europepmc",
+        "Case appears healthy with 2 accessible candidates"
+      ]
+    },
+    {
+      "case_id": "weak_conditional_003",
+      "doi": "10.1016/s0092-8674(00)00169-9",
+      "health_status": "UNINDEXED",
+      "doi_resolved": false,
+      "doi_provider": null,
+      "full_text_candidates": 0,
+      "accessible_candidates": 0,
+      "details": [
+        "DOI not found in Crossref or OpenAlex"
+      ]
+    },
+    {
+      "case_id": "not_in_paper_003",
+      "doi": "10.1126/science.1225829",
+      "health_status": "HEALTHY",
+      "doi_resolved": true,
+      "doi_provider": "crossref",
+      "full_text_candidates": 5,
+      "accessible_candidates": 2,
+      "details": [
+        "DOI resolved via crossref",
+        "Found 5 full-text candidates via OpenAlex",
+        "Accessible candidate from pmc",
+        "Accessible candidate from europepmc",
+        "Case appears healthy with 2 accessible candidates"
+      ]
+    },
+    {
+      "case_id": "invented_statistic_003",
+      "doi": "10.1056/nejmoa1511936",
+      "health_status": "UNINDEXED",
+      "doi_resolved": false,
+      "doi_provider": null,
+      "full_text_candidates": 0,
+      "accessible_candidates": 0,
+      "details": [
+        "DOI not found in Crossref or OpenAlex"
+      ]
+    },
+    {
+      "case_id": "no_evidence_present_003",
+      "doi": "10.1016/s0092-8674(00)00169-9",
+      "health_status": "UNINDEXED",
+      "doi_resolved": false,
+      "doi_provider": null,
+      "full_text_candidates": 0,
+      "accessible_candidates": 0,
+      "details": [
+        "DOI not found in Crossref or OpenAlex"
+      ]
+    },
+    {
+      "case_id": "never_occurs_003",
+      "doi": "10.1016/s0092-8674(00)00169-9",
+      "health_status": "UNINDEXED",
+      "doi_resolved": false,
+      "doi_provider": null,
+      "full_text_candidates": 0,
+      "accessible_candidates": 0,
+      "details": [
+        "DOI not found in Crossref or OpenAlex"
+      ]
+    }
+  ]
+}

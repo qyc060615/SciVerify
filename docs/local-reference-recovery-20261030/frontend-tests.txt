@@ -1,0 +1,13 @@
+
+> frontend@0.0.0 test
+> vitest run --reporter=dot
+
+
+ RUN  v5.0.3 C:/Users/31147/Desktop/coding_project/ResearchGuard/frontend
+
+····························································································································································································································································
+
+ Test Files  16 passed (16)
+      Tests  252 passed (252)
+   Start at  15:56:05
+   Duration  20.56s (environment 44%, import 24%, tests 18%, transform 13%, setup 1%)

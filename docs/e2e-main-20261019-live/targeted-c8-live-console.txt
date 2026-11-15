@@ -1,0 +1,12 @@
+INFO app.services.llm.provider: LLM provider config: provider=openai-compatible model=deepseek-flash base_url=https://api.deepseek.com/v1 api_key_configured=True max_rate_limit_retries=5
+INFO app.services.verification_service: evidence_retrieved chunks=5
+INFO app.services.llm.provider: LLM request prepared: url=https://api.deepseek.com/v1/chat/completions model=deepseek-flash api_key_configured=True payload_keys=['messages', 'model', 'response_format', 'temperature'] message_count=2 response_format=True
+INFO app.services.verification_service: prosecutor_completed
+INFO app.services.llm.provider: LLM request prepared: url=https://api.deepseek.com/v1/chat/completions model=deepseek-flash api_key_configured=True payload_keys=['messages', 'model', 'response_format', 'temperature'] message_count=2 response_format=True
+INFO app.services.verification_service: defender_completed
+INFO app.services.llm.provider: LLM request prepared: url=https://api.deepseek.com/v1/chat/completions model=deepseek-flash api_key_configured=True payload_keys=['messages', 'model', 'response_format', 'temperature'] message_count=2 response_format=True
+INFO app.services.verification_service: adjudicator_completed
+INFO app.services.verification_validator: Verification validation: original_verdict=SUPPORTS validated_verdict=SUPPORTS evidence_count=2 supporting_count=2 contradicting_count=0 agent_agreement=True confidence_before=0.9 confidence_after=0.9 warnings=0
+INFO app.services.claim_traceability: Claim traceability: segments=3 overall_coverage=0.6552 warnings=2
+INFO app.services.verification_service: verification_completed status=success original_verdict=SUPPORTS validated_verdict=SUPPORTS
+{"status": "success", "verdict": "SUPPORTS", "confidence": 0.9, "reasoning": "The supplied evidence directly supports the claim: chunk 480f defines the area under the cumulative incidence curve up to 28 days as the average postrecovery time, and chunk df124 describes Figures 3B and 3C as mean time in recovery represented by the area under the cumulative incidence curve over 28 days. Given the manuscript's definition of event-free survival as surviving without attentive care, the claim is a faithful paraphrase rather than an overstatement.", "job_unchanged": true}

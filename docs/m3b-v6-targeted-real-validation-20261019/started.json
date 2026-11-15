@@ -1,0 +1,17 @@
+{
+  "head": "071f22cb9bc967e5055ef05e72868031fee2d414",
+  "prompt_version": "focal-atomic-semantic-ownership-v6",
+  "prompt_sha256": "46cda284e5fd2d30122cf439e8b712831f504d7f0454acc13c5bac7e57fbe4f1",
+  "schema_sha256": "0c1da5669ef1e1670d2ba45c57d17d97f5c792939eea4f859860cf5f2410fa6a",
+  "model": "deepseek-flash",
+  "endpoint_host": "api.deepseek.com",
+  "started_at": "2026-10-19T12:01:40.012510+00:00",
+  "request_budget": 3,
+  "retries": 0,
+  "temperature": "production unchanged (0.1)",
+  "contexts": [
+    "context:6541b560fbf347a4ccdca5faeebd8aa66aab68905580c017fe917924460678dc",
+    "context:e8e592288b53e93ec00a5e32975fc68a776d1f9db8c5242928e223b569682682",
+    "context:fb486bac7ee255cc5579c142ef540aa78c9d84b025f84012e6907b397a79731f"
+  ]
+}

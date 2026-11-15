@@ -1,0 +1,14 @@
+{
+  "job_id": "job_9fcae7ea95174d2b9d4a08755ad8b0a8",
+  "claim_id": "claim:faca882ed3d7e85b06c1407a5442a617b0aa2ddfb87dcbcd2a5e1b90e0c9ffc7",
+  "reference_id": "reference:manuscript:420a8ea6573ba22c5f4852e0ee08722b09ebcc351081def1ee53665770cd3d1f:grobid-0.9.1-body-prose-v1:13",
+  "mode": "One real three-agent replay; reuse original selected evidence without retrieval or embedding",
+  "job_sha256_before": "d9474de98502db7741b6642a6fd2a9f0222f1f6fe9404ad9c163f9f1f9dda90d",
+  "verification_context": {
+    "manuscript_title": "Contemporary Clinical Trials",
+    "citation_context": "The areas below these cumulative incidence curves (Figs. 3B & C) represent the mean event-free survival times up to day 28 [14]. These were 11.9 days for placebo, and 14.2 days for remdesivir.",
+    "original_paragraph": "Now, to analyze the event-free survival times across the 28 days of follow-up, Fig. 3A presents the cumulative incidence curves for the proportion of patients surviving and not receiving attentive care. In contrast to Fig. 2A, these curves are constructed while treating death as a competing risk [11][12][13]. That is, patients who die were removed from the risk set and no longer eligible to experience recovery. The areas below these cumulative incidence curves (Figs. 3B & C) represent the mean event-free survival times up to day 28 [14]. These were 11.9 days for placebo, and 14.2 days for remdesivir. The difference was 2.2 days (95% CI, 0.89 to 3.52 days; P < 0.001) in favor of remdesivir. Thus, on average, patients receiving remdesivir survived event-free for an additional 2.2 days across the 28 days of follow-up. Note that the difference in mean event-free survival is highly statistically significant in favor of remdesivir in contrast to the moderately significant difference obtained using the duration of the need for medical attention. This may reflect the fact that remdesivir numerically prolonged patients' survival [14].",
+    "cited_source_title": "How to Quantify and Interpret Treatment Effects in Comparative Clinical Studies of COVID-19",
+    "cited_source_year": 2020
+  }
+}

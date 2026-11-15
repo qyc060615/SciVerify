@@ -1,0 +1,331 @@
+Aruna Subramanian , M.D.
+Author information
+
+Copyright and License information
+
+Address reprint requests to Dr. Brainard at Gilead Sciences, 333 Lakeside Dr., Foster City, CA 94404, or at
+diana.brainard@gilead.com
+.
+
+A list of investigators in the GS-US-540-5773 trial is provided in the
+Supplementary Appendix
+, available at NEJM.org.
+
+Corresponding author.
+
+This article is made available via the PMC Open Access Subset for unrestricted re-use, except commercial resale, and analyses in any form or by any means with acknowledgment of the original source. PMC is granted a license to make this article available via PMC and Europe PMC, subject to existing copyright protections.
+
+Background
+Remdesivir is an RNA polymerase inhibitor with potent antiviral activity in vitro and efficacy in animal models of coronavirus disease 2019 (Covid-19).
+
+Methods
+We conducted a randomized, open-label, phase 3 trial involving hospitalized patients with confirmed SARS-CoV-2 infection, oxygen saturation of 94% or less while they were breathing ambient air, and radiologic evidence of pneumonia. Patients were randomly assigned in a 1:1 ratio to receive intravenous remdesivir for either 5 days or 10 days. All patients received 200 mg of remdesivir on day 1 and 100 mg once daily on subsequent days. The primary end point was clinical status on day 14, assessed on a 7-point ordinal scale.
+
+Results
+In total, 397 patients underwent randomization and began treatment (200 patients for 5 days and 197 for 10 days). The median duration of treatment was 5 days (interquartile range, 5 to 5) in the 5-day group and 9 days (interquartile range, 5 to 10) in the 10-day group. At baseline, patients randomly assigned to the 10-day group had significantly worse clinical status than those assigned to the 5-day group (P=0.02). By day 14, a clinical improvement of 2 points or more on the ordinal scale occurred in 64% of patients in the 5-day group and in 54% in the 10-day group. After adjustment for baseline clinical status, patients in the 10-day group had a distribution in clinical status at day 14 that was similar to that among patients in the 5-day group (P=0.14). The most common adverse events were nausea (9% of patients), worsening respiratory failure (8%), elevated alanine aminotransferase level (7%), and constipation (7%).
+
+Conclusions
+In patients with severe Covid-19 not requiring mechanical ventilation, our trial did not show a significant difference between a 5-day course and a 10-day course of remdesivir. With no placebo control, however, the magnitude of benefit cannot be determined. (Funded by Gilead Sciences; GS-US-540-5773 ClinicalTrials.gov number,
+NCT04292899
+.)
+
+The global pandemic of severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2) has plunged large parts of the world into a protracted medical, social, and economic crisis.
+1-4
+Coronavirus disease 2019 (Covid-19), the respiratory illness caused by SARS-CoV-2 infection, has caused over a quarter million deaths worldwide, including approximately 100,000 in the United States.
+5
+,
+6
+Mortality from Covid-19 is particularly high among patients with coexisting conditions, including hypertension, diabetes, and cardiovascular disease, and among those who reach the point of requiring invasive mechanical ventilation.
+7
+Safe and effective treatment options are needed to reduce the burden of Covid-19 disease.
+8
+,
+9
+
+Remdesivir is a prodrug of an adenosine analogue with demonstrated antiviral activity against a broad range of RNA virus families.
+10-13
+Remdesivir has shown nanomolar in vitro activity against SARS-CoV-2 in human airway epithelial cells and clinical and virologic efficacy in a primate model of SARS-CoV-2.
+14-16
+Clinical trials of remdesivir for the treatment of Covid-19 have used a 10-day course of treatment that was based on efficacy data in animal models of Middle East respiratory syndrome and supported by safety data in approximately 500 healthy volunteers and patients infected with Ebola virus.
+17
+,
+18
+Identifying the shortest duration of effective treatment with remdesivir is an urgent medical need. A shorter course of treatment without a loss of efficacy could reduce hospital stays and potential adverse events and could extend the limited supply of remdesivir available during this pandemic. In this report, we describe the results of an open-label, randomized, multicenter trial evaluating the efficacy and safety of treatment with remdesivir for 5 or 10 days in patients with severe Covid-19 disease.
+
+Patients
+We enrolled hospitalized patients who were at least 12 years of age who had SARS-CoV-2 infection confirmed by polymerase-chain-reaction assay within 4 days before randomization. Eligible patients had radiographic evidence of pulmonary infiltrates and either had oxygen saturation of 94% or less while they were breathing ambient air or were receiving supplemental oxygen. Patients who were receiving mechanical ventilation and extracorporeal membrane oxygenation (ECMO) at screening were excluded, as were patients with signs of multiorgan failure. Exclusion criteria included alanine aminotransferase (ALT) or aspartate aminotransferase (AST) levels greater than 5 times the upper limit of the normal range or estimated creatinine clearance of less than 50 ml per minute (by the Cockcroft–Gault formula). Patients receiving concurrent treatment (within 24 hours before the start of trial treatment) with other agents with putative activity against Covid-19 were excluded.
+
+Trial Design and Oversight
+For this ongoing phase 3 trial, patients were enrolled at 55 hospitals in the United States, Italy, Spain, Germany, Hong Kong, Singapore, South Korea, and Taiwan between March 6 and March 26, 2020. Patients were randomly assigned in a 1:1 ratio to receive intravenous treatment with remdesivir for 5 days or 10 days. The randomization was not stratified. All the patients were to receive 200 mg of remdesivir on day 1, followed by 100 mg of remdesivir once daily for the subsequent 4 or 9 days. Both treatment groups continued supportive therapy at the discretion of the investigator throughout the duration of the trial. The
+protocol
+(available with the full text of this article at NEJM.org) did not mandate that patients whose condition improved enough to warrant hospital discharge complete the full course of assigned remdesivir treatment.
+
+The protocol was amended on March 15, 2020, after the beginning of enrollment but before any results were available. The lower age limit for eligibility was reduced from 18 years to 12 years, and a requirement for an axillary temperature of at least 36.6°C at screening was eliminated. In addition, one of the primary efficacy assessments — the proportions of patients with normalization of temperature at day 14 — was changed to assessment of clinical status on a 7-point ordinal scale on day 14 (described below). This change was made in response to an evolving understanding of the signs and symptoms of Covid-19 during hospitalization and in recognition of emerging standards for assessment of Covid-19.
+19
+,
+20
+The protocol was also amended to add an extension phase involving an additional 5600 patients, including a cohort of patients receiving mechanical ventilation (results of the extension phase are not reported here). All versions of the
+protocol
+and summaries of the amendments are available at NEJM.org.
+
+The trial was approved by the institutional review board or ethics committee at each site and was conducted in compliance with the Declaration of Helsinki Good Clinical Practice guidelines and local regulatory requirements. The trial was designed and conducted by the sponsor (Gilead Sciences) in collaboration with the principal investigators and in accordance with the protocol and amendments. The sponsor collected the data, monitored the conduct of the trial, and performed the statistical analyses. An independent safety monitoring committee reviewed data on day 14 of the trial, when all the patients had reached the primary end point. They agreed that the 5-day and 10-day treatment groups had similar outcomes, and they unanimously recommended that the trial continue into the second part according to the protocol. The authors vouch for the integrity and completeness of the data and the fidelity of the trial to the protocol. The initial draft of the manuscript was prepared by a writer employed by Gilead Sciences, with input from all the authors.
+
+Clinical and Laboratory Monitoring
+Patients were assessed by physical examination and by documentation of respiratory status, adverse events, and concomitant medications. On trial days 1, 3, 5, 8, 10, and 14, blood samples were obtained for complete blood count and measurement of creatinine, glucose, total bilirubin, and liver aminotransferases.
+
+The clinical status of patients was assessed daily on a 7-point ordinal scale (see below) from day 1 through 14 or until discharge. The worst (i.e., the lowest) score from each day was recorded.
+
+End Points
+The primary efficacy end point was clinical status assessed on day 14 on a 7-point ordinal scale consisting of the following categories: 1, death; 2, hospitalized, receiving invasive mechanical ventilation or ECMO; 3, hospitalized, receiving noninvasive ventilation or high-flow oxygen devices; 4, hospitalized, requiring low-flow supplemental oxygen; 5, hospitalized, not requiring supplemental oxygen but receiving ongoing medical care (related or not related to Covid-19); 6, hospitalized, requiring neither supplemental oxygen nor ongoing medical care (other than that specified in the protocol for remdesivir administration); and 7, not hospitalized (see Table S1 in the
+Supplementary Appendix
+, available at NEJM.org).
+
+The secondary end point of the trial was the proportion of patients with adverse events that occurred on or after the first dose of remdesivir for up to 30 days after the last dose. Prespecified exploratory end points included the time to clinical improvement (defined as an improvement of at least 2 points from baseline on the 7-point ordinal scale), the time to recovery (defined by the National Institute of Allergy and Infectious Diseases [NIAID] as an improvement from a baseline score of 2 to 5 to a score of 6 or 7), the time to modified recovery (defined as an improvement from a baseline score of 2 to 4 to a score of 5 to 7 or from a score of 5 to a score of 6 or 7), and death from any cause.
+
+Statistical Analysis
+We calculated that a sample size of 400 patients (200 in each group) would provide greater than 85% power to detect an odds ratio for improvement of 1.75, using a two-sided significance level of 0.05. All patients who were randomized and received at least one dose of remdesivir were assessed for efficacy and safety. If a patient died before day 14, the day 14 category on the ordinal scale was recorded as “died”; if a patient was discharged before day 14, the category was recorded as “not hospitalized”; otherwise, the most recent assessment was used for missing day 14 values. The prespecified primary analysis, performed after all patients completed 14 days in the trial, used the proportional odds model, including treatment as the independent variable and baseline clinical status as a continuous covariate. The conclusion would be that 10 days of treatment was superior to 5 days of treatment if the lower bound of the two-sided 95% confidence interval of the odds ratio (10 days to 5 days) on day 14 was greater than 1. The stratified Wilcoxon rank-sum test was prespecified to compare the treatment groups in case the proportional odds assumption was not met. For time-to-event end points (such as the time to clinical improvement, the time to recovery, and the time to modified recovery), the hazard ratio and its 95% confidence interval were estimated from a cause-specific proportional-hazards model that included treatment and baseline clinical status as covariates and treated death as the competing risk. For events associated with prespecified times (e.g., days 5, 7, 11, and 14), the difference in the proportion of patients with an event under evaluation (such as clinical improvement, recovery, and modified recovery) between treatment groups and its 95% confidence interval were estimated from the Mantel–Haenszel proportions, with adjustment according to baseline clinical status. For end points other than the primary end point, 95% confidence intervals have not been adjusted for multiplicity and should not be used to infer effects.
+
+Patients
+Of the 408 patients who were assessed for eligibility, 402 were enrolled and underwent randomization and 397 began treatment: 200 patients were assigned to receive a 5-day course of remdesivir and 197 a 10-day course (
+Figure 1
+). The treatment groups were balanced in demographic characteristics but not in baseline disease characteristics (
+Table 1
+). Greater proportions of patients in the 10-day group were in the two highest disease-severity groups. In the case of 13 patients, either a requirement for invasive mechanical ventilation developed between screening and the beginning of treatment or the patients were designated as representing protocol deviations at enrollment: 4 of these patients (2%) were assigned to a 5-day course of remdesivir and 9 (5%) to a 10-day course. High-flow oxygen support was required at baseline by more patients in the 10-day group than in the 5-day group (30% vs. 24%). As a result, patients in the 10-day group had significantly worse clinical status than those in the 5-day group (P = 0.02).
+
+Table 1. Demographic and Clinical Characteristics of the Patients at Baseline According to Remdesivir Treatment Group. * .
+Percentages may not total 100 because of rounding. ALT denotes alanine aminotransferase, AST aspartate aminotransferase, and IQR interquartile range.
+
+Race was reported by the patients.
+
+The body-mass index is the weight in kilograms divided by the square of the height in meters.
+
+P=0.02 for the comparison between the 5-day group and the 10-day group by the Wilcoxon rank-sum test.
+
+P=0.008 for the comparison between the 5-day group and the 10-day group by the Wilcoxon rank-sum test.
+
+Of the 200 patients in the 5-day group, 172 (86%) completed the course of trial treatment for a median duration of 5 days (interquartile range, 5 to 5). Of those who did not complete the 5-day course of treatment, reasons included hospital discharge (16 patients [8%]) and adverse events (9 [4%]). No patient in the 5-day group stopped treatment because of death. Of the 197 patients in the 10-day group, 86 (44%) completed the course of treatment for a median duration of 9 days (interquartile range, 5 to 10). Of those who did not complete the 10-day course, reasons included hospital discharge (68 patients [35%]), adverse events (22 [11%]), and death (12 [6%]) (for a full account of the disposition of patients, see
+Figure 1
+). By day 14, a total of 16 patients (8%) in the 5-day group and 21 patients (11%) in the 10-day group had died, and 120 (60%) and 103 (52%), respectively, had been discharged (
+Table 2
+).
+
+Table 2. Clinical Outcomes According to Remdesivir Treatment Group.
+Differences are expressed as rate differences, except in the case of time to clinical improvement, time to recovery, and time to modified recovery, for which differences are expressed as hazard ratios; for these time-to-event end points, the hazard ratio and its 95% confidence interval were estimated from a cause-specific proportional-hazards model including treatment and baseline clinical status as covariates. For events at prespecified time points (e.g., days 5, 7, 11, and 14), the difference in the proportion of subjects with an event under evaluation between treatment groups and the 95% confidence interval were estimated from the Mantel–Haenszel proportions adjusted according to baseline clinical status.
+
+The P value was calculated from a Wilcoxon rank-sum test stratified by baseline clinical status.
+
+Clinical improvement was defined as an improvement of at least 2 points from baseline on the 7-point ordinal scale; recovery was defined as an improvement from a baseline score of 2 to 5 to a score of 6 or 7; and modified recovery was defined as an improvement from a baseline score of 2 to 4 to a score of 5 to 7 or from a score of 5 to a score of 6 or 7. Cumulative incidence functions were calculated for each treatment group for days to the event under evaluation (i.e., clinical improvement, recovery, or modified recovery), with death as the competing risk. Data for patients not achieving the event under evaluation at the last assessment were censored on the day of the last clinical assessment. Patients who died before achieving the event under evaluation were considered to have experienced a competing event.
+
+Efficacy
+In all, 65% of patients who received a 5-day course of remdesivir showed a clinical improvement of at least 2 points on the 7-point ordinal scale at day 14, as compared with 54% of patients who received a 10-day course (
+Table 2
+). After adjustment for imbalances in baseline clinical status, patients receiving a 10-day course of remdesivir had a distribution in clinical status at day 14 that was similar to that of patients receiving a 5-day course (P=0.14 by stratified Wilcoxon rank-sum test).
+
+For other efficacy end points of interest, the two groups had similar outcomes after adjustment for baseline clinical status (
+Table 2
+). The median duration of hospitalization among patients discharged on or before day 14 was 7 days (interquartile range, 6 to 10) for the 5-day group and 8 days (interquartile range, 5 to 10) for the 10-day group. Numerically more patients were discharged from the hospital in the 5-day group than in the 10-day group (60%, vs. 52%), and mortality was numerically lower (8%, vs. 11%). Discharge rates were higher in the overall population among patients who had had symptoms for less than 10 days before receiving the first dose of remdesivir (62%) than among those who had had symptoms for 10 or more days before receiving the first dose (49%).
+
+The proportions of patients who recovered — those with a baseline score of 2 to 5 on the ordinal scale who improved to a score of 6 or 7 — showed the same trend: 64% of patients in the 5-day group, as compared with 54% of patients in the 10-day group (for a baseline-adjusted difference in proportions of −6.3% [95% confidence interval, −15.4 to 2.8]). The median time to recovery was 10 days (interquartile range, 6 to 18) among patients in the 5-day group and 11 days (interquartile range, 7 to not possible to estimate) among patients in the 10-day group. Evaluation of modified recovery showed similar trends, with nonsignificant differences between treatment groups after adjustment for baseline clinical status.
+
+We conducted a post hoc analysis to determine whether any subpopulation might have benefitted from receiving more than 5 days of therapy with remdesivir (
+Figure 2
+). The oxygen-support status among all patients still hospitalized on day 5 was noted. Patients were then evaluated according to original treatment assignment for day 14 outcomes, to determine the effect of an additional 5 days of treatment with remdesivir. Among patients receiving mechanical ventilation or ECMO at day 5, 40% (10 of 25) in the 5-day group had died by day 14, as compared with 17% (7 of 41) in the 10-day group (
+Figure 2
+). Treatment with remdesivir beyond 5 days among patients who were receiving noninvasive positive-pressure ventilation or high-flow oxygen, receiving low-flow oxygen, or breathing ambient air did not appear to improve outcomes. In multivariate analysis, characteristics associated with shorter time to clinical improvement were an age of less than 65 years, black and white race, a baseline oxygen requirement of low-flow oxygen or ambient air, no use of a biologic medication, and enrollment outside Italy (Tables S3 and S4).
+
+Figure 2. Oxygen Support on Day 14 According to Oxygen Support on Day 5.
+Shown is the distribution of oxygen-support status on day 14 for the 5-day and 10-day treatment groups according to oxygen-support status at day 5 of therapy. Percentages are based on patients with both day 5 and day 14 oxygen-support data available and exclude those with missing oxygen-support data for day 14. Oxygen-support status is derived from the clinical status according to the seven-point ordinal scale, as follows: 1, death; 2, receiving invasive mechanical ventilation; 3, receiving high-flow oxygen; 4, receiving low-flow oxygen; 5 or 6, breathing ambient air; and 7, discharge. Data on high-flow oxygen were missing for 1 patient in the 10-day group; data on low-flow oxygen were missing for 3 patients in the 5-day group and 6 patients in the 10-day group, and data on ambient air were missing for 3 patients in the 5-day group.
+
+Safety
+The percentages of patients experiencing adverse events were similar in the two groups: 70% in the 5-day group and 74% in the 10-day group (
+Table 3
+). In all, 21% of patients in the 5-day group and 35% in the 10-day group had serious adverse events. Similar results were seen in the percentages of patients experiencing any adverse event of grade 3 or higher: 30% in the 5-day group and 43% in the 10-day group. The most common adverse events overall were nausea (10% in the 5-day group vs. 9% in the 10-day group), acute respiratory failure (6% vs. 11%), increased ALT (6% vs. 8%), and constipation (7% in both groups). The percentage of patients who discontinued treatment owing to adverse events was 4% in the 5-day group, as compared with 10% in the 10-day group.
+
+Table 3. Summary of Adverse Events According to Remdesivir Treatment Group. * .
+Adverse events listed are those that occurred in at least 5% of patients in either treatment group, and serious adverse events listed are those that occurred in 5 or more patients.
+
+In an exploratory analysis of the first 5 days of therapy, rates of adverse events differed between the two treatment groups despite their receiving the same therapy (Table S5). After adjustment for baseline clinical status, only serious adverse events were different between the two groups (Table S6). The most common serious adverse events that were more common in the 10-day group were acute respiratory failure (9%, vs. 5%) and respiratory failure (5%, vs. 2%).
+
+Laboratory abnormalities of grade 3 or higher occurred among 27% of patients in the 5-day group and 34% of patients in the 10-day group (
+Table 3
+). Most abnormalities were transient, with no significant difference between the median changes in the two groups at day 14. Grade 4 creatinine clearance reductions were reported in 12% of patients in the 10-day group, as compared with 3% in the 5-day group. Most of these patients (71%) had been receiving either invasive mechanical ventilation or noninvasive positive pressure ventilation or high-flow nasal cannula at baseline, consistent with the observation that disease severity at baseline was associated with safety outcomes.
+
+Discussion
+In this open-label, randomized, multicenter, phase 3 trial among patients with severe Covid-19 pneumonia due to infection with SARS-CoV-2, we did not find a significant difference in efficacy between 5-day and 10-day courses of remdesivir. After adjustment for baseline imbalances in disease severity, outcomes were similar as measured by a number of end points: clinical status at day 14, time to clinical improvement, recovery, and death from any cause. However, these results cannot be extrapolated to critically ill patients receiving mechanical ventilation, given that few of the patients in our trial were receiving mechanical ventilation before beginning treatment with remdesivir.
+
+The apparent trend toward better outcomes in patients treated with remdesivir for 5 days than in those treated for 10 days may have several causes. The 10-day group included a significantly higher percentage of patients in the most severe disease categories — those requiring invasive mechanical ventilation and high-flow oxygen — and a higher proportion of men (68%, vs. 60%), who are known to have worse outcomes with Covid-19.
+7
+Although eligibility criteria excluded patients receiving invasive mechanical ventilation, 13 patients who were enrolled in the trial were intubated before the start of treatment with remdesivir or were categorized as having protocol deviations at enrollment. Of these 13 patients, 9 were assigned to the 10-day group, whereas only 4 were assigned to the 5-day group. Although the results could suggest that longer treatment with remdesivir may be detrimental, we note that the trend toward improved outcomes in the 5-day group was already evident at day 5 of the trial — when both groups had received the same amount of treatment — which suggests that differences between the groups were not due to treatment duration but to observed imbalances in baseline characteristics between the two groups.
+
+Because our trial lacked a placebo control, it is not a test of the efficacy of remdesivir. Results from two clinical trials of remdesivir in patients with severe Covid-19 have been reported. Wang and colleagues conducted a randomized, double-blind, placebo-controlled trial at 10 hospitals in Hubei, China.
+21
+However, owing to a decline in the incidence of Covid-19 in China, enrollment was only about half of the planned number of patients, with the result that the trial was not powered to show a statistical difference between the remdesivir and placebo groups.
+22
+Preliminary results from an ongoing randomized clinical trial conducted by the National Institute of Allergy and Infectious Diseases showed that 10 days of treatment with remdesivir was statistically superior to placebo for the primary end point, time to recovery.
+23
+Our trial suggests that if remdesivir truly is an active agent, supplies that are likely to be limited can be conserved with shorter durations of therapy.
+
+Transient elevations in liver enzymes have been observed after treatment with remdesivir in phase 1 studies among healthy volunteers, and preclinical studies revealed renal toxicity at exposures higher than those in humans. In our trial, 2.5% and 3.6% of patients in the 5-day and 10-day groups, respectively, discontinued treatment owing to aminotransferase elevations. Covid-19 itself has been found to be associated with liver injury.
+24
+Patients in the 10-day group had more elevations in creatinine of grade 3 or higher and more declines in creatinine clearance than those in the 5-day group. The higher frequency of grade 4 decreases in creatinine clearance observed in the 10-day group may have been driven by the more severe disease status in that group, given that Covid-19 is associated with renal injury. Further studies will be needed to delineate the contribution of drug toxicity or the effects of the virus to these findings. Close monitoring of hepatic and renal tests is appropriate among patients who are severely ill.
+
+The interpretation of these results is limited by the lack of a randomized placebo control group and the open-label design. We designed this as an open-label trial for two reasons: the available supply of matched placebo vials had been allocated to other ongoing randomized, controlled clinical trials,
+21
+,
+23
+and, more important, given the stretched health care resources during the pandemic, it seemed appropriate to allow for patients to be discharged from the hospital as soon as medically indicated, regardless of whether they had completed the full assigned course of treatment with remdesivir. As a result, only 44% of patients in the 10-day treatment group completed the full course of therapy. Patients who were not discharged were presumably those with more severe illness, which may account for the different rates of adverse events seen in the two groups. Another important limitation is that we do not have SARS-CoV-2 viral-load results during and after treatment, owing to the variability in local access to testing and practices across the global sites.
+
+Our trial did not show a significant difference in efficacy between a 5-day course and a 10-day course of intravenous remdesivir treatment in patients with severe Covid-19 due to SARS-CoV-2 who did not require mechanical ventilation at baseline. Patients who progress to mechanical ventilation may benefit from 10 days of remdesivir treatment; further evaluation of this subgroup and of other high-risk groups, such as immunocompromised persons, is needed to determine the shortest effective duration of therapy.
+
+Acknowledgments
+We thank the patients who participated in this trial, their families, and all participating investigators and support staff. We express our solidarity with those who are or have been ill with Covid-19, their families, and the health care workers on the front lines of this pandemic. Writing assistance was provided by David McNeel of Gilead Sciences.
+
+Data Sharing Statement
+This article was published on May 27, 2020, at NEJM.org.
+
+A
+data sharing statement
+provided by the authors is available with the full text of this article at NEJM.org.
+
+Footnotes
+Supported by
+Gilead
+Sciences.
+
+Disclosure forms
+provided by the authors are available with the full text of this article at NEJM.org.
+
+References
+1.
+Fauci AS, Lane HC, Redfield RR. Covid-19 — navigating the uncharted.
+2020;382:1268-1269.
+
+2.
+Abi-Habib M. Millions had risen out of poverty. Coronavirus is pulling them back.
+New York Times. April 30, 2020. (
+https://www.nytimes.com/2020/04/30/world/asia/coronavirus-poverty-unemployment.html
+
+3.
+Romm T. Mass layoffs begin in cities and states amid coronavirus fallout, threatening education, sanitation, health and safety.
+Washington Post. April 29, 2020. (
+https://www.washingtonpost.com/business/2020/04/29/cities-states-layoffs-furloughs-coronavirus/
+
+4.
+Spinelli A, Pellino G. COVID-19 pandemic: perspectives on an unfolding crisis.
+Br J Surg
+2020.
+March
+19
+(Epub ahead of print).
+
+5.
+Johns Hopkins Coronavirus Resource Center home page (
+https://coronavirus.jhu.edu/
+
+6.
+Centers for Disease Control and Prevention. Coronavirus disease 2019. (COVID-19): cases,in the US (
+https://www.cdc.gov/coronavirus/2019-ncov/cases-updates/cases-in-us.html
+
+7.
+Richardson S, Hirsch JS, Narasimhan M, et al.
+Presenting characteristics, comorbidities, and outcomes among 5700 patients hospitalized with COVID-19 in the New York City area.
+JAMA
+2020.
+April
+22
+(Epub ahead of print).
+
+8.
+Baden LR, Rubin EJ. Covid-19 — the search for effective therapy.
+2020;382:1851-1852.
+
+9.
+Cao B, Wang Y, Wen D, et al.
+A trial of lopinavir–ritonavir in adults hospitalized with severe Covid-19.
+2020;382:1787-1799.
+
+10.
+de Wit E, Feldmann F, Cronin J, et al.
+Prophylactic and therapeutic remdesivir (GS-5734) treatment in the rhesus macaque model of MERS-CoV infection.
+Proc Natl Acad Sci U S A
+2020;117:6771-6776.
+
+11.
+Sheahan TP, Sims AC, Graham RL, et al.
+Broad-spectrum antiviral GS-5734 inhibits both epidemic and zoonotic coronaviruses.
+Sci Transl Med
+2017;9:eaal3653-eaal3653.
+
+12.
+Sheahan TP, Sims AC, Leist SR, et al.
+Comparative therapeutic efficacy of remdesivir and combination lopinavir, ritonavir, and interferon beta against MERS-CoV.
+Nat Commun
+2020;11:222-222.
+
+13.
+Warren TK, Jordan R, Lo MK, et al.
+Therapeutic efficacy of the small molecule GS-5734 against Ebola virus in rhesus monkeys.
+Nature
+2016;531:381-385.
+
+14.
+Pizzorno A, Padey B, Julien T, et al.
+Characterization and treatment of SARS-CoV-2 in nasal and bronchial human airway epithelia.
+April 2, 2020. (
+https://www.biorxiv.org/content/10.1101/2020.03.31.017889v1
+). preprint.
+
+15.
+Williamson BN, Feldmann F, Schwarz B, et al.
+Clinical benefit of remdesivir in rhesus macaques infected with SARS-CoV-2.
+April 22, 2020. (
+https://www.biorxiv.org/content/10.1101/2020.04.15.043166v2
+). preprint
+
+16.
+Wang M, Cao R, Zhang L, et al.
+Remdesivir and chloroquine effectively inhibit the recently emerged novel coronavirus (2019-nCoV) in vitro.
+Cell Res
+2020;30:269-271.
+
+17.
+Mulangu S, Dodd LE, Davey RT Jr, et al. A randomized, controlled trial of Ebola virus disease therapeutics.
+2019;381:2293-2303.
+
+18.
+European Medicines Agency. Summary on compassionate use: remdesivir Gilead. April 3, 2020. (
+https://www.ema.europa.eu/documents/other/summary-compassionate-use-remdesivir-gilead_en.pdf
+
+19.
+World Health Organization. WHO R&D blueprint: novel coronavirus COVID-19 therapeutic trial synopsis (
+https://www.who.int/publications-detail/covid-19-therapeutic-trial-synopsis
+
+20.
+Guan W, Ni
+Z,
+Hu Y, et al.
+Clinical characteristics of coronavirus disease 2019 in China.
+2020;382:1708-1720.
+
+21.
+Wang Y, Zhang D, Du G, et al.
+Remdesivir in adults with severe COVID-19: a randomised, double-blind, placebo-controlled, multicentre trial.
+Lancet
+2020;395:1569-1578.
+
+22.
+Norrie JD. Remdesivir for COVID-19: challenges of underpowered studies.
+Lancet
+2020;395:1525-1527.
+
+23.
+Beigel JH. Tomashek KM, Dodd LE, et al.
+Remdesivir for the treatment of Covid-19 — preliminary report. N Engl J Med. DOI: 10.1056/NEJMoa2007764.
+
+24.
+Zhang C, Shi L, Wang FS. Liver injury in COVID-19: management and challenges.
+Lancet Gastroenterol Hepatol
+2020;5:428-430.
+
+Associated Data
+This section collects any data citations, data availability statements, or supplementary materials included in this article.

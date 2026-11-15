@@ -1,0 +1,215 @@
+{
+  "cases": [
+    {
+      "id": "cas9_supports_001",
+      "claim": "Cas9 can be programmed with guide RNA to cleave specific double-stranded DNA target sequences.",
+      "doi": "10.1126/science.1225829",
+      "expected_verdict": "SUPPORTS",
+      "description": "The cited paper directly demonstrates programmable Cas9 DNA cleavage.",
+      "expected_min_evidence_count": 1
+    },
+    {
+      "id": "accuracy_overstated_001",
+      "claim": "DeepMind AlphaFold2 achieves 92.4% accuracy on protein structure prediction.",
+      "doi": "10.1038/s41586-021-03819-2",
+      "expected_verdict": "OVERSTATED",
+      "description": "Evidence supports improvement but not the stated magnitude. The actual accuracy reported was lower."
+    },
+    {
+      "id": "mortality_contradicts_001",
+      "claim": "The SPRINT trial shows that intensive blood pressure treatment reduces mortality.",
+      "doi": "10.1056/NEJMoa1511936",
+      "expected_verdict": "CONTRADICTS",
+      "description": "Retrieved evidence conflicts with the mortality reduction claim. The trial did not show significant mortality reduction."
+    },
+    {
+      "id": "insufficient_evidence_001",
+      "claim": "The ENCODE project proves that 80% of the human genome is functional.",
+      "doi": "10.1126/science.1225829",
+      "expected_verdict": "INSUFFICIENT",
+      "description": "The paper does not contain enough evidence to establish universal functionality claims."
+    },
+    {
+      "id": "fabricated_claim_001",
+      "claim": "The original CRISPR-Cas9 paper demonstrated a 95% editing efficiency in human cells.",
+      "doi": "10.1126/science.1225829",
+      "expected_verdict": "FABRICATED",
+      "description": "The cited paper does not support the asserted cure rate. The efficiency statistic is not in the original paper."
+    },
+    {
+      "id": "numeric_supports_001",
+      "claim": "The AlphaFold2 model achieved a median Global Distance Test-TS (GDT-TS) score of 92.4.",
+      "doi": "10.1038/s41586-021-03819-2",
+      "expected_verdict": "SUPPORTS",
+      "description": "Numeric evidence aligns with the claim."
+    },
+    {
+      "id": "universal_overstated_001",
+      "claim": "The SPRINT intensive blood pressure treatment improves survival across all patient subgroups.",
+      "doi": "10.1056/NEJMoa1511936",
+      "expected_verdict": "OVERSTATED",
+      "description": "Evidence supports a narrower subgroup effect than the claim states. Benefits were not uniform across all subgroups."
+    },
+    {
+      "id": "weak_insufficient_001",
+      "claim": "The CRISPR-Cas9 system fully eliminates off-target effects in every tested cell line.",
+      "doi": "10.1126/science.1225829",
+      "expected_verdict": "INSUFFICIENT",
+      "description": "Evidence is too weak to establish the universal elimination claim. The original paper did not comprehensively address off-target effects."
+    },
+    {
+      "id": "mechanism_supports_002",
+      "claim": "RNA interference can silence target genes through sequence-specific mRNA degradation.",
+      "doi": "10.1038/35002107",
+      "expected_verdict": "SUPPORTS",
+      "description": "Mechanistic evidence supports the claim."
+    },
+    {
+      "id": "direction_contradicts_002",
+      "claim": "Expression of the p53 tumor suppressor gene increases under DNA damage conditions.",
+      "doi": "10.1016/0092-8674(93)90500-P",
+      "expected_verdict": "CONTRADICTS",
+      "description": "Evidence reports the opposite direction of change. The paper shows p53 protein accumulation, not necessarily gene expression increase."
+    },
+    {
+      "id": "magnitude_overstated_002",
+      "claim": "The ENCODE project identified biochemical functions for 80% of the human genome.",
+      "doi": "10.1126/science.1225829",
+      "expected_verdict": "OVERSTATED",
+      "description": "Evidence supports a smaller productivity gain. The 80% figure was controversial and misinterpreted."
+    },
+    {
+      "id": "legacy_no_traceability_001",
+      "claim": "Improved sample preparation protocols enhanced reproducibility in mass spectrometry experiments.",
+      "doi": "10.1021/acs.jproteome.8b00173",
+      "expected_verdict": "SUPPORTS",
+      "description": "Legacy-style response without traceability metadata."
+    },
+    {
+      "id": "conditional_supports_003",
+      "claim": "Imatinib reduces BCR-ABL kinase activity when ATP is present in the binding pocket.",
+      "doi": "10.1016/S0092-8674(00)00169-9",
+      "expected_verdict": "SUPPORTS",
+      "description": "Claim is supported only under the stated condition."
+    },
+    {
+      "id": "dose_response_supports_003",
+      "claim": "A 10 mg dose of atorvastatin reduced LDL cholesterol in the trial.",
+      "doi": "10.1056/NEJM199805073381901",
+      "expected_verdict": "SUPPORTS",
+      "description": "Specific dose-response claim supported by trial evidence."
+    },
+    {
+      "id": "photosynthesis_supports_003",
+      "claim": "Plants convert light energy into chemical energy during photosynthesis in chloroplasts.",
+      "doi": "10.1126/science.1225829",
+      "expected_verdict": "SUPPORTS",
+      "description": "Cross-domain biology claim directly supported by evidence."
+    },
+    {
+      "id": "conclusion_reversal_003",
+      "claim": "The SPRINT trial proves that intensive blood pressure treatment is safe for all patients.",
+      "doi": "10.1056/NEJMoa1511936",
+      "expected_verdict": "CONTRADICTS",
+      "description": "Claim reverses the paper's safety conclusion. The trial reported increased adverse events in the intensive treatment group."
+    },
+    {
+      "id": "opposite_direction_003",
+      "claim": "The BRCA1 mutation always increases enzyme activity in DNA repair pathways.",
+      "doi": "10.1126/science.274.5286.548",
+      "expected_verdict": "CONTRADICTS",
+      "description": "Evidence reports decreased activity in mutants. BRCA1 mutations are associated with reduced DNA repair capacity."
+    },
+    {
+      "id": "safety_contradicts_003",
+      "claim": "Imatinib has no toxic effects in vivo at therapeutic doses.",
+      "doi": "10.1016/S0092-8674(00)00169-9",
+      "expected_verdict": "CONTRADICTS",
+      "description": "Paper reports toxicity at therapeutic doses. The paper documents various side effects."
+    },
+    {
+      "id": "always_eliminates_003",
+      "claim": "The CRISPR-Cas9 treatment always eliminates the targeted gene sequence.",
+      "doi": "10.1126/science.1225829",
+      "expected_verdict": "OVERSTATED",
+      "description": "Exaggerated universal language unsupported by evidence. The original paper showed variable efficiency."
+    },
+    {
+      "id": "proves_guarantees_003",
+      "claim": "The AlphaFold2 data proves the mechanism guarantees perfect protein structure prediction.",
+      "doi": "10.1038/s41586-021-03819-2",
+      "expected_verdict": "OVERSTATED",
+      "description": "Claim uses proves/guarantees beyond what evidence establishes. The paper acknowledges limitations."
+    },
+    {
+      "id": "compound_unsupported_detail_003",
+      "claim": "CRISPR-Cas9 editing is highly efficient and has no off-target effects in human cells.",
+      "doi": "10.1126/science.1225829",
+      "expected_verdict": "OVERSTATED",
+      "description": "Broadly correct claim with an unsupported safety detail. The original paper did not comprehensively address off-target effects."
+    },
+    {
+      "id": "multi_assertion_one_supported_003",
+      "claim": "The mRNA COVID-19 vaccine prevents infection and eliminates transmission completely.",
+      "doi": "10.1056/NEJMoa2035389",
+      "expected_verdict": "OVERSTATED",
+      "description": "Compound claim where only one assertion is partially supported. The vaccine prevents symptomatic disease but does not completely eliminate transmission."
+    },
+    {
+      "id": "related_not_establishing_003",
+      "claim": "The p53 protein directly regulates the glycolysis metabolic pathway.",
+      "doi": "10.1016/0092-8674(93)90500-P",
+      "expected_verdict": "INSUFFICIENT",
+      "description": "Related detection evidence does not establish direct regulation. The paper shows p53 involvement but not direct regulation of glycolysis."
+    },
+    {
+      "id": "tangential_topic_003",
+      "claim": "The CRISPR-Cas9 system improves cognitive performance in elderly patients.",
+      "doi": "10.1126/science.1225829",
+      "expected_verdict": "INSUFFICIENT",
+      "description": "Evidence is scientifically related but does not establish the claim. The paper is about genome editing, not cognitive effects."
+    },
+    {
+      "id": "unrelated_numbers_003",
+      "claim": "The AlphaFold2 model sensitivity is 98%.",
+      "doi": "10.1038/s41586-021-03819-2",
+      "expected_verdict": "INSUFFICIENT",
+      "description": "Numerical values in evidence are unrelated to the claim. The paper reports GDT-TS scores, not sensitivity."
+    },
+    {
+      "id": "weak_conditional_003",
+      "claim": "The enzyme is active only under acidic conditions in all tissues.",
+      "doi": "10.1016/S0092-8674(00)00169-9",
+      "expected_verdict": "INSUFFICIENT",
+      "description": "Weak conditional evidence cannot support universal tissue claim. The paper does not support universal tissue claims."
+    },
+    {
+      "id": "not_in_paper_003",
+      "claim": "The authors reported a phase III multicenter trial with 10,000 patients in the original CRISPR-Cas9 paper.",
+      "doi": "10.1126/science.1225829",
+      "expected_verdict": "FABRICATED",
+      "description": "Claim references trial details not present in the cited paper. The original paper was an in vitro study."
+    },
+    {
+      "id": "invented_statistic_003",
+      "claim": "The SPRINT trial achieved an 87% five-year survival rate in the intensive treatment group.",
+      "doi": "10.1056/NEJMoa1511936",
+      "expected_verdict": "FABRICATED",
+      "description": "Statistic asserted in claim is not supported by the source. The paper did not report this specific survival rate."
+    },
+    {
+      "id": "no_evidence_present_003",
+      "claim": "The molecule binds irreversibly to the BCR-ABL kinase domain.",
+      "doi": "10.1016/S0092-8674(00)00169-9",
+      "expected_verdict": "FABRICATED",
+      "description": "Claim has no meaningful supporting evidence in the paper. The binding mechanism described is different."
+    },
+    {
+      "id": "never_occurs_003",
+      "claim": "Resistance never develops under imatinib treatment regimen.",
+      "doi": "10.1016/S0092-8674(00)00169-9",
+      "expected_verdict": "CONTRADICTS",
+      "description": "Never-language contradicted by observed resistance. The paper and subsequent studies documented resistance development."
+    }
+  ]
+}

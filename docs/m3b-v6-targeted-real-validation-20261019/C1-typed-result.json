@@ -1,0 +1,42 @@
+{
+  "case": "C1",
+  "context_id": "context:6541b560fbf347a4ccdca5faeebd8aa66aab68905580c017fe917924460678dc",
+  "focal_text": "Examples include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay [1][2][3][4].",
+  "historical_typed_proposal": {
+    "claims": [
+      {
+        "text": "Examples of key secondary endpoints include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay.",
+        "evidence_quote": "Examples include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay [1][2][3][4].",
+        "attribution_intent": "cited",
+        "citation_labels": [
+          "1",
+          "2",
+          "3",
+          "4"
+        ]
+      }
+    ]
+  },
+  "typed_proposal": {
+    "claims": [
+      {
+        "text": "Examples include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay.",
+        "evidence_quote": "Examples include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay",
+        "attribution_intent": "uncertain",
+        "citation_labels": []
+      }
+    ]
+  },
+  "safe_error": null,
+  "deterministic_routing": [
+    {
+      "text": "Examples include the durations of supplemental oxygen usage, invasive mechanical ventilation, hospitalization, and ICU stay.",
+      "intent": "uncertain",
+      "labels": [],
+      "exact_focal_grounding": true,
+      "attribution_status": "ambiguous",
+      "references": []
+    }
+  ],
+  "elapsed_seconds": 11.234
+}

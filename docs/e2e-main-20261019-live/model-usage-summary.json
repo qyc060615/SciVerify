@@ -1,0 +1,119 @@
+{
+  "started_requests": 278,
+  "finished_responses": 278,
+  "roles": {
+    "adjudicator": {
+      "http_requests": 14,
+      "models": {
+        "deepseek-flash": 14
+      },
+      "statuses": {
+        "200": 14
+      },
+      "usage_unreported": 0,
+      "reported_token_totals": {
+        "prompt_tokens": 39140,
+        "completion_tokens": 23729,
+        "total_tokens": 62869,
+        "prompt_cache_hit_tokens": 7296,
+        "prompt_cache_miss_tokens": 31844
+      },
+      "reported_costs": [],
+      "estimated_cost": "UNREPORTED: provider cost absent; no verified model rate applied"
+    },
+    "defender": {
+      "http_requests": 14,
+      "models": {
+        "deepseek-flash": 14
+      },
+      "statuses": {
+        "200": 14
+      },
+      "usage_unreported": 0,
+      "reported_token_totals": {
+        "prompt_tokens": 25479,
+        "completion_tokens": 24531,
+        "total_tokens": 50010,
+        "prompt_cache_hit_tokens": 5760,
+        "prompt_cache_miss_tokens": 19719
+      },
+      "reported_costs": [],
+      "estimated_cost": "UNREPORTED: provider cost absent; no verified model rate applied"
+    },
+    "embedding": {
+      "http_requests": 77,
+      "models": {
+        "text-embedding-v4": 77
+      },
+      "statuses": {
+        "200": 77
+      },
+      "usage_unreported": 0,
+      "reported_token_totals": {
+        "prompt_tokens": 101765,
+        "total_tokens": 101765
+      },
+      "reported_costs": [],
+      "estimated_cost": "UNREPORTED: provider cost absent; no verified model rate applied"
+    },
+    "extraction": {
+      "http_requests": 9,
+      "models": {
+        "deepseek-flash": 9
+      },
+      "statuses": {
+        "200": 9
+      },
+      "usage_unreported": 0,
+      "reported_token_totals": {
+        "prompt_tokens": 17425,
+        "completion_tokens": 25265,
+        "total_tokens": 42690,
+        "prompt_cache_hit_tokens": 10368,
+        "prompt_cache_miss_tokens": 7057
+      },
+      "reported_costs": [],
+      "estimated_cost": "UNREPORTED: provider cost absent; no verified model rate applied"
+    },
+    "paperqa_summary": {
+      "http_requests": 150,
+      "models": {
+        "deepseek-flash": 150
+      },
+      "statuses": {
+        "200": 150
+      },
+      "usage_unreported": 0,
+      "reported_token_totals": {
+        "prompt_tokens": 59360,
+        "completion_tokens": 39584,
+        "total_tokens": 98944,
+        "prompt_cache_hit_tokens": 12544,
+        "prompt_cache_miss_tokens": 46816
+      },
+      "reported_costs": [],
+      "estimated_cost": "UNREPORTED: provider cost absent; no verified model rate applied"
+    },
+    "prosecutor": {
+      "http_requests": 14,
+      "models": {
+        "deepseek-flash": 14
+      },
+      "statuses": {
+        "200": 14
+      },
+      "usage_unreported": 0,
+      "reported_token_totals": {
+        "prompt_tokens": 25437,
+        "completion_tokens": 23867,
+        "total_tokens": 49304,
+        "prompt_cache_hit_tokens": 5760,
+        "prompt_cache_miss_tokens": 19677
+      },
+      "reported_costs": [],
+      "estimated_cost": "UNREPORTED: provider cost absent; no verified model rate applied"
+    }
+  },
+  "recorded_before_successful_resume": 30,
+  "cost_note": "Includes extraction, the first interrupted pair and the accepted resume. No discarded usage omitted."
+}

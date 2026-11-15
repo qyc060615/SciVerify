@@ -1,0 +1,20 @@
+[
+  {
+    "request_id": 1,
+    "at": "2026-10-19T07:19:46.668758+00:00",
+    "role": "Role: Prosecutor",
+    "context_matches": true
+  },
+  {
+    "request_id": 2,
+    "at": "2026-10-19T07:20:11.915613+00:00",
+    "role": "Role: Defender",
+    "context_matches": true
+  },
+  {
+    "request_id": 3,
+    "at": "2026-10-19T07:20:30.062168+00:00",
+    "role": "Role: Adjudicator",
+    "context_matches": true
+  }
+]
