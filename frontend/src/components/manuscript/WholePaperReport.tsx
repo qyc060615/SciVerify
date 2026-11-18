@@ -6,6 +6,7 @@ import type { DomainVerdict, JobTask, VerificationJob, EvidenceChunk } from '@/t
 import { codePointSlice } from '@/services/manuscriptBridge'
 import { ReferenceReview } from './ReferenceReview'
 import { DiagnosticDetails } from './DiagnosticDetails'
+import { ReportExportControls } from './ReportExportControls'
 import { recoverableReferenceIds } from '@/services/sourceRecovery'
 
 const verdicts: Record<DomainVerdict, { label: string; variant: BadgeVariant }> = {
@@ -133,5 +134,6 @@ export function WholePaperReport({ job, fileLabel, recovery }: { job: Verificati
         <DiagnosticDetails records={job.extraction_diagnostics?.length ? job.extraction_diagnostics : job.context_results.flatMap(context => context.diagnostics)} heading="Extraction Diagnostics">{job.attribution_blocked.map(item => <p key={item.claim_id}>{item.claim_id}: {item.reason_code}</p>)}{job.context_results.map(context => <div key={context.context_id}><p>Context {context.context_id}: {context.status}</p>{context.diagnostics.map((d, i) => <p key={i}>{d.code}: {d.safe_message}</p>)}{context.rejected_proposals.map(proposal => <p key={proposal.proposal_index}>Proposal {proposal.proposal_index}: {proposal.reason_code}</p>)}</div>)}</DiagnosticDetails>
       </div>
     </details>
+    <ReportExportControls job={job} fileLabel={fileLabel} />
   </div>
 }
