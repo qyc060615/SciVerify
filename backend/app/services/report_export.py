@@ -13,6 +13,7 @@ class ReportBlock(BaseModel):
     model_config = ConfigDict(extra='forbid')
     kind: Literal['title', 'heading', 'subheading', 'body', 'quote', 'code', 'pagebreak']
     text: str = Field(default='', max_length=100000)
+    status: str | None = Field(default=None, max_length=120)
 
 
 class ReportExportRequest(BaseModel):
@@ -24,6 +25,15 @@ class ReportExportRequest(BaseModel):
 
 
 _FONT_LOCK = Lock()
+
+
+def _status_color(status):
+    label = status.split(' (', 1)[0].strip().lower()
+    if label == 'supported':
+        return '15803D'
+    if label in {'contradict', 'contradicted'}:
+        return 'DC2626'
+    return 'CA8A04'
 
 
 def _pdf_font():
@@ -59,11 +69,11 @@ def _pdf_text(text, font):
 
 def render_pdf(report):
     from reportlab.lib import colors
-    from reportlab.lib.enums import TA_LEFT
+    from reportlab.lib.enums import TA_LEFT, TA_RIGHT
     from reportlab.lib.pagesizes import A4
     from reportlab.lib.styles import ParagraphStyle
     from reportlab.lib.units import mm
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak
+    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, PageBreak, Table, TableStyle
     output = BytesIO()
     font = _pdf_font()
     base = ParagraphStyle('body', fontName=font, fontSize=9.5, leading=15,
@@ -85,6 +95,13 @@ def render_pdf(report):
                 story.append(PageBreak())
             continue
         if not block.text.strip():
+            continue
+        if block.kind == 'heading' and block.status:
+            right = ParagraphStyle('claim-status', parent=base, alignment=TA_RIGHT, fontSize=10, textColor=colors.HexColor('#' + _status_color(block.status)))
+            row = Table([[Paragraph(_pdf_text(block.text, font), styles['heading']), Paragraph(_pdf_text(block.status, font), right)]], colWidths=[65 * mm, 111 * mm])
+            row.setStyle(TableStyle([('VALIGN', (0,0), (-1,-1), 'MIDDLE'), ('LEFTPADDING', (0,0), (-1,-1), 0), ('RIGHTPADDING', (0,0), (-1,-1), 0)]))
+            row.keepWithNext = True
+            story.append(row)
             continue
         # Split very long diagnostics into bounded paragraphs so they paginate.
         parts = [block.text[i:i + 6000] for i in range(0, len(block.text), 6000)]
@@ -135,6 +152,12 @@ def render_docx(report):
             continue
         style = {'title': 'Title', 'heading': 'Heading 1', 'subheading': 'Heading 2', 'quote': 'Quote'}.get(block.kind, 'Normal')
         p = doc.add_paragraph(block.text, style=style)
+        if block.kind == 'heading' and block.status:
+            from docx.enum.text import WD_TAB_ALIGNMENT
+            p.paragraph_format.tab_stops.add_tab_stop(Mm(176), WD_TAB_ALIGNMENT.RIGHT)
+            run = p.add_run('\t' + block.status)
+            run.font.size = Pt(10)
+            run.font.color.rgb = RGBColor.from_string(_status_color(block.status))
         if block.kind == 'subheading' and re.match(r'^Reference(?: \d+)?:', block.text):
             p.paragraph_format.space_before = Pt(24)
             p.paragraph_format.keep_with_next = True

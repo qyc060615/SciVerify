@@ -70,11 +70,17 @@ export function buildWholePaperPrintDocument(job: VerificationJob, fileLabel?: s
   claims.forEach((claim, index) => {
     const article = doc.createElement('article')
     article.setAttribute('aria-label', 'Selected claim details')
-    add(article, 'h2', `Claim ${String(index + 1).padStart(2, '0')}`)
+    const tasks = job.tasks.filter(task => task.claim_id === claim.id)
+    const labels: Record<string, string> = { SUPPORTED: 'Supported', PARTIALLY_SUPPORTED: 'Partially supported', OVERSTATED: 'Overstated', CONTRADICTED: 'Contradicted', INSUFFICIENT: 'Insufficient evidence' }
+    const completed = tasks.filter(task => task.state === 'completed' && task.pair_outcome?.verification?.processing_status === 'completed' && task.pair_outcome.verification.verdict)
+    const verdicts = [...new Set(completed.map(task => labels[task.pair_outcome!.verification!.verdict!] || 'Unknown'))]
+    const status = !completed.length ? 'Not verified' : (verdicts.length === 1 ? verdicts[0] : 'Mixed results') + (completed.length < tasks.length ? ' (partial coverage)' : '')
+    const heading = add(article, 'h2', `Claim ${String(index + 1).padStart(2, '0')}`)
+    heading.setAttribute('data-claim-status', status)
     const paragraph = paragraphs.get(claim.paragraph_id)
     const original = paragraph && claim.source_spans.map(span => codePointSlice(paragraph.text, span.start, span.end)).filter(text => text.trim()).join(' ... ')
     add(article, 'blockquote', original || claim.text)
-    const tasks = job.tasks.filter(task => task.claim_id === claim.id)
+
     if (!tasks.length) {
       add(article, 'p', 'Confidence: unavailable. No reference check was completed.')
       add(article, 'p', 'Related content: no linked reference evidence available.')
@@ -130,7 +136,7 @@ export function buildWholePaperPrintDocument(job: VerificationJob, fileLabel?: s
   return doc
 }
 
-export interface ReportBlock { kind: 'title' | 'heading' | 'subheading' | 'body' | 'quote' | 'code' | 'pagebreak'; text: string }
+export interface ReportBlock { kind: 'title' | 'heading' | 'subheading' | 'body' | 'quote' | 'code' | 'pagebreak'; text: string; status?: string }
 
 export function buildWholePaperExportBlocks(job: VerificationJob, fileLabel?: string): { title: string; blocks: ReportBlock[] } {
   const doc = buildWholePaperPrintDocument(job, fileLabel)
@@ -156,7 +162,7 @@ export function buildWholePaperExportBlocks(job: VerificationJob, fileLabel?: st
     const kind = kinds[element.tagName]
     if (kind) {
       const text = textOf(element)
-      if (text) blocks.push({ kind, text })
+      if (text) blocks.push({ kind, text, ...(element.hasAttribute('data-claim-status') ? { status: element.getAttribute('data-claim-status')! } : {}) })
     } else if (element.tagName === 'SPAN' || element.tagName === 'A') {
       const text = textOf(element)
       if (text) blocks.push({ kind: 'body', text })
