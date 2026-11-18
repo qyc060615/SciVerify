@@ -94,7 +94,7 @@ describe('whole-paper upload and review', () => {
     await screen.findByText('Verification overview')
     expect(services.create).toHaveBeenCalledTimes(1)
     expect(services.create).toHaveBeenCalledWith(fixture.job_request)
-    expect(JSON.parse(localStorage.getItem('researchguard-recent-jobs')!)).toEqual([jobId])
+    expect(JSON.parse(localStorage.getItem('researchguard-recent-jobs')!)).toEqual([{ id: jobId, fileName: 'manuscript.pdf' }])
   })
   it.each([new File([], 'empty.pdf'), new File(['%PDF'], 'wrong.txt'), new File(['x'.repeat(101)], 'big.pdf')])('rejects invalid or oversized PDF before any request', async file => {
     app(); await screen.findByText(/PDF limit/)

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 import { AppHeader } from '@/components/app/AppHeader'
 import { Button } from '@/components/ui/Button'
 import { Panel } from '@/components/ui/Card'
@@ -10,10 +11,10 @@ import { ReferenceReview } from '@/components/manuscript/ReferenceReview'
 import { WorkflowStepper, type WorkflowStage } from '@/components/manuscript/WorkflowStepper'
 import { PdfPicker } from '@/components/manuscript/PdfPicker'
 import { DiagnosticDetails } from '@/components/manuscript/DiagnosticDetails'
-import { RecentLocalJobs } from '@/components/manuscript/RecentLocalJobs'
 import { extractClaims, getUploadLimits, parseManuscript, resolveReferences, validatePdf } from '@/services/manuscriptService'
 import { buildJobCreateRequest, executablePairCount } from '@/services/manuscriptBridge'
 import { createVerificationJob } from '@/services/verificationJobService'
+import { rememberManuscriptJob } from '@/services/localManuscriptHistory'
 import { wholePaperError } from '@/services/wholePaperErrors'
 import { invalidateChangedReferenceSources } from '@/services/sourceService'
 import { wholePaperJobPath } from '@/constants'
@@ -36,9 +37,6 @@ export default function WholePaperVerifyPage() {
   const [referencesReviewed, setReferencesReviewed] = useState(false)
   const [claimsReviewed, setClaimsReviewed] = useState(false)
   const action = useRef(false)
-  const [recent] = useState<string[]>(() => {
-    try { const ids: unknown = JSON.parse(localStorage.getItem('researchguard-recent-jobs') ?? '[]'); return Array.isArray(ids) ? ids.filter((id): id is string => typeof id === 'string' && /^job_[0-9a-f]{32}$/.test(id)).slice(0, 8) : [] } catch { return [] }
-  })
   const working = !!busy || Object.values(sourceUploads).some(Boolean)
   const pairs = extraction ? executablePairCount(extraction) : 0
   const ready = !!extraction && ['completed', 'partial'].includes(extraction.status) && pairs > 0
@@ -69,7 +67,11 @@ export default function WholePaperVerifyPage() {
     if (!parsed || !extraction || !referencesReviewed || !claimsReviewed || !ready || (extraction.status === 'partial' && !confirmedPartial)) return
     await perform('create', async () => {
       const job = await createVerificationJob(buildJobCreateRequest(parsed, extraction))
-      try { localStorage.setItem('researchguard-recent-jobs', JSON.stringify([job.job_id, ...recent.filter(id => id !== job.job_id)].slice(0, 8))) } catch { /* Backend owns the report. */ }
+      try {
+        rememberManuscriptJob(job.job_id, file?.name)
+      } catch {
+        toast.warning('Could not add this task to browser history. Bookmark the report to reopen it later.')
+      }
       navigate(wholePaperJobPath(job.job_id), { state: { manuscriptFileName: file?.name } })
     })
   }
@@ -115,6 +117,5 @@ export default function WholePaperVerifyPage() {
       {extraction.status === 'partial' && <label className="flex items-start gap-2 text-sm"><input type="checkbox" className="mt-1 shrink-0" checked={confirmedPartial} disabled={working} onChange={event => setConfirmedPartial(event.target.checked)} />I reviewed the extraction coverage gaps and want to continue.</label>}
       <Button disabled={working || !ready || (extraction.status === 'partial' && !confirmedPartial)} loading={busy === 'create'} onClick={() => void startVerification()}>Start Verification</Button>
     </Panel>}
-    <RecentLocalJobs ids={recent} />
   </div>
 }
