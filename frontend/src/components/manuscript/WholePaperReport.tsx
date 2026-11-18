@@ -6,6 +6,7 @@ import type { DomainVerdict, JobTask, VerificationJob, EvidenceChunk } from '@/t
 import { codePointSlice } from '@/services/manuscriptBridge'
 import { ReferenceReview } from './ReferenceReview'
 import { DiagnosticDetails } from './DiagnosticDetails'
+import { ReportExportControls } from './ReportExportControls'
 import { recoverableReferenceIds } from '@/services/sourceRecovery'
 
 const verdicts: Record<DomainVerdict, { label: string; variant: BadgeVariant }> = {
@@ -84,7 +85,6 @@ export function WholePaperReport({ job, fileLabel, recovery }: { job: Verificati
       <p className="break-words text-sm [overflow-wrap:anywhere]">{fileLabel || 'Saved job ' + job.job_id.slice(0, 16) + '…'}</p>
       <p className="text-sm">{plannedClaims.size} claims · {coverage.completed_pairs}/{coverage.total_pairs} pairs processed</p>
       {coverage.total_pairs > 0 ? <progress className="h-1.5 w-full accent-primary" value={coverage.completed_pairs} max={coverage.total_pairs} aria-label="Completed Claim–Reference pairs" /> : <p className="text-sm">No executable pairs. Completion percentage is not applicable.</p>}
-      {coverage.total_pairs > 0 && <p className="text-xs text-text-muted">Processing progress does not indicate scientific support.</p>}
       {!coverage.coverage_complete && (coverage.ambiguous_claims + coverage.unresolved_claims + coverage.failed_extraction_contexts + coverage.skipped_extraction_contexts > 0) && <p className="text-xs text-warning">Extraction or attribution coverage is incomplete. Review affected claims and diagnostics.</p>}
       {recovery && recoverable.length > 0 && <div className="space-y-2"><p className="text-sm text-warning">{recoverable.length} references need source recovery or a processing retry.</p><div className="flex flex-wrap gap-2">{recoverable.map(id => <Button key={id} size="sm" variant="outline" onClick={() => showRecovery([id])}>Recover R{job.references.findIndex(ref => ref.id === id) + 1}</Button>)}</div></div>}
       {job.runtime_error_code && <p role="alert" className="text-sm text-warning">The worker could not finish this step. Committed results remain visible.</p>}
@@ -134,5 +134,6 @@ export function WholePaperReport({ job, fileLabel, recovery }: { job: Verificati
         <DiagnosticDetails records={job.extraction_diagnostics?.length ? job.extraction_diagnostics : job.context_results.flatMap(context => context.diagnostics)} heading="Extraction Diagnostics">{job.attribution_blocked.map(item => <p key={item.claim_id}>{item.claim_id}: {item.reason_code}</p>)}{job.context_results.map(context => <div key={context.context_id}><p>Context {context.context_id}: {context.status}</p>{context.diagnostics.map((d, i) => <p key={i}>{d.code}: {d.safe_message}</p>)}{context.rejected_proposals.map(proposal => <p key={proposal.proposal_index}>Proposal {proposal.proposal_index}: {proposal.reason_code}</p>)}</div>)}</DiagnosticDetails>
       </div>
     </details>
+    <ReportExportControls job={job} fileLabel={fileLabel} />
   </div>
 }

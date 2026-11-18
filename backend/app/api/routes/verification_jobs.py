@@ -129,3 +129,31 @@ async def resume_job(job_id: str, request: Request, runtime=Depends(get_job_runt
                         runtime_error_code=runtime.errors.get(snapshot.job_id))
     except JobError as exc:
         raise _http_error(exc) from None
+
+
+@router.post('/{job_id}/export')
+async def export_report(job_id: str, request: Request, runtime=Depends(get_job_runtime)):
+    from fastapi import Response
+    from app.services.report_export import ReportExportRequest, render_report
+    from app.services.report_editor import simplify_report, format_saved_evidence, ReportEditingError
+    payload = await _payload(request, ReportExportRequest)
+    try:
+        # Export only for an existing local job; export content is the displayed
+        # snapshot, so ongoing progress does not silently change the saved report.
+        await to_thread.run_sync(runtime.get, job_id)
+        if payload.simplify_evidence:
+            payload = await to_thread.run_sync(simplify_report, payload)
+        else:
+            payload = format_saved_evidence(payload)
+        content = await to_thread.run_sync(render_report, payload)
+    except JobError as exc:
+        raise _http_error(exc) from None
+    except ReportEditingError:
+        raise HTTPException(502, detail={'code': 'REPORT_EDITING_FAILED', 'message': 'AI evidence editing failed. Check model availability, API balance and connection, then retry.'}) from None
+    except ImportError:
+        raise HTTPException(503, detail={'code': 'REPORT_EXPORT_UNAVAILABLE', 'message': 'Install the backend report export dependencies.'}) from None
+    mime = 'application/pdf' if payload.format == 'pdf' else 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    return Response(content, media_type=mime, headers={
+        'Content-Disposition': 'attachment; filename="verification-report.' + payload.format + '"',
+        'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff',
+    })

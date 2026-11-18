@@ -1,4 +1,5 @@
 import { StrictMode } from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { createMemoryRouter, MemoryRouter, RouterProvider } from 'react-router-dom'
@@ -26,6 +27,7 @@ import { LandingHero } from '@/components/landing/LandingHero'
 import { LandingCTA } from '@/components/landing/LandingCTA'
 import { LandingNavbar } from '@/components/landing/LandingNavbar'
 import { LOCAL_HISTORY_KEY } from '@/services/localHistory'
+import { rememberManuscriptJob } from '@/services/localManuscriptHistory'
 import { toast } from 'sonner'
 import { report } from './fixtures/report'
 
@@ -75,13 +77,15 @@ function mountRoute(path: string) {
     { element: <ProtectedRoute />, children: [{ element: <AppLayout />, children: [
       { path: '/app/home', element: <h1>Workspace ready</h1> },
       { path: '/app/manuscripts', element: <h1>Whole-paper workspace ready</h1> },
+      { path: '/app/manuscripts/jobs/:jobId', element: <h1>Whole-paper report ready</h1> },
       { path: '/app/verify', element: <VerifyPage /> },
       { path: '/app/verify/:verificationId', element: <VerifyPage /> },
       { path: '/app/history', element: <HistoryPage /> },
       { path: '/app/settings', element: <SettingsPage /> },
     ] }] },
   ], { initialEntries: [path] })
-  const rendered = render(<StrictMode><AuthProvider><RouterProvider router={currentRouter} /></AuthProvider></StrictMode>)
+  const queryClient = new QueryClient()
+  const rendered = render(<StrictMode><QueryClientProvider client={queryClient}><AuthProvider><RouterProvider router={currentRouter} /></AuthProvider></QueryClientProvider></StrictMode>)
   return { ...rendered, router: currentRouter }
 }
 
@@ -186,9 +190,37 @@ describe('Demo report persistence through actual routes and components', () => {
 
   it('bad records produce a visible warning without hiding legitimate history', async () => {
     localStorage.setItem(LOCAL_HISTORY_KEY, JSON.stringify({ version: 1, records: [report, { ...report, id: 'bad', verdict: 'UNKNOWN' }] }))
-    mountRoute('/app/history')
-    await screen.findByText(report.claim)
+    mountRoute(`/app/verify/${report.id}`)
+    await screen.findByRole('heading', { name: 'Verification report' })
     expect(screen.getByRole('status').textContent).toBe('Some local history records could not be loaded.')
+  })
+
+  it('opens whole-paper reports from History and retains tasks saved by the old recent list', async () => {
+    const olderId = 'job_' + 'a'.repeat(32)
+    const newerId = 'job_' + 'b'.repeat(32)
+    await useVerificationStore.getState().addRecord(localDemoUser.id, report)
+    localStorage.setItem('researchguard-recent-jobs', JSON.stringify([olderId, olderId]))
+    rememberManuscriptJob(newerId, 'new-paper.pdf')
+    vi.spyOn(apiClient, 'get').mockImplementation(async (url) => {
+      const olderJob = url.endsWith(olderId)
+      return {
+        data: {
+          manuscript_title: olderJob ? 'Earlier paper' : null,
+          status: 'partially_completed',
+          coverage: { total_pairs: 2, completed_pairs: olderJob ? 1 : 2, coverage_complete: false },
+        },
+      }
+    })
+
+    const { router } = mountRoute('/app/history')
+    await screen.findByRole('link', { name: 'Earlier paper' })
+    await screen.findByText('Completed')
+    expect(screen.getByText('Partially completed')).toBeTruthy()
+    expect(screen.queryByText(report.claim)).toBeNull()
+    fireEvent.click(screen.getByRole('link', { name: 'new-paper.pdf' }))
+    await screen.findByRole('heading', { name: 'Whole-paper report ready' })
+    expect(router.state.location.pathname).toBe(`/app/manuscripts/jobs/${newerId}`)
+    expect(router.state.location.state).toEqual({ manuscriptFileName: 'new-paper.pdf' })
   })
 
   it('a completed verification still renders a report and warns when persistent saving fails', async () => {
